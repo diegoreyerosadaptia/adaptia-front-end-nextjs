@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "Genera un análisis de doble materialidad ESG y una estrategia de sostenibilidad para tu empresa en 24 horas con Adaptia.",
   generator: "v0.app",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/favicon.png",
   },
 }
 
