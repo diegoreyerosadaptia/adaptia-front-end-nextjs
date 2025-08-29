@@ -50,11 +50,35 @@ export default function ComingSoonPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z"
                 />
               </svg>
               diego@adaptianow.com
             </a>
+          </div>
+
+          <div className="mt-12">
+            <h2 className="text-lg font-semibold text-[#013f6e] mb-6">Nos apoyan</h2>
+            <div className="flex items-center justify-center gap-8 md:gap-12">
+              <div className="flex-shrink-0">
+                <Image
+                  src="/corfo-logo.png"
+                  alt="CORFO"
+                  width={120}
+                  height={60}
+                  className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity duration-200"
+                />
+              </div>
+              <div className="flex-shrink-0">
+                <Image
+                  src="/udd-ventures-logo.webp"
+                  alt="UDD Ventures"
+                  width={140}
+                  height={40}
+                  className="h-10 w-auto opacity-80 hover:opacity-100 transition-opacity duration-200"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Status indicator */}
