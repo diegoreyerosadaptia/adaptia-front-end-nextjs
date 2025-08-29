@@ -64,18 +64,18 @@ export default function ComingSoonPage() {
                 <Image
                   src="/corfo-logo.png"
                   alt="CORFO"
-                  width={120}
-                  height={60}
-                  className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity duration-200"
+                  width={160}
+                  height={80}
+                  className="h-16 w-auto opacity-80 hover:opacity-100 transition-opacity duration-200"
                 />
               </div>
               <div className="flex-shrink-0">
                 <Image
                   src="/udd-ventures-logo.webp"
                   alt="UDD Ventures"
-                  width={140}
-                  height={40}
-                  className="h-10 w-auto opacity-80 hover:opacity-100 transition-opacity duration-200"
+                  width={180}
+                  height={50}
+                  className="h-14 w-auto opacity-80 hover:opacity-100 transition-opacity duration-200"
                 />
               </div>
             </div>
