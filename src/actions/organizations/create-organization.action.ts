@@ -1,21 +1,28 @@
+// actions/organizations/create-organization.action.ts
 'use server';
 
 import { organizationSchema, OrganizationSchemaType } from '@/schemas/organization.schema';
 import { createOrganization as createOrganizationAPI } from '@/services/organization.service'
 
 export async function createOrganizationAction(values: OrganizationSchemaType) {
-  const validatedFields = organizationSchema.safeParse(values);
-  if (!validatedFields.success) {
+  const parsed = organizationSchema.safeParse(values);
+  if (!parsed.success) {
     return { error: 'Invalid fields' };
   }
 
   try {
-    const note = await createOrganizationAPI(validatedFields.data);
+    const org = await createOrganizationAPI(parsed.data);
 
-    if (!note) {
+    if (!org) {
       return { error: 'Error al crear la organizacion' };
     }
-    return { success: 'organizacion creada exitosamente' };
+
+    // 👇 devolvemos info útil para decidir siguiente paso en el cliente
+    return {
+      success: true,
+      orgId: org.id,
+      claimToken: org.claimToken ?? null, // presente si fue “huérfana”
+    };
   } catch (error) {
     console.error(error);
     return { error: 'Error al crear la organizacion' };

@@ -17,7 +17,7 @@ export type Analysis = {
   id: string
   status: AnalysisStatus
   payment_status: PaymentStatus
-  created_at: string
-  updated_at: string
+  createdAt: string
+  updatedAt: string
   organization: Organization
 }

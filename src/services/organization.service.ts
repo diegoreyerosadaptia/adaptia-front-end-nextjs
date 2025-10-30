@@ -10,9 +10,9 @@ const getJsonHeaders = (authToken?: string) => ({
   ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
 })
 
-export const getOrganizations = async (authToken?: string) => {
+export const getOrganizations = async (authToken?: string, userId?: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/organizations`, {
+    const response = await fetch(`${BASE_URL}/organizations/user/${userId}`, {
       headers: getJsonHeaders(authToken),
       next: {
         tags: [getCacheTag("organizations", "all")],
@@ -65,7 +65,7 @@ export const createOrganization = async (values: OrganizationSchemaType, authTok
 
     if (response.ok) {
       revalidateTag(getCacheTag("organizations", "all"))
-      return data as Organization
+      return data as Organization & { claimToken?: string | null }
     } else {
       console.error("Error en la respuesta:", data)
       return null

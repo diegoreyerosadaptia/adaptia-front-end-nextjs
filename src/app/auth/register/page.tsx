@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useTransition } from "react"
-import { useRouter } from "next/navigation"
+import { Suspense } from "react"
+import { useEffect, useState, useTransition } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
@@ -12,17 +13,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-
-import { useToast } from "@/components/ui/use-toast"   // 👈 importamos el toast
+import { useToast } from "@/components/ui/use-toast"
 import { registerSchema, type RegisterSchemaType } from "@/schemas/auth/register.schema"
-import { registerUser } from "@/services/auth.service"
 import { registerAction } from "@/actions/auth/resgiter.actions"
 
-export default function RegisterPage() {
+function RegisterForm() {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
-  const { toast } = useToast() // 👈 inicializamos el hook
+  const { toast } = useToast()
+
+  const params = useSearchParams()
+  const orgIdQS = params.get("orgId") ?? ""
+  const claimQS = params.get("claim") ?? ""
 
   const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(registerSchema),
@@ -31,12 +34,22 @@ export default function RegisterPage() {
       role: "USER",
       password: "",
       confirmPassword: "",
+      orgId: "",
+      claimToken: "",
     },
   })
+
+  useEffect(() => {
+    if (orgIdQS) form.setValue("orgId", orgIdQS)
+    if (claimQS) form.setValue("claimToken", claimQS)
+  }, [orgIdQS, claimQS, form])
 
   const onSubmit = (values: RegisterSchemaType) => {
     setError(null)
     startTransition(() => {
+      if (values.orgId) {
+        localStorage.setItem("pending_payment_org", values.orgId)
+      }
       registerAction({ values, isVerified: false })
         .then((data) => {
           if (data?.error) {
@@ -48,7 +61,7 @@ export default function RegisterPage() {
             })
             return
           }
-  
+
           toast({
             title: "📩 Correo de confirmación enviado",
             description: "Revisa tu bandeja de entrada para activar tu cuenta.",
@@ -57,12 +70,10 @@ export default function RegisterPage() {
         })
         .catch((error) => {
           console.error(error)
-          setError('Error al registrar usuario')
-        });
-    });
-  };
-  
-  
+          setError("Error al registrar usuario")
+        })
+    })
+  }
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-br from-adaptia-blue-primary/5 to-adaptia-green-primary/5">
@@ -83,21 +94,19 @@ export default function RegisterPage() {
           <Card className="border-adaptia-gray-light/20">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-heading text-adaptia-blue-primary">Crear cuenta</CardTitle>
-              <CardDescription className="text-base">
-                Completa los campos para registrarte
-              </CardDescription>
+              <CardDescription className="text-base">Completa los campos para registrarte</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                <input type="hidden" {...form.register("orgId")} />
+                <input type="hidden" {...form.register("claimToken")} />
+
                 {/* Email */}
                 <div className="grid gap-2">
-                  <Label htmlFor="email" className="text-adaptia-blue-primary">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    {...form.register("email")}
-                    className="border-adaptia-gray-light/30 focus:border-adaptia-green-primary"
-                  />
+                  <Label htmlFor="email" className="text-adaptia-blue-primary">
+                    Email
+                  </Label>
+                  <Input id="email" type="email" {...form.register("email")} />
                   {form.formState.errors.email && (
                     <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>
                   )}
@@ -105,42 +114,32 @@ export default function RegisterPage() {
 
                 {/* Contraseña */}
                 <div className="grid gap-2">
-                  <Label htmlFor="password" className="text-adaptia-blue-primary">Contraseña</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    {...form.register("password")}
-                    className="border-adaptia-gray-light/30 focus:border-adaptia-green-primary"
-                  />
+                  <Label htmlFor="password" className="text-adaptia-blue-primary">
+                    Contraseña
+                  </Label>
+                  <Input id="password" type="password" {...form.register("password")} />
                   {form.formState.errors.password && (
                     <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>
                   )}
                 </div>
 
-                {/* Confirmar Contraseña */}
+                {/* Confirmar */}
                 <div className="grid gap-2">
-                  <Label htmlFor="confirmPassword" className="text-adaptia-blue-primary">Confirmar Contraseña</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    {...form.register("confirmPassword")}
-                    className="border-adaptia-gray-light/30 focus:border-adaptia-green-primary"
-                  />
+                  <Label htmlFor="confirmPassword" className="text-adaptia-blue-primary">
+                    Confirmar Contraseña
+                  </Label>
+                  <Input id="confirmPassword" type="password" {...form.register("confirmPassword")} />
                   {form.formState.errors.confirmPassword && (
                     <p className="text-sm text-red-500">{form.formState.errors.confirmPassword.message}</p>
                   )}
                 </div>
 
-                {/* Errores generales */}
                 {error && <p className="text-sm text-red-500 bg-red-50 p-3 rounded-md">{error}</p>}
 
-                <Button
-                  type="submit"
-                  className="w-full bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 text-white"
-                  disabled={isPending}
-                >
+                <Button type="submit" disabled={isPending}>
                   {isPending ? "Creando cuenta..." : "Registrarse"}
                 </Button>
+
                 <div className="mt-2 text-sm text-center">
                   ¿Ya tenés una cuenta?{" "}
                   <Link href="/auth/login" className="text-adaptia-blue-primary hover:underline">
@@ -153,5 +152,14 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// 👇 Envolvemos el componente en un Suspense
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-10">Cargando...</div>}>
+      <RegisterForm />
+    </Suspense>
   )
 }

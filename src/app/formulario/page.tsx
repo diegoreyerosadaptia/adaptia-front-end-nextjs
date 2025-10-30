@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { ArrowLeft, Clock, CreditCard, BarChart, Mail } from "lucide-react"
-import OrganizationForm from "./components/organization-form"
+import OrganizationForm from "../../components/form-org/organization-form"
 
 export default function FormularioPage() {
   const steps = [

@@ -17,6 +17,8 @@ export const userSchema = z.object({
     .optional(),
   emailVerified: z.string().optional(),
   role: z.enum(USER_ROLES),
+  orgId: z.string().optional(),
+  claimToken: z.string().optional(),
 });
 export type UserSchemaType = z.infer<typeof userSchema>;
 

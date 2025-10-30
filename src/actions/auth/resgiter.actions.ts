@@ -22,13 +22,15 @@ export async function registerAction({
       return { error: 'Invalid fields' };
     }
 
-    const { email, password, role } =
+    const { email, password, role, orgId, claimToken } =
       validatedFields.data;
 
     const userData = {
       email,
       password,
-      role
+      role,
+      orgId,
+      claimToken
     };
 
     const user = await registerUser(userData);

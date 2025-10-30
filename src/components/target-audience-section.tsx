@@ -1,22 +1,31 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building, Rocket, Users, HandHeart } from "lucide-react"
+import { Building, Rocket, Users, HandHeart, Briefcase } from "lucide-react"
 
 export function TargetAudienceSection() {
   const audiences = [
     {
       icon: <Building className="w-8 h-8" />,
       title: "Empresas grandes",
-      description: "Que quieren acelerar sus estrategias ESG o aplicarlas también a proveedores de su cadena de valor.",
+      description:
+        "Que quieren acelerar sus estrategias ESG o aplicarlas también a proveedores de su cadena de valor.",
     },
     {
       icon: <Rocket className="w-8 h-8" />,
       title: "Startups y scaleups",
-      description: "Que necesitan mostrar una estrategia de sostenibilidad clara para levantar inversión.",
+      description:
+        "Que necesitan mostrar una estrategia de sostenibilidad clara para levantar inversión.",
     },
     {
       icon: <Users className="w-8 h-8" />,
       title: "Empresas chicas y medianas",
-      description: "Que deben cumplir con requerimientos de sostenibilidad exigidos por sus clientes grandes.",
+      description:
+        "Que deben cumplir con requerimientos de sostenibilidad exigidos por sus clientes grandes.",
+    },
+    {
+      icon: <Briefcase className="w-8 h-8" />,
+      title: "Consultoras de sostenibilidad",
+      description:
+        "Que buscan eficientar el primer paso de análisis para sus clientes corporativos.",
     },
     {
       icon: <HandHeart className="w-8 h-8" />,
@@ -36,21 +45,35 @@ export function TargetAudienceSection() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {audiences.map((audience, index) => (
-            <Card key={index} className="bg-card border-gray-200 hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg">
-                    <div className="text-primary">{audience.icon}</div>
+          {audiences.map((audience, index) => {
+            const isLast = index === audiences.length - 1
+            const isOdd = audiences.length % 2 !== 0
+
+            return (
+              <Card
+                key={index}
+                className={`bg-card border-gray-200 hover:shadow-lg transition-shadow duration-300 ${
+                  isLast && isOdd ? "md:col-span-2 md:max-w-md md:mx-auto" : ""
+                }`}
+              >
+                <CardHeader>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg">
+                      <div className="text-primary">{audience.icon}</div>
+                    </div>
+                    <CardTitle className="text-xl text-card-foreground">
+                      {audience.title}
+                    </CardTitle>
                   </div>
-                  <CardTitle className="text-xl text-card-foreground">{audience.title}</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground text-pretty">{audience.description}</p>
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-pretty">
+                    {audience.description}
+                  </p>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       </div>
     </section>

@@ -47,10 +47,10 @@ export function WhyAdaptiaSection() {
     },
     {
       icon: <Clock className="w-8 h-8" />,
-      title: "Cuello de botella operativo",
+      title: "Barrera de entrada crítica",
       stat: "Crítico",
       description:
-        "El estudio de doble materialidad es el paso más complejo y lento en el desarrollo de una estrategia ESG.",
+        "El estudio de doble materialidad es un paso complejo, lento y con un costo inicial aproximado de $20,000 USD. ",
       bgColor: "bg-adaptia-gray-light/20",
       borderColor: "border-adaptia-gray-medium",
       iconColor: "text-adaptia-green-medium",

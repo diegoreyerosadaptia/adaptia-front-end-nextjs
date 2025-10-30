@@ -6,22 +6,22 @@ export function AnalysisSection() {
     {
       icon: <Building2 className="w-8 h-8" />,
       title: "Contexto base de tu organización",
-      description: "Análisis completo del perfil de tu empresa, industria y contexto operacional.",
+      description: "Descripción inicial del contexto de sostenibilidad de la empresa con riesgos y oportunidades ESG.",
     },
     {
       icon: <Target className="w-8 h-8" />,
       title: "Matriz de doble materialidad (financiera y ESG)",
-      description: "Recomendación de tus 10 temas prioritarios basados en impacto y relevancia financiera.",
+      description: "Con una priorización automática de los 10 temas prioritarios para la empresa.",
     },
     {
       icon: <BarChart className="w-8 h-8" />,
       title: "Recomendaciones de métricas y cómo medirlas",
-      description: "Métricas clave referenciadas a marcos internacionales como SASB, GRI, GAIL, S&P, ODS, entre otros.",
+      description: "Lista de métricas ESG específicas vinculadas a SASB, GRI, ODS y S&P con las que puedes medir tus temas materiales.",
     },
     {
       icon: <Lightbulb className="w-8 h-8" />,
       title: "Estrategia de sostenibilidad con acciones concretas",
-      description: "Plan de acción específico para mejorar tus temas materiales con pasos implementables.",
+      description: "Un plan de acción con tres niveles de recomendaciones de acciones corporativas para mejorar los 10 temas materiales en un nivel moderado, intermedio y estructural.",
     },
   ]
 
@@ -31,8 +31,7 @@ export function AnalysisSection() {
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-adaptia-blue-primary mb-6 text-balance">¿Qué incluye tu análisis?</h2>
           <p className="text-lg text-adaptia-blue-primary/70 max-w-4xl mx-auto text-pretty font-heading">
-            Cuando tu análisis esté listo recibirás un correo con instrucciones para ingresar a tu cuenta en donde
-            encontrarás un dashboard interactivo con:
+          Cuando tu análisis esté listo recibirás un correo con instrucciones para ingresar a tu cuenta en donde encontrarás un dashboard interactivo con:
           </p>
         </div>
 

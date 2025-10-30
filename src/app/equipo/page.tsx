@@ -13,18 +13,9 @@ export default function EquipoPage() {
 
       <div className="pt-24 pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Back button */}
-          <div className="mb-8">
-            <Button variant="ghost" asChild className="text-primary hover:text-primary/80">
-              <Link href="/" className="flex items-center gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Volver al inicio
-              </Link>
-            </Button>
-          </div>
 
           {/* Header */}
-          <div className="text-center mb-16">
+          <div className="text-center mt-10 mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6 text-balance">Equipo y metodología</h1>
           </div>
 
@@ -65,15 +56,21 @@ export default function EquipoPage() {
               <Card className="bg-card border-gray-200 hover:shadow-lg transition-shadow duration-300 max-w-2xl mx-auto">
                 <CardHeader className="text-center">
                   <div className="w-32 h-32 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-4xl font-bold text-primary">DR</span>
+                  <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden">
+                    <img
+                      src="/Foto-perfil-Diego-2025.jpg"
+                      alt="Foto de Diego Reyeros"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
                   </div>
                   <CardTitle className="text-2xl text-primary">Diego Reyeros</CardTitle>
                   <p className="text-primary font-semibold">Fundador</p>
                 </CardHeader>
                 <CardContent className="text-center">
                   <p className="text-muted-foreground mb-4 text-pretty">
-                    Especialista en ESG, empresas de triple impacto, innovación y sostenibilidad. Top Voice en LinkedIn
-                    en Sostenibilidad y Fundador y Ex-Director de Makesense Américas.
+                  Especialista en ESG, empresas de triple impacto, innovación y sostenibilidad. Top Voice en LinkedIn en Sostenibilidad y Co-fundador y Ex-Director de Makesense Américas. 
                   </p>
                   <Button
                     variant="outline"
@@ -96,15 +93,21 @@ export default function EquipoPage() {
                 <Card className="bg-card border-gray-200 hover:shadow-lg transition-shadow duration-300">
                   <CardHeader className="text-center">
                     <div className="w-32 h-32 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-4xl font-bold text-primary">AM</span>
+                    <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden">
+                        <img
+                          src="/Foto-perfil-Adriana.jpeg"
+                          alt="Foto de Adriana Mata"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+
                     </div>
                     <CardTitle className="text-2xl text-primary">Adriana Mata</CardTitle>
                     <p className="text-primary font-semibold">Consejera y socia</p>
                   </CardHeader>
                   <CardContent className="text-center">
                     <p className="text-muted-foreground mb-4 text-pretty">
-                      Directora y Co-fundadora de Agile Impacts y Cuantix, ingeniera y experta en medición de impacto y
-                      tecnología para sostenibilidad. Cartier Women's Initiative Fellow.
+                    Directora y Co-fundadora de Agile Impacts y Cuantix, ingeniera y experta en medición de impacto y tecnología para sostenibilidad. Cartier Women's Initiative Fellow.
                     </p>
                     <Button
                       variant="outline"
@@ -123,15 +126,20 @@ export default function EquipoPage() {
                 <Card className="bg-card border-gray-200 hover:shadow-lg transition-shadow duration-300">
                   <CardHeader className="text-center">
                     <div className="w-32 h-32 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-4xl font-bold text-primary">PM</span>
+                    <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden">
+                    <img
+                          src="/Foto-Perfil-Pau.jpeg"
+                          alt="Foto de Adriana Mata"
+                          className="w-full h-50 object-cover"
+                        />
+                    </div>
                     </div>
                     <CardTitle className="text-2xl text-primary">Paulina Macias</CardTitle>
                     <p className="text-primary font-semibold">Consejera - Sostenibilidad corporativa</p>
                   </CardHeader>
                   <CardContent className="text-center">
                     <p className="text-muted-foreground mb-4 text-pretty">
-                      Directora de Sostenibilidad en Chevez Ruiz Zamarripa, Co-host de Inercia Podcast y Top Voice de
-                      LinkedIn en Sostenibilidad.
+                    Directora de Sostenibilidad en Chevez Ruiz Zamarripa, Co-host de Inercia Podcast y Top Voice de LinkedIn en Sostenibilidad. 
                     </p>
                     <Button
                       variant="outline"
@@ -154,7 +162,14 @@ export default function EquipoPage() {
                 <Card className="bg-card border-gray-200 hover:shadow-lg transition-shadow duration-300">
                   <CardHeader className="text-center">
                     <div className="w-32 h-32 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-4xl font-bold text-primary">SI</span>
+                    <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden">
+                      <img
+                        src="/Foto-perfil-Slaven.jpeg"
+                        alt="Foto de Slaven Ilic"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
                     </div>
                     <CardTitle className="text-2xl text-primary">Saven Ilic</CardTitle>
                     <p className="text-primary font-semibold">Consejero - Relaciones con inversionistas</p>
@@ -178,15 +193,21 @@ export default function EquipoPage() {
                 <Card className="bg-card border-gray-200 hover:shadow-lg transition-shadow duration-300">
                   <CardHeader className="text-center">
                     <div className="w-32 h-32 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-4xl font-bold text-primary">AV</span>
+                    <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden">
+                      <img
+                        src="/Foto-perfil-Antonio.jpg"
+                        alt="Foto de Slaven Ilic"
+                        className="w-full h-50 object-cover"
+                      />
+                    </div>
+
                     </div>
                     <CardTitle className="text-2xl text-primary">Antonio Vizcaya</CardTitle>
                     <p className="text-primary font-semibold">Consejero - Estándares ASG</p>
                   </CardHeader>
                   <CardContent className="text-center">
                     <p className="text-muted-foreground mb-4 text-pretty">
-                      Strategy Manager en 17 Sport, Profesor de Sostenibilidad Corporativa en la UNAM y Top Voice de
-                      LinkedIn en Sostenibilidad.
+                    Strategy Manager en 17 Sport, Profesor de Sostenibilidad Corporativa en la UNAM y Top Voice de LinkedIn en Sostenibilidad. 
                     </p>
                     <Button
                       variant="outline"
@@ -196,6 +217,43 @@ export default function EquipoPage() {
                     >
                       <Link
                         href="https://www.linkedin.com/in/antonio-vizcaya-abdo-5773769b/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Linkedin className="w-4 h-4" />
+                        LinkedIn
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-card border-gray-200 hover:shadow-lg transition-shadow duration-300">
+                  <CardHeader className="text-center">
+                    <div className="w-32 h-32 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden">
+                    <img
+                        src="/Foto-perfil-Leslie.jpg"
+                        alt="Foto de Slaven Ilic"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    </div>
+                    <CardTitle className="text-2xl text-primary">Leslie Lamadrid</CardTitle>
+                    <p className="text-primary font-semibold">Consejera - Comunicación Corporativa</p>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <p className="text-muted-foreground mb-4 text-pretty">
+                    Directora de Comunicación, Veolia México. 
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2 mx-auto bg-transparent"
+                      asChild
+                    >
+                      <Link
+                        href="https://www.linkedin.com/in/leslie-lamadrid-communication/"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
