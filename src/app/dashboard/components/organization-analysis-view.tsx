@@ -14,16 +14,26 @@ interface OrganizationAnalysisViewProps {
   organization: Organization
 }
 
-type TabType = "contexto" | "materialidad" | "sasb" | "gri" | "regulaciones" | "resumen"
+type TabType =
+  | "contexto"
+  | "materialidad"
+  | "sasb"
+  | "gri"
+  | "materialidad_c"   // 👈 agregado
+  | "regulaciones"
+  | "resumen"
+
 
 const tabs = [
   { id: "contexto" as TabType, label: "Contexto de organización", color: "bg-purple-600 hover:bg-purple-700" },
   { id: "materialidad" as TabType, label: "Matriz de materialidad", color: "bg-green-600 hover:bg-green-700" },
   { id: "sasb" as TabType, label: "Métricas SASB", color: "bg-blue-400 hover:bg-blue-500" },
   { id: "gri" as TabType, label: "Métricas GRI", color: "bg-purple-300 hover:bg-purple-400" },
+  { id: "materialidad_c" as TabType, label: "ODS", color: "bg-green-400 hover:bg-green-500" },
   { id: "regulaciones" as TabType, label: "Regulaciones nacionales", color: "bg-teal-500 hover:bg-teal-600" },
-  { id: "resumen" as TabType, label: "Resumen Ejecutivo", color: "bg-blue-600 hover:bg-blue-700" },
+  { id: "resumen" as TabType, label: "Plan de Acción", color: "bg-blue-600 hover:bg-blue-700" },
 ]
+
 
 export default function OrganizationAnalysisView({ organization }: OrganizationAnalysisViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("contexto")
@@ -116,9 +126,6 @@ export default function OrganizationAnalysisView({ organization }: OrganizationA
           const parteB = [
             ...(analysisData[3]?.response_content?.materiality_table || []),
           ];
-          const parteC = [
-            ...(analysisData[5]?.response_content?.materiality_table || []),
-          ];
         
           return (
             <div className="space-y-6">
@@ -131,7 +138,6 @@ export default function OrganizationAnalysisView({ organization }: OrganizationA
                 {[
                   { id: "acciones", label: "Parte A - Acciones" },
                   { id: "evaluacion", label: "Parte B - Evaluación" },
-                  { id: "ods", label: "ODS vinculados" },
                 ].map((t) => (
                   <button
                     key={t.id}
@@ -218,34 +224,6 @@ export default function OrganizationAnalysisView({ organization }: OrganizationA
                           <td className="px-4 py-3 text-center">{row.impacto_esg}</td>
                           <td className="px-4 py-3 text-center">{row.impacto_financiero}</td>
                           <td className="px-4 py-3 text-center font-semibold">{row.puntaje_total}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-        
-              {/* =========================== */}
-              {/* 2.3 ODS vinculados */}
-              {/* =========================== */}
-              {subTab === "ods" && (
-                <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
-                  <table className="w-full border-collapse text-sm">
-                    <thead className="bg-green-600 text-white text-left">
-                      <tr>
-                        <th className="px-4 py-3 font-semibold">Tema</th>
-                        <th className="px-4 py-3 font-semibold">Prioridad ODS</th>
-                        <th className="px-4 py-3 font-semibold">Meta ODS</th>
-                        <th className="px-4 py-3 font-semibold">Indicador ODS</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 bg-white">
-                      {parteC.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-adaptia-gray-light/10">
-                          <td className="px-4 py-3 font-medium">{row.tema}</td>
-                          <td className="px-4 py-3">{row.prioridad}</td>
-                          <td className="px-4 py-3">{row.meta_ods}</td>
-                          <td className="px-4 py-3">{row.indicador_ods}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -396,6 +374,54 @@ export default function OrganizationAnalysisView({ organization }: OrganizationA
                 </div>
               );
             }
+            case "materialidad_c": {
+              const parteC = [
+                ...(analysisData[5]?.response_content?.materiality_table || []),
+              ];
+            
+              return (
+                <div className="space-y-6">
+                  <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
+                    Matriz de Materialidad – Parte C (ODS Vinculados)
+                  </h2>
+            
+                  <p className="text-adaptia-gray-dark leading-relaxed">
+                    Esta sección presenta los <strong>Objetivos de Desarrollo Sostenible (ODS)</strong>
+                    vinculados con cada tema material identificado durante el análisis.
+                  </p>
+            
+                  {parteC.length > 0 ? (
+                    <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
+                      <table className="w-full border-collapse text-sm">
+                        <thead className="bg-green-500 text-white text-left">
+                          <tr>
+                            <th className="px-4 py-3 font-semibold">Tema</th>
+                            <th className="px-4 py-3 font-semibold">Prioridad ODS</th>
+                            <th className="px-4 py-3 font-semibold">Meta ODS</th>
+                            <th className="px-4 py-3 font-semibold">Indicador ODS</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 bg-white">
+                          {parteC.map((row, idx) => (
+                            <tr key={idx} className="hover:bg-adaptia-gray-light/10">
+                              <td className="px-4 py-3 font-medium">{row.tema}</td>
+                              <td className="px-4 py-3">{row.prioridad}</td>
+                              <td className="px-4 py-3">{row.meta_ods}</td>
+                              <td className="px-4 py-3">{row.indicador_ods}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-adaptia-gray-dark text-center py-8">
+                      No se encontraron ODS vinculados en este análisis.
+                    </p>
+                  )}
+                </div>
+              );
+            }
+            
             
             case "regulaciones": {
               // 📦 Extraer las regulaciones desde el análisis ESG
@@ -464,13 +490,24 @@ export default function OrganizationAnalysisView({ organization }: OrganizationA
             case "resumen": {
               // 📦 Buscar el resumen ejecutivo en el análisis ESG
               const resumenData =
-                analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {};
+                analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
             
+ 
               return (
                 <div className="space-y-8">
-                  <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
-                    Resumen Ejecutivo
-                  </h2>
+                  {/* 🟦 Título y botón */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
+                      Plan de Acción
+                    </h2>
+                    <Button
+
+                      className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 shadow-md"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Descargar Resumen Ejecutivo (PDF)
+                    </Button>
+                  </div>
             
                   <p className="text-lg text-adaptia-gray-dark leading-relaxed">
                     Resumen ejecutivo del análisis de sostenibilidad de{" "}
@@ -478,6 +515,7 @@ export default function OrganizationAnalysisView({ organization }: OrganizationA
                     prioritarias y próximos pasos.
                   </p>
             
+                  {/* 🔹 Contenido del resumen */}
                   {resumenData?.parrafo_1 ? (
                     <div className="space-y-5 bg-adaptia-gray-light/10 p-8 rounded-lg border-2 border-blue-600">
                       <p className="text-adaptia-gray-dark text-justify leading-relaxed">
@@ -502,8 +540,9 @@ export default function OrganizationAnalysisView({ organization }: OrganizationA
                     Fuente: Adaptia ESG Analysis – Estrategia de Sostenibilidad 2024.
                   </p>
                 </div>
-              );
+              )
             }
+            
             
     }
   }
@@ -549,7 +588,7 @@ export default function OrganizationAnalysisView({ organization }: OrganizationA
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2.5 rounded-lg font-medium text-white text-center text-sm leading-tight transition-all min-w-[120px] ${
+                className={`px-4 py-2.5 rounded-lg font-medium text-white text-center text-sm leading-tight transition-all min-w-[100px] ${
                   tab.color
                 } ${activeTab === tab.id ? "ring-2 ring-offset-2 ring-adaptia-blue-primary" : "opacity-90"}`}
               >

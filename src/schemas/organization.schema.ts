@@ -31,11 +31,7 @@ export const updateOrganizationSchema = z.object({
 export type UpdateOrganizationSchemaType = z.infer<typeof updateOrganizationSchema>
 
 export const deleteOrganizationSchema = z.object({
-  confirmation: z
-    .string()
-    .refine((val) => val === "Eliminar Organización", {
-      message: 'Debe ingresar la confirmación exacta: "Eliminar Organización"',
-    }),
+  confirmation: z.string().min(0, 'Ingrese la confirmación "Eliminar Organizacion"'),
 })
 
 export type DeleteOrganizationSchemaType = z.infer<typeof deleteOrganizationSchema>

@@ -50,8 +50,15 @@ export default async function ClientDashboard() {
 
   if (!user) redirect("/auth/login")
 
-  const authToken = (await supabase.auth.getSession()).data.session?.access_token
-  const organizations = await getOrganizations(authToken, user.id)
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+    
+    const token = session?.access_token
+    
+    // ✅ con token incluido
+    const organizations = await getOrganizations(token)
+
 
   const { data: userData } = await supabase
     .from("users")

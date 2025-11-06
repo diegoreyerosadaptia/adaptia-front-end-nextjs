@@ -3,6 +3,7 @@ import { Organization } from "./organization.type"
 export const ANALYSIS_STATUS = [
   "PENDING",
   "COMPLETED",
+  "FAILED"
 ] as const
 
 export const PAYMENT_STATUS = [

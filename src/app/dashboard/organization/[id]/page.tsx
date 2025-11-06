@@ -25,8 +25,14 @@ export default async function OrganizationPage({ params }: OrgPageProps) {
   if (!user) {
     redirect("/auth/login")
   }
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  
+  const token = session?.access_token
+  
 
-  const organization = await getOrganizationById(id)
+  const organization = await getOrganizationById(id, token)
 
   if (!organization) {
     console.error("Organización no encontrada:", id)

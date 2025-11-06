@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { EMPLOYEE_RANGE, type EmployeeRange } from "@/types/organization.type"
+import { EMPLOYEE_RANGE, Organization, type EmployeeRange } from "@/types/organization.type"
 import { organizationSchema, type OrganizationSchemaType } from "@/schemas/organization.schema"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -20,12 +20,13 @@ export default function OrganizationForm({
   onSuccess,
 }: {
   redirectToPayment?: boolean
-  onSuccess?: () => void
+  onSuccess?: (org: Organization) => void
 }) {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null)
   const [openPaymentDrawer, setOpenPaymentDrawer] = useState(false)
+  const [token, setToken] = useState<string | null>(null)
 
   const form = useForm<OrganizationSchemaType>({
     resolver: zodResolver(organizationSchema),
@@ -54,44 +55,71 @@ export default function OrganizationForm({
     loadUser()
   }, [form])
 
-  const onSubmit = (values: OrganizationSchemaType) => {
-    startTransition(async () => {
-      const payload: OrganizationSchemaType = { ...values }
-      if (!payload.ownerId) delete payload.ownerId
-
-      const result = await createOrganizationAction(payload)
-
-      if (result?.error) {
-        console.error(result.error)
-        return
-      }
-
-      if (result?.claimToken) {
-        router.push(`/auth/register?orgId=${result.orgId}&claim=${result.claimToken}&openPaymentFor=${result.orgId}`)
-        return
-      }
-
+  useEffect(() => {
+    const fetchAuth = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      if (!user?.id) {
-        console.error("No se encontró usuario logueado")
-        return
-      }
 
-      const paymentResponse = await createPreferenceAction({
-        userId: user.id,
-        organizationId: result.orgId || "",
-      })
+      if (user?.id) form.setValue("ownerId", user.id)
+      else form.setValue("ownerId", "")
 
-      if (paymentResponse?.success && paymentResponse.url) {
-        setCheckoutUrl(paymentResponse.url)
-        setOpenPaymentDrawer(true)
-      } else {
-        console.error("Error al crear preferencia de pago:", paymentResponse?.error)
-      }
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      if (session?.access_token) setToken(session.access_token)
+    }
+
+    fetchAuth()
+  }, [form])
+
+// dentro de OrganizationForm
+const onSubmit = (values: OrganizationSchemaType) => {
+  startTransition(async () => {
+    const payload: OrganizationSchemaType = { ...values }
+    if (!payload.ownerId) delete payload.ownerId
+
+    const result = await createOrganizationAction(payload, token || "")
+
+    if (result?.error) {
+      console.error(result.error)
+      return
+    }
+
+    if (result?.claimToken) {
+      router.push(`/auth/register?orgId=${result.orgId}&claim=${result.claimToken}&openPaymentFor=${result.orgId}`)
+      return
+    }
+
+    // 🧠 Llamamos al callback para notificar que se creó la organización
+    if (onSuccess && result?.organization) {
+      onSuccess(result.organization)
+    }
+
+    // 🔹 opcional: si querés seguir con el flujo de pago directo:
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user?.id) {
+      console.error("No se encontró usuario logueado")
+      return
+    }
+
+    const paymentResponse = await createPreferenceAction({
+      userId: user.id,
+      organizationId: result.orgId || "",
     })
-  }
+
+    if (paymentResponse?.success && paymentResponse.url) {
+      setCheckoutUrl(paymentResponse.url)
+      setOpenPaymentDrawer(true)
+    } else {
+      console.error("Error al crear preferencia de pago:", paymentResponse?.error)
+    }
+  })
+}
+
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 max-w-4xl mx-auto">

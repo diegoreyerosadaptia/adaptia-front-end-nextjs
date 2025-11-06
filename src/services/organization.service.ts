@@ -12,7 +12,7 @@ const getJsonHeaders = (authToken?: string) => ({
 
 export const getOrganizations = async (authToken?: string, userId?: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/organizations/user/${userId}`, {
+    const response = await fetch(`${BASE_URL}/organizations`, {
       headers: getJsonHeaders(authToken),
       next: {
         tags: [getCacheTag("organizations", "all")],

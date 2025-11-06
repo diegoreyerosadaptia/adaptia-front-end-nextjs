@@ -2,12 +2,13 @@
 
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Building2, CheckCircle2, Clock, Eye, Loader2 } from "lucide-react"
+import { Building2, CheckCircle2, Clock, Delete, Eye, Loader2 } from "lucide-react"
 import type { Organization } from "@/types/organization.type"
 import { OrganizationInfoDialog } from "./organization-details-dialog"
 import { createPreferenceAction } from "@/actions/payments/create-preference.action"
 import { supabase } from "@/lib/supabase/client"
 import { useState } from "react"
+import { DeleteOrganizationDialog } from "./delete-organzation-dialog"
 
 export default function DashboardOrgList({ organizations }: { organizations: Organization[] }) {
   const [loadingPaymentId, setLoadingPaymentId] = useState<string | null>(null)
@@ -73,23 +74,25 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
           }`}
         >
           {/* Header */}
-          <div className="relative flex justify-between items-start mb-4 z-10">
-            <div>
-              <h3 className="font-heading font-semibold text-xl text-adaptia-blue-primary mb-1">
-                {org.company}
-              </h3>
-              <p className="text-sm text-adaptia-gray-dark">
-                {org.industry} • {org.country}
-              </p>
-            </div>
+          <div className="relative flex justify-between items-center mb-4 z-10">
+          {/* 🏢 Información de la organización */}
+          <div>
+            <h3 className="font-heading font-semibold text-xl text-adaptia-blue-primary mb-1">
+              {org.company}
+            </h3>
+            <p className="text-sm text-adaptia-gray-dark">
+              {org.industry} • {org.country}
+            </p>
+          </div>
 
-            {/* 👇 Botón Ver Detalles */}
+          {/* 🎯 Acciones alineadas (Ver Detalles + Eliminar) */}
+          <div className="flex items-center gap-3">
             <OrganizationInfoDialog org={org}>
               {(openDialog) => (
                 <Button
                   size="sm"
                   variant="outline"
-                  className="z-20 relative cursor-pointer border-adaptia-blue-primary text-adaptia-blue-primary hover:bg-adaptia-blue-primary hover:text-white bg-transparent"
+                  className="border-adaptia-blue-primary text-adaptia-blue-primary hover:bg-adaptia-blue-primary hover:text-white bg-transparent"
                   onClick={(e) => {
                     e.stopPropagation()
                     openDialog()
@@ -100,7 +103,12 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
                 </Button>
               )}
             </OrganizationInfoDialog>
+
+            {/* 🗑️ Eliminar */}
+            <DeleteOrganizationDialog organization={org} />
           </div>
+        </div>
+
 
           {/* Lista de análisis */}
           {org.analysis && org.analysis.length > 0 ? (
@@ -118,91 +126,97 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
                   ? "bg-green-100 text-green-800"
                   : "bg-red-100 text-red-800"
 
-                return (
-                  <div
-                    key={analysis.id}
-                    className="flex items-center justify-between p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-adaptia-blue-primary/40 shadow-sm hover:shadow-md transition-all"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="flex items-center gap-3">
-                      {isPendingPay && <Building2 className="h-5 w-5 text-blue-600" />}
-                      {analysis.payment_status === "COMPLETED" && analysis.status === "PENDING" && (
-                        <Clock className="h-5 w-5 text-yellow-600" />
-                      )}
-                      {isCompleted && <CheckCircle2 className="h-5 w-5 text-green-600" />}
-
-                      <div>
-                        {isCompleted ? (
-                          <p className="text-sm font-medium text-adaptia-blue-primary">
-                            Análisis completado para: {org.company}
-                          </p>
-                        ) : (
-                          <p className="text-sm font-medium text-adaptia-gray-dark">
-                            {isPendingPay
-                              ? "Pago pendiente para este análisis"
-                              : analysis.payment_status === "COMPLETED" && analysis.status === "PENDING"
-                              ? "El análisis está en proceso"
-                              : "Análisis no disponible"}
-                          </p>
+                  return (
+                    <div
+                      key={analysis.id}
+                      className="flex items-center justify-between p-4 bg-white rounded-lg border-2 border-gray-200 hover:border-adaptia-blue-primary/40 shadow-sm hover:shadow-md transition-all"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center gap-3">
+                        {/* 🔹 Iconos según estado */}
+                        {isPendingPay && <Building2 className="h-5 w-5 text-blue-600" />}
+                        {analysis.payment_status === "COMPLETED" && analysis.status === "PENDING" && (
+                          <Clock className="h-5 w-5 text-yellow-600" />
                         )}
-                        <p className="text-xs text-adaptia-gray-dark">
-                          Creado: {new Date(analysis.createdAt).toLocaleDateString("es-ES")}
-                        </p>
-                      </div>
-
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs px-3 py-1 rounded-full font-medium ${badgeClass}`}>
-                        {isPendingPay
-                          ? "El Pago está pendiente"
-                          : analysis.payment_status === "COMPLETED" && analysis.status === "PENDING"
-                          ? "El Análisis está en proceso"
-                          : isCompleted
-                          ? "El Análisis está completado"
-                          : "Fallido"}
-                      </span>
-
-                      {/* 🔹 Completar pago si está pendiente */}
-                      {isPendingPay && (
-                        <Button
-                          size="sm"
-                          disabled={loadingPaymentId === analysis.id}
-                          className="cursor-pointer bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 text-white flex items-center gap-2"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handlePayment(org.id, analysis.id, org) // 👈 le pasás el rango acá
-                          }}
-                        >
-                          {loadingPaymentId === analysis.id ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                              Generando...
-                            </>
+                        {isCompleted && <CheckCircle2 className="h-5 w-5 text-green-600" />}
+                  
+                        <div>
+                          {isCompleted ? (
+                            <p className="text-sm font-medium text-adaptia-blue-primary">
+                              Análisis completado para: {org.company}
+                            </p>
                           ) : (
-                            "Completar Pago"
+                            <p className="text-sm font-medium text-adaptia-gray-dark">
+                              {isPendingPay
+                                ? "Pago pendiente para este análisis"
+                                : "El análisis está en proceso"}
+                            </p>
                           )}
-                        </Button>
-                      )}
-
-                      {/* 🔹 Ver Análisis si está completado */}
-                      {isCompleted && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-green-600 cursor-pointer text-green-700 hover:bg-green-600 hover:text-white"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            router.push(`/dashboard/organization/${org.id}`)
-                          }}
+                          <p className="text-xs text-adaptia-gray-dark">
+                            Creado: {new Date(analysis.createdAt).toLocaleDateString("es-ES")}
+                          </p>
+                        </div>
+                      </div>
+                  
+                      <div className="flex items-center gap-3">
+                        {/* 🔹 Etiqueta de estado */}
+                        <span
+                          className={`text-xs px-3 py-1 rounded-full font-medium ${
+                            isPendingPay
+                              ? "bg-blue-100 text-blue-800"
+                              : isCompleted
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
                         >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Ver Análisis
-                        </Button>
-                      )}
+                          {isPendingPay
+                            ? "El pago está pendiente"
+                            : isCompleted
+                            ? "El análisis está completado"
+                            : "El análisis está en proceso"}
+                        </span>
+                  
+                        {/* 🔹 Botón de pago pendiente */}
+                        {isPendingPay && (
+                          <Button
+                            size="sm"
+                            disabled={loadingPaymentId === analysis.id}
+                            className="cursor-pointer bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 text-white flex items-center gap-2"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handlePayment(org.id, analysis.id, org)
+                            }}
+                          >
+                            {loadingPaymentId === analysis.id ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Generando...
+                              </>
+                            ) : (
+                              "Completar Pago"
+                            )}
+                          </Button>
+                        )}
+                  
+                        {/* 🔹 Botón Ver análisis (solo si está completado) */}
+                        {isCompleted && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-green-600 cursor-pointer text-green-700 hover:bg-green-600 hover:text-white"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              router.push(`/dashboard/organization/${org.id}`)
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Ver Análisis
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )
+                  )
+                  
               })}
             </div>
           ) : (

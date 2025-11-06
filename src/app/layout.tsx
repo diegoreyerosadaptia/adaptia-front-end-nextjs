@@ -5,6 +5,7 @@ import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import { MessageCircle } from "lucide-react"  // 👉 icono (puedes usar el logo oficial también)
+import { Toaster as SonnerToaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: "Adaptia - Sostenibilidad sin fricción",
@@ -26,6 +27,7 @@ export default function RootLayout({
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <Toaster />
         {children}
+                <SonnerToaster />
         <a
           href="https://wa.me/56935027636" 
           rel="noopener noreferrer"
@@ -33,6 +35,7 @@ export default function RootLayout({
         >
           <MessageCircle className="h-6 w-6" />
         </a>
+        
       </body>
     </html>
   )

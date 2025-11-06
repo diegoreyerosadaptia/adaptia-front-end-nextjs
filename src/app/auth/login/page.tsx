@@ -41,23 +41,26 @@ export default function LoginPage() {
         setError("Credenciales incorrectas")
         return
       }
-      console.log(result)
   
       if (result?.session) {
-  
         const { access_token, refresh_token } = result.session
-
+  
         const { error } = await supabase.auth.setSession({
           access_token,
           refresh_token,
         })
-        
+  
         if (error) {
           console.error("Error al setear sesión:", error)
           return
         }
-        // 🔐 Redirigir según el rol
-        if (result?.role === "admin") {
+  
+        console.log(result)
+  
+        // ✅ Accedé correctamente al rol
+        const role = result.user?.role
+  
+        if (role === "ADMIN") {
           router.push("/admin/dashboard")
         } else {
           router.push("/dashboard")
