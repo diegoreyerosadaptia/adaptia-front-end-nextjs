@@ -19,7 +19,7 @@ export async function createPreferenceAction(values: PaymentSchemaType) {
     }
     return {
       success: true,
-      url: payment.sandboxUrl,
+      url: payment.checkoutUrl,
     };
   } catch (error) {
     console.error(error);
