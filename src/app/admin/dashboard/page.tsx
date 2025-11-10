@@ -16,10 +16,9 @@ import {
   Eye,
   TrendingUp,
 } from "lucide-react"
-import Link from "next/link"
 import { getOrganizations } from "@/services/organization.service"
-import RetryEsgButton from "@/app/admin/dashboard/components/retry-esg-button"
 import ActionsMenu from "./components/actions-menu"
+import PaymentStatusSelect from "./components/analysis-status-select"
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -280,27 +279,23 @@ export default async function AdminDashboard() {
                               )}
                             </div>
                           </td>
-                          <td className="px-3 py-3">
-                            <div className="flex flex-wrap gap-1 justify-center">
-                              {paidCount > 0 && (
-                                <Badge className="bg-green-100 text-green-800 hover:bg-green-100 text-[10px] px-1.5 py-0.5">
-                                  <DollarSign className="h-2.5 w-2.5 mr-0.5" />
-                                  Pago Completado
-                                </Badge>
-                              )}
-                              {unpaidCount > 0 && (
-                                <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 text-[10px] px-1.5 py-0.5">
-                                  <Clock className="h-2.5 w-2.5 mr-0.5" />
-                                  Pago Pendiente
-                                </Badge>
-                              )}
-                              {analysisCount === 0 && (
-                                <span className="text-[10px] text-adaptia-gray-dark italic">-</span>
-                              )}
-                            </div>
+                          <td className="px-3 py-3 text-center">
+                            {org.analysis && org.analysis.length > 0 ? (
+                              org.analysis.map((a) => (
+                                <PaymentStatusSelect
+                                  key={a.id}
+                                  id={a.id}
+                                  initialStatus={a.payment_status as 'PENDING' | 'COMPLETED'}
+                                  accessToken={token!}
+                                />
+                              ))
+                            ) : (
+                              <span className="text-[10px] text-adaptia-gray-dark italic">-</span>
+                            )}
                           </td>
+
                           <td className="px-6 py-4 text-center">
-                            <ActionsMenu org={org} />
+                            <ActionsMenu org={org} authToken={token || ""} />
                           </td>
                         </tr>
                       )

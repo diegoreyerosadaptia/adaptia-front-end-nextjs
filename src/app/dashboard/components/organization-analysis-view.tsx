@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Plus } from "lucide-react"
@@ -20,6 +20,7 @@ import {
   Cell,
   LabelList,
 } from "recharts"
+import { AnimatedMaterialityChart } from "./animated-materiality-chart"
 
 interface OrganizationAnalysisViewProps {
   organization: Organization
@@ -130,358 +131,193 @@ export default function OrganizationAnalysisView({ organization }: OrganizationA
           </div>
         )
 
-      case "materialidad":
-        const parteA = [...(analysisData[1]?.response_content?.materiality_table || [])]
-        const parteB = [...(analysisData[3]?.response_content?.materiality_table || [])]
-
-/* ======================
- 🎯 Arcos con el centro mirando al eje (0,0)
-====================== */
-
-const generateArcFacingOrigin = (
-  startX: number,
-  endX: number,
-  baseY: number,
-  radius: number,
-  invertY: boolean,
-  index: number,
-  total: number
-) => {
-  const angleStart = Math.PI * 0; // parte izquierda del arco
-  const angleEnd = Math.PI * 0.7;   // parte derecha del arco
-  const t = index / Math.max(total - 1, 1);
-  const angle = angleStart + (angleEnd - angleStart) * t;
-
-  // 🎨 fórmula circular: el arco "mira" hacia (0,0)
-  const x = startX + radius * Math.cos(angle);
-  const y = baseY + (invertY ? -1 : 1) * radius * Math.sin(angle);
-
-  return { x, y };
-};
-
-/* ======================
- 📊 Clasificación
-====================== */
-const bajaItems = parteA.filter((i) => i.materialidad_financiera?.toLowerCase() === "baja");
-const mediaItems = parteA.filter((i) => i.materialidad_financiera?.toLowerCase() === "media");
-const altaItems = parteA.filter((i) => i.materialidad_financiera?.toLowerCase() === "alta");
-
-/* ======================
- 🟦 Generación de arcos mirando al eje
-====================== */
-
-// Menor importancia (abajo a la izquierda)
-let bajaPositions = bajaItems.map((_, idx) =>
-  generateArcFacingOrigin(20, 0, 20, 30, false, idx, bajaItems.length)
-);
-
-// Mediana importancia (zona media)
-let mediaPositions = mediaItems.map((_, idx) =>
-  generateArcFacingOrigin(45, 0, 35, 50, false, idx, mediaItems.length)
-);
-
-// Mayor importancia (zona superior derecha)
-let altaPositions = altaItems.map((_, idx) =>
-  generateArcFacingOrigin(70, 100, 85, 120, false, idx, altaItems.length)
-);
-
-/* ======================
- 💾 Datos finales
-====================== */
-const bajaData = bajaItems.map((item, idx) => ({
-  tema: item.tema,
-  materialidad: "Baja",
-  x: Math.min(25, Math.max(0, bajaPositions[idx].x)),
-  y: Math.min(100, Math.max(0, bajaPositions[idx].y)),
-  z: 600,
-}));
-
-const mediaData = mediaItems.map((item, idx) => ({
-  tema: item.tema,
-  materialidad: "Media",
-  x: Math.min(65, Math.max(25, mediaPositions[idx].x)),
-  y: Math.min(100, Math.max(0, mediaPositions[idx].y)),
-  z: 900,
-}));
-
-const altaData = altaItems.map((item, idx) => ({
-  tema: item.tema,
-  materialidad: "Alta",
-  x: Math.min(100, Math.max(65, altaPositions[idx].x)),
-  y: Math.min(100, Math.max(0, altaPositions[idx].y)),
-  z: 1500,
-}));
-
-        return (
-          <div className="space-y-6">
-            <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">Matriz de Materialidad</h2>
-
-            <div className="flex flex-wrap gap-2 mb-6">
-              {[
-                { id: "grafico", label: "Gráfico de Materialidad" },
-                { id: "acciones", label: "Parte A - Acciones" },
-                { id: "evaluacion", label: "Parte B - Evaluación" },
-              ].map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setSubTab(t.id as any)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
-                    subTab === t.id
-                      ? "bg-green-600 text-white shadow-lg scale-105"
-                      : "bg-adaptia-gray-light/40 text-adaptia-blue-primary hover:bg-green-500 hover:text-white"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
+        case "materialidad": {
+          // ======================
+          // 📦 Parte A y B
+          // ======================
+          const parteA = [...(analysisData[1]?.response_content?.materiality_table || [])]
+          const parteB = [...(analysisData[3]?.response_content?.materiality_table || [])]
+        
+          // ======================
+          // 💾 Asociación Parte A + Parte B (Puntaje total)
+          // ======================
+          const dataFinal = parteA.map((item) => {
+            const match = parteB.find((b) => b.tema === item.tema)
+            const puntaje = match?.puntaje_total ?? 0
+        
+            // Eje X según materialidad
+            let x = 0
+            if (item.materialidad_financiera?.toLowerCase() === "baja") x = 0.5 + Math.random() * 1.5
+            if (item.materialidad_financiera?.toLowerCase() === "media") x = 2 + Math.random() * 2
+            if (item.materialidad_financiera?.toLowerCase() === "alta") x = 4 + Math.random() * 2
+        
+            return {
+              tema: item.tema,
+              materialidad: item.materialidad_financiera,
+              puntaje_total: puntaje,
+              x,
+              y: puntaje, // eje Y = puntaje
+            }
+          })
+        
+          // ======================
+          // 🟢 Agrupar “Alta” con mismo puntaje_total
+          // ======================
+          const altaAgrupada = Object.values(
+            dataFinal
+              .filter((d) => d.materialidad?.toLowerCase() === "alta")
+              .reduce((acc, item) => {
+                if (!acc[item.puntaje_total]) acc[item.puntaje_total] = []
+                acc[item.puntaje_total].push(item)
+                return acc
+              }, {} as Record<number, any[]>)
+          ).map((grupo) => {
+            const { puntaje_total } = grupo[0]
+            const xPromedio = grupo.reduce((sum, i) => sum + i.x, 0) / grupo.length
+            return {
+              temas: grupo.map((g) => g.tema),
+              materialidad: "Alta",
+              puntaje_total,
+              x: xPromedio,
+              y: puntaje_total,
+            }
+          })
+        
+          // ======================
+          // 📊 Datos combinados
+          // ======================
+          const finalScatterData = [
+            ...dataFinal.filter((d) => d.materialidad?.toLowerCase() !== "alta"),
+            ...altaAgrupada,
+          ]
+        
+          // ======================
+          // 🎨 Render principal
+          // ======================
+          return (
+            <div className="space-y-6">
+              <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
+                Matriz de Materialidad
+              </h2>
+        
+              <div className="flex flex-wrap gap-2 mb-6">
+                {[
+                  { id: "grafico", label: "Gráfico de Materialidad" },
+                  { id: "acciones", label: "Parte A - Acciones" },
+                  { id: "evaluacion", label: "Parte B - Evaluación" },
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setSubTab(t.id as any)}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
+                      subTab === t.id
+                        ? "bg-green-600 text-white shadow-lg scale-105"
+                        : "bg-adaptia-gray-light/40 text-adaptia-blue-primary hover:bg-green-500 hover:text-white"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+        
+              {/* ======================= */}
+              {/* 1️⃣ Gráfico de Materialidad */}
+              {/* ======================= */}
+              {subTab === "grafico" && (
+                <div className="space-y-6">
+                  <h3 className="text-2xl font-heading font-bold text-green-600">
+                    Visualización de Materialidad de Temas
+                  </h3>
+        
+                  <div className="bg-gradient-to-br from-yellow-50 to-green-50 p-8 rounded-lg border-2 border-green-200 shadow-lg">
+                    <ResponsiveContainer width="100%" height={500}>
+                      <AnimatedMaterialityChart data={finalScatterData} parteA={parteA} />
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
+        
+              {/* ======================= */}
+              {/* 2️⃣ Parte A - Acciones */}
+              {/* ======================= */}
+              {subTab === "acciones" && (
+                <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
+                  <table className="w-full border-collapse text-sm">
+                    <thead className="bg-green-600 text-white text-left">
+                      <tr>
+                        <th className="px-4 py-3 font-semibold">Sector</th>
+                        <th className="px-4 py-3 font-semibold">Tema</th>
+                        <th className="px-4 py-3 font-semibold">Materialidad Financiera</th>
+                        <th className="px-4 py-3 font-semibold">Acción Marginal</th>
+                        <th className="px-4 py-3 font-semibold">Acción Moderada</th>
+                        <th className="px-4 py-3 font-semibold">Acción Estructural</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                      {parteA.map((row, idx) => (
+                        <tr key={idx} className="hover:bg-adaptia-gray-light/10">
+                          <td className="px-4 py-3">{row.sector}</td>
+                          <td className="px-4 py-3 font-medium">{row.tema}</td>
+                          <td className="px-4 py-3">{row.materialidad_financiera}</td>
+                          <td className="px-4 py-3">{row.accion_marginal}</td>
+                          <td className="px-4 py-3">{row.accion_moderada}</td>
+                          <td className="px-4 py-3">{row.accion_estructural}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+        
+              {/* ======================= */}
+              {/* 3️⃣ Parte B - Evaluación */}
+              {/* ======================= */}
+              {subTab === "evaluacion" && (
+                <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
+                  <table className="w-full border-collapse text-sm">
+                    <thead className="bg-green-600 text-white text-left">
+                      <tr>
+                        <th className="px-4 py-3 font-semibold">Tema</th>
+                        <th className="px-4 py-3 font-semibold">Tipo Impacto</th>
+                        <th className="px-4 py-3 font-semibold">Potencialidad</th>
+                        <th className="px-4 py-3 font-semibold">Horizonte</th>
+                        <th className="px-4 py-3 font-semibold">Intencionalidad</th>
+                        <th className="px-4 py-3 font-semibold">Penetración</th>
+                        <th className="px-4 py-3 font-semibold">Implicación</th>
+                        <th className="px-4 py-3 font-semibold">Gravedad</th>
+                        <th className="px-4 py-3 font-semibold">Probabilidad</th>
+                        <th className="px-4 py-3 font-semibold">Alcance</th>
+                        <th className="px-4 py-3 font-semibold">Impacto ESG</th>
+                        <th className="px-4 py-3 font-semibold">Impacto Financiero</th>
+                        <th className="px-4 py-3 font-semibold">Puntaje Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                      {parteB.map((row, idx) => (
+                        <tr key={idx} className="hover:bg-adaptia-gray-light/10">
+                          <td className="px-4 py-3 font-medium">{row.tema}</td>
+                          <td className="px-4 py-3">{row.tipo_impacto}</td>
+                          <td className="px-4 py-3">{row.potencialidad_impacto}</td>
+                          <td className="px-4 py-3">{row.horizonte_impacto}</td>
+                          <td className="px-4 py-3">{row.intencionalidad_impacto}</td>
+                          <td className="px-4 py-3">{row.penetracion_impacto}</td>
+                          <td className="px-4 py-3">{row.grado_implicacion}</td>
+                          <td className="px-4 py-3 text-center">{row.gravedad}</td>
+                          <td className="px-4 py-3 text-center">{row.probabilidad}</td>
+                          <td className="px-4 py-3 text-center">{row.alcance}</td>
+                          <td className="px-4 py-3 text-center">{row.impacto_esg}</td>
+                          <td className="px-4 py-3 text-center">{row.impacto_financiero}</td>
+                          <td className="px-4 py-3 text-center font-semibold">{row.puntaje_total}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-
-            {subTab === "grafico" && (
-              <div className="space-y-6">
-                <h3 className="text-2xl font-heading font-bold text-green-600">
-                  Visualización de Materialidad de Temas
-                </h3>
-
-                <div className="bg-gradient-to-br from-yellow-50 to-green-50 p-8 rounded-lg border-2 border-green-200 shadow-lg">
-                  <ResponsiveContainer width="100%" height={500}>
-                    <ScatterChart margin={{ top: 60, right: 80, bottom: 80, left: 80 }}>
-                      <defs>
-                        <radialGradient id="gradientAlta">
-                          <stop offset="0%" stopColor="#A3E635" stopOpacity={0.9} />
-                          <stop offset="100%" stopColor="#65A30D" stopOpacity={1} />
-                        </radialGradient>
-                        <radialGradient id="gradientMedia">
-                          <stop offset="0%" stopColor="#FB923C" stopOpacity={0.9} />
-                          <stop offset="100%" stopColor="#EA580C" stopOpacity={1} />
-                        </radialGradient>
-                        <radialGradient id="gradientBaja">
-                          <stop offset="0%" stopColor="#22D3EE" stopOpacity={0.9} />
-                          <stop offset="100%" stopColor="#0891B2" stopOpacity={1} />
-                        </radialGradient>
-                      </defs>
-
-                      <CartesianGrid strokeDasharray="5 5" stroke="#d1d5db" opacity={0.5} />
-
-                      <XAxis
-                        type="number"
-                        dataKey="x"
-                        domain={[0, 100]}
-                        tick={{ fill: "#374151", fontSize: 12, fontWeight: 600 }}
-                        stroke="#6b7280"
-                        strokeWidth={2}
-                      >
-                        <Label
-                          value="Significancia de los impactos económicos, ambientales y sociales de la organización"
-                          position="bottom"
-                          offset={20}
-                          style={{
-                            fill: "#374151",
-                            fontSize: "14px",
-                            fontWeight: "bold",
-                            textAnchor: "middle",
-                          }}
-                        />
-                      </XAxis>
-
-                      <YAxis
-                        type="number"
-                        dataKey="y"
-                        domain={[0, 100]}
-                        tick={{ fill: "#374151", fontSize: 12, fontWeight: 600 }}
-                        stroke="#6b7280"
-                        strokeWidth={2}
-                      >
-                        <Label
-                          value="Influencia en la valoración y toma de decisiones de los grupos de interés"
-                          angle={-90}
-                          position="left"
-                          offset={20}
-                          style={{
-                            fill: "#374151",
-                            fontSize: "14px",
-                            fontWeight: "bold",
-                            textAnchor: "middle",
-                          }}
-                        />
-                      </YAxis>
-
-                      <ZAxis type="number" dataKey="z" range={[400, 1200]} />
-
-                      <Tooltip
-                        cursor={{ strokeDasharray: "3 3" }}
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length > 0) {
-                            const data = payload[0].payload
-                            return (
-                              <div
-                                style={{
-                                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                                  border: "2px solid #10b981",
-                                  borderRadius: "8px",
-                                  padding: "12px",
-                                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                                }}
-                              >
-                                <p style={{ fontWeight: "bold", marginBottom: "4px", color: "#1f2937" }}>{data.tema}</p>
-                                <p style={{ fontSize: "13px", color: "#6b7280" }}>Materialidad: {data.materialidad}</p>
-                              </div>
-                            )
-                          }
-                          return null
-                        }}
-                      />
-
-                      <Scatter
-                        name="Menor Importancia"
-                        data={bajaData}
-                        animationBegin={0}
-                        animationDuration={1500}
-                        animationEasing="ease-out"
-                      >
-                        {bajaData.map((_, index) => (
-                          <Cell key={`cell-baja-${index}`} fill="url(#gradientBaja)" />
-                        ))}
-                      </Scatter>
-
-                      <Scatter
-                        name="Mediana Importancia"
-                        data={mediaData}
-                        animationBegin={500}
-                        animationDuration={1500}
-                        animationEasing="ease-out"
-                      >
-                        {mediaData.map((_, index) => (
-                          <Cell key={`cell-media-${index}`} fill="url(#gradientMedia)" />
-                        ))}
-                      </Scatter>
-
-                      <Scatter
-                        name="Mayor Importancia"
-                        data={altaData}
-                        animationBegin={1000}
-                        animationDuration={1500}
-                        animationEasing="ease-out"
-                      >
-                        {altaData.map((_, index) => (
-                          <Cell key={`cell-alta-${index}`} fill="url(#gradientAlta)" />
-                        ))}
-                      </Scatter>
-
-                      {/* Zonas de referencia con texto */}
-                      <text x="15%" y="25%" fill="#22D3EE" fontSize="16" fontWeight="bold" opacity={0.3}>
-                        Menor Importancia
-                      </text>
-                      <text x="43%" y="55%" fill="#FB923C" fontSize="16" fontWeight="bold" opacity={0.3}>
-                        Mediana Importancia
-                      </text>
-                      <text x="70%" y="15%" fill="#A3E635" fontSize="18" fontWeight="bold" opacity={0.3}>
-                        Mayor Importancia
-                      </text>
-                    </ScatterChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="flex justify-center gap-8 mt-6 p-4 bg-white rounded-lg border border-green-200 shadow">
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#22D3EE] to-[#0891B2] shadow-md" />
-                    <span className="text-sm font-semibold text-gray-700">Menor importancia (Baja)</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#FB923C] to-[#EA580C] shadow-md" />
-                    <span className="text-sm font-semibold text-gray-700">Mediana importancia (Media)</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#A3E635] to-[#65A30D] shadow-md" />
-                    <span className="text-sm font-semibold text-gray-700">Mayor importancia (Alta)</span>
-                  </div>
-                </div>
-
-                <p className="text-sm text-adaptia-gray-dark/70 italic text-center mt-4">
-                  Los temas se posicionan según su nivel de materialidad financiera identificado en el análisis ESG
-                </p>
-              </div>
-            )}
-
-            {/* =========================== */}
-            {/* 2.1 Matriz Parte A */}
-            {/* =========================== */}
-            {subTab === "acciones" && (
-              <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
-                <table className="w-full border-collapse text-sm">
-                  <thead className="bg-green-600 text-white text-left">
-                    <tr>
-                      <th className="px-4 py-3 font-semibold">Sector</th>
-                      <th className="px-4 py-3 font-semibold">Tema</th>
-                      <th className="px-4 py-3 font-semibold">Materialidad Financiera</th>
-                      <th className="px-4 py-3 font-semibold">Acción Marginal</th>
-                      <th className="px-4 py-3 font-semibold">Acción Moderada</th>
-                      <th className="px-4 py-3 font-semibold">Acción Estructural</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {parteA.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-adaptia-gray-light/10">
-                        <td className="px-4 py-3">{row.sector}</td>
-                        <td className="px-4 py-3 font-medium">{row.tema}</td>
-                        <td className="px-4 py-3">{row.materialidad_financiera}</td>
-                        <td className="px-4 py-3">{row.accion_marginal}</td>
-                        <td className="px-4 py-3">{row.accion_moderada}</td>
-                        <td className="px-4 py-3">{row.accion_estructural}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* =========================== */}
-            {/* 2.2 Matriz Parte B */}
-            {/* =========================== */}
-            {subTab === "evaluacion" && (
-              <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
-                <table className="w-full border-collapse text-sm">
-                  <thead className="bg-green-600 text-white text-left">
-                    <tr>
-                      <th className="px-4 py-3 font-semibold">Tema</th>
-                      <th className="px-4 py-3 font-semibold">Tipo Impacto</th>
-                      <th className="px-4 py-3 font-semibold">Potencialidad</th>
-                      <th className="px-4 py-3 font-semibold">Horizonte</th>
-                      <th className="px-4 py-3 font-semibold">Intencionalidad</th>
-                      <th className="px-4 py-3 font-semibold">Penetración</th>
-                      <th className="px-4 py-3 font-semibold">Implicación</th>
-                      <th className="px-4 py-3 font-semibold">Gravedad</th>
-                      <th className="px-4 py-3 font-semibold">Probabilidad</th>
-                      <th className="px-4 py-3 font-semibold">Alcance</th>
-                      <th className="px-4 py-3 font-semibold">Impacto ESG</th>
-                      <th className="px-4 py-3 font-semibold">Impacto Financiero</th>
-                      <th className="px-4 py-3 font-semibold">Puntaje Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {parteB.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-adaptia-gray-light/10">
-                        <td className="px-4 py-3 font-medium">{row.tema}</td>
-                        <td className="px-4 py-3">{row.tipo_impacto}</td>
-                        <td className="px-4 py-3">{row.potencialidad_impacto}</td>
-                        <td className="px-4 py-3">{row.horizonte_impacto}</td>
-                        <td className="px-4 py-3">{row.intencionalidad_impacto}</td>
-                        <td className="px-4 py-3">{row.penetracion_impacto}</td>
-                        <td className="px-4 py-3">{row.grado_implicacion}</td>
-                        <td className="px-4 py-3 text-center">{row.gravedad}</td>
-                        <td className="px-4 py-3 text-center">{row.probabilidad}</td>
-                        <td className="px-4 py-3 text-center">{row.alcance}</td>
-                        <td className="px-4 py-3 text-center">{row.impacto_esg}</td>
-                        <td className="px-4 py-3 text-center">{row.impacto_financiero}</td>
-                        <td className="px-4 py-3 text-center font-semibold">{row.puntaje_total}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )
-
+          )
+        }
+        
       case "sasb":
         // ✅ Tomamos sólo la tabla SASB (no el mapeo)
         const sasbData =
@@ -549,69 +385,77 @@ const altaData = altaItems.map((item, idx) => ({
           </div>
         )
 
-      case "gri": {
-        // 📦 Buscar la tabla GRI dentro del análisis ESG
-        const griData = analysisData?.find((a: any) => a?.response_content?.gri)?.response_content?.gri || []
-
-        return (
-          <div className="space-y-8">
-            <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">Estándares GRI</h2>
-
-            <p className="text-lg text-adaptia-gray-dark leading-relaxed">
-              Los estándares <strong>GRI (Global Reporting Initiative)</strong> son el marco más utilizado a nivel
-              mundial para reportes de sostenibilidad, cubriendo impacts económicos, ambientales y sociales.
-            </p>
-
-            {griData.length > 0 ? (
-              <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
-                <table className="w-full border-collapse text-sm">
-                  <thead className="bg-purple-300 text-white text-left">
-                    <tr>
-                      <th className="px-4 py-3 font-semibold rounded-tl-lg">Estándar</th>
-                      <th className="px-4 py-3 font-semibold">Contenido</th>
-                      <th className="px-4 py-3 font-semibold rounded-tr-lg">Descripción</th>
-                    </tr>
-                  </thead>
-
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {griData.map((row: any, idx: number) => (
-                      <tr key={idx} className="hover:bg-adaptia-gray-light/10 transition-colors">
-                        <td className="px-4 py-3 text-adaptia-gray-dark font-medium">{row.estandar_gri || "-"}</td>
-                        <td className="px-4 py-3 text-adaptia-gray-dark">{row.contenido_gri || "-"}</td>
-                        <td className="px-4 py-3 text-adaptia-gray-dark leading-relaxed">
-                          {row.descripcion_indicador || "-"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className="text-adaptia-gray-dark text-center py-8">
-                No se encontraron estándares GRI en este análisis.
+        case "gri": {
+          const griData =
+            analysisData?.find((a: any) => a?.name?.includes("Prompt 7"))?.response_content
+              ?.gri_mapping || []
+        
+          return (
+            <div className="space-y-8">
+              <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">Estándares GRI</h2>
+        
+              <p className="text-lg text-adaptia-gray-dark leading-relaxed">
+                Los estándares <strong>GRI (Global Reporting Initiative)</strong> son el marco más utilizado a nivel
+                mundial para reportes de sostenibilidad, cubriendo impactos económicos, ambientales y sociales.
               </p>
-            )}
-
-            <p className="text-xs text-adaptia-gray-dark/70 italic">
-              Fuente: Adaptia ESG Analysis – Estándares GRI 2024.
-            </p>
-          </div>
-        )
-      }
+        
+              {griData.length > 0 ? (
+                <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
+                  <table className="w-full border-collapse text-sm">
+                    <thead className="bg-purple-500 text-white text-left">
+                      <tr>
+                        <th className="px-4 py-3 font-semibold rounded-tl-lg">Estándar GRI</th>
+                        <th className="px-4 py-3 font-semibold">Contenido</th>
+                        <th className="px-4 py-3 font-semibold">Requerimiento</th>
+                        <th className="px-4 py-3 font-semibold rounded-tr-lg">Código</th>
+                      </tr>
+                    </thead>
+        
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                      {griData.map((row: any, idx: number) => (
+                        <tr key={idx} className="hover:bg-adaptia-gray-light/10 transition-colors">
+                          <td className="px-4 py-3 font-medium text-adaptia-gray-dark">
+                            {row.estandar_gri || "-"}
+                          </td>
+                          <td className="px-4 py-3 text-adaptia-gray-dark">{row.contenido || "-"}</td>
+                          <td className="px-4 py-3 text-adaptia-gray-dark leading-relaxed">
+                            {row.requerimiento || "-"}
+                          </td>
+                          <td className="px-4 py-3 text-adaptia-gray-dark">{row.numero_contenido || "-"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-adaptia-gray-dark text-center py-8">
+                  No se encontraron estándares GRI en este análisis.
+                </p>
+              )}
+        
+              <p className="text-xs text-adaptia-gray-dark/70 italic">
+                Fuente: Adaptia ESG Analysis – Estándares GRI 2025.
+              </p>
+            </div>
+          )
+        }
+        
       case "materialidad_c": {
-        const parteC = [...(analysisData[5]?.response_content?.materiality_table || [])]
-
+        const parteC =
+          analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content
+            ?.materiality_table || []
+      
         return (
           <div className="space-y-6">
             <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
               Matriz de Materialidad – Parte C (ODS Vinculados)
             </h2>
-
+      
             <p className="text-adaptia-gray-dark leading-relaxed">
-              Esta sección presenta los <strong>Objetivos de Desarrollo Sostenible (ODS)</strong>
+              Esta sección presenta los <strong>Objetivos de Desarrollo Sostenible (ODS)</strong>{" "}
               vinculados con cada tema material identificado durante el análisis.
             </p>
-
+      
             {parteC.length > 0 ? (
               <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
                 <table className="w-full border-collapse text-sm">
@@ -624,7 +468,7 @@ const altaData = altaItems.map((item, idx) => ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {parteC.map((row, idx) => (
+                    {parteC.map((row: any, idx: number) => (
                       <tr key={idx} className="hover:bg-adaptia-gray-light/10">
                         <td className="px-4 py-3 font-medium">{row.tema}</td>
                         <td className="px-4 py-3">{row.prioridad}</td>
@@ -643,7 +487,7 @@ const altaData = altaItems.map((item, idx) => ({
           </div>
         )
       }
-
+      
       case "regulaciones": {
         // 📦 Extraer las regulaciones desde el análisis ESG
         const regulacionesData =

@@ -115,8 +115,13 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
             <div className="space-y-3">
               {org.analysis.map((analysis) => {
                 const isPendingPay = analysis.payment_status === "PENDING"
+
+                // ✅ Si está completado pero el shipping_status es NOT_SEND, mostrar como pendiente
                 const isCompleted =
-                  analysis.payment_status === "COMPLETED" && analysis.status === "COMPLETED"
+                  analysis.payment_status === "COMPLETED" &&
+                  analysis.status === "COMPLETED" &&
+                  analysis.shipping_status === "SENT"
+
 
                 const badgeClass = isPendingPay
                   ? "bg-blue-100 text-blue-800"

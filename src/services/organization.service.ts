@@ -122,3 +122,45 @@ export const deleteOrganization = async (id: string, authToken?: string) => {
     return null
   }
 }
+
+export const updateStatusPaymentAnalysis = async (id: string, authToken?: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/analysis/statusPayment/${id}`, {
+      method: "PATCH",
+      headers: getJsonHeaders(authToken),
+    })
+    const data = await response.json()
+
+    if (response.ok) {
+      revalidateTag(getCacheTag("analysis", "all"))
+      return data
+    } else {
+      console.error(data)
+      return null
+    }
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}
+
+export const sendAnalysis = async (id: string, authToken?: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/analysis/sendAnalysis/${id}`, {
+      method: "PATCH",
+      headers: getJsonHeaders(authToken),
+    })
+    const data = await response.json()
+
+    if (response.ok) {
+      revalidateTag(getCacheTag("analysis", "all"))
+      return data
+    } else {
+      console.error(data)
+      return null
+    }
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}

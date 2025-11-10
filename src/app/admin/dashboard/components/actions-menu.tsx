@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import React from "react"
 import Link from "next/link"
-import { MoreHorizontal, Eye, FileText } from "lucide-react"
+import { MoreHorizontal, Eye, FileText, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -15,18 +15,22 @@ import {
 import RetryEsgButton from "./retry-esg-button"
 import { OrganizationInfoDialog } from "../../../dashboard/components/organization-details-dialog"
 import { Organization } from "@/types/organization.type"
+import SendAnalysisButton from "./send-analysis-button"
 
-export default function ActionsMenu({ org }: { org: Organization }) {
-  const [openDialog, setOpenDialog] = useState(false)
-
-  // 🧠 Obtener el último análisis (por fecha de creación)
+export default function ActionsMenu({
+  org,
+  authToken,
+}: {
+  org: Organization
+  authToken: string
+}) {
+  // 🧠 Último análisis
   const lastAnalysis = org.analysis?.length
     ? [...org.analysis].sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )[0]
     : null
 
-  // 🚫 Mostrar “Ver análisis” solo si NO está en estado PENDING
   const showViewAnalysis =
     lastAnalysis && lastAnalysis.status !== "PENDING" && lastAnalysis.status !== "FAILED"
 
@@ -45,7 +49,7 @@ export default function ActionsMenu({ org }: { org: Organization }) {
               </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuLabel>Acciones</DropdownMenuLabel>
               <DropdownMenuSeparator />
 
@@ -58,7 +62,7 @@ export default function ActionsMenu({ org }: { org: Organization }) {
                 Ver detalles
               </DropdownMenuItem>
 
-              {/* 📄 Ver análisis — solo si el último no está pendiente */}
+              {/* 📄 Ver análisis */}
               {showViewAnalysis && (
                 <DropdownMenuItem asChild>
                   <Link
@@ -69,6 +73,18 @@ export default function ActionsMenu({ org }: { org: Organization }) {
                     Ver análisis
                   </Link>
                 </DropdownMenuItem>
+              )}
+
+              {/* ✉️ Enviar análisis */}
+              {lastAnalysis && (
+                <>
+                  <DropdownMenuSeparator />
+                  <SendAnalysisButton
+                    id={lastAnalysis.id}
+                    accessToken={authToken}
+                    shippingStatus={lastAnalysis.shipping_status}
+                  />
+                </>
               )}
 
               {/* 🔁 Reintentar si hay análisis fallido */}

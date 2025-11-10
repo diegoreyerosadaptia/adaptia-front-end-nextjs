@@ -5,4 +5,6 @@ export type Esg = {
     country: string
     website: string
     organizationId?: string
+    industry: string
+    document?: string
 }
