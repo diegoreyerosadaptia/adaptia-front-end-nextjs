@@ -31,9 +31,9 @@ export default function SendAnalysisButton({ id, accessToken, shippingStatus }: 
       <Button
         disabled
         size="sm"
-        className="bg-green-100 text-green-800 hover:bg-green-100 text-xs flex items-center gap-1 px-2 py-1"
+        className="bg-green-100 w-full text-green-800 hover:bg-green-100 text-xs flex items-center gap-1 px-1 py-1"
       >
-        <CheckCircle2 className="w-3.5 h-3.5 text-green-700" />
+        <CheckCircle2 className="w-1 h-1 text-green-700" />
         Enviado
       </Button>
     )
@@ -55,16 +55,18 @@ export default function SendAnalysisButton({ id, accessToken, shippingStatus }: 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div
+        <Button
+          size="sm"
+          variant="outline"
           onClick={(e) => {
             e.stopPropagation() // evitar que se cierre el menú
             setOpen(true)
           }}
-          className="flex items-center gap-2 text-xs text-adaptia-blue-primary hover:bg-adaptia-blue-primary/10 rounded-md px-2 py-1 cursor-pointer"
+          className="flex w-full items-center gap-2 px-3 py-2 text-sm rounded-md border text-blue-primary hover:bg-adaptia-blue-primary hover:text-white"    
         >
-          <SendHorizonal className="w-3.5 h-3.5" />
+          <SendHorizonal className="w-4 h-4 hover:bg-adaptia-blue-primary hover:text-white" />
           Enviar análisis
-        </div>
+        </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md">

@@ -728,3 +728,19 @@
     transform: translateY(-2px);
   }
 }
+
+
+/* 💡 Corrige el hover amarillo del DropdownMenuItem solo en Adaptia */
+@layer components {
+  [data-radix-popper-content-wrapper] [data-highlighted] {
+    background-color: var(--adaptia-blue-primary) !important;
+    color: white !important;
+  }
+
+  /* También cubre el focus (cuando se navega con teclado) */
+  [data-radix-popper-content-wrapper] [data-state="open"] [data-highlighted],
+  [data-radix-popper-content-wrapper] [data-highlighted]:focus {
+    background-color: var(--adaptia-blue-primary) !important;
+    color: white !important;
+  }
+}

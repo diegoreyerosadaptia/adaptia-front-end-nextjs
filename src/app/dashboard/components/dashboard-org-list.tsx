@@ -9,6 +9,7 @@ import { createPreferenceAction } from "@/actions/payments/create-preference.act
 import { supabase } from "@/lib/supabase/client"
 import { useState } from "react"
 import { DeleteOrganizationDialog } from "./delete-organzation-dialog"
+import { GenerateEsgPdfButton } from "@/components/pdf/generate-esg-button"
 
 export default function DashboardOrgList({ organizations }: { organizations: Organization[] }) {
   const [loadingPaymentId, setLoadingPaymentId] = useState<string | null>(null)
@@ -92,7 +93,7 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-adaptia-blue-primary text-adaptia-blue-primary hover:bg-adaptia-blue-primary hover:text-white bg-transparent"
+                  className="border-adaptia-blue-primary text-adaptia-blue-primary hover:bg-adaptia-blue-primary hover:text-white"
                   onClick={(e) => {
                     e.stopPropagation()
                     openDialog()
@@ -203,21 +204,117 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
                           </Button>
                         )}
                   
-                        {/* 🔹 Botón Ver análisis (solo si está completado) */}
-                        {isCompleted && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-green-600 cursor-pointer text-green-700 hover:bg-green-600 hover:text-white"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              router.push(`/dashboard/organization/${org.id}`)
-                            }}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            Ver Análisis
-                          </Button>
-                        )}
+                  {isCompleted && (
+                    <div className="flex items-center gap-2">
+                      {/* 👁️ Ver análisis */}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-blue-primary text-blue-primary hover:bg-adaptia-blue-primary hover:text-white"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          router.push(`/dashboard/organization/${org.id}`)
+                        }}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Ver Análisis
+                      </Button>
+
+                      {/* 📄 Descargar PDF (solo si existe EsgAnalysis asociado) */}
+                      {org.esgAnalysis && org.esgAnalysis.length > 0 && (() => {
+                        try {
+                          const lastAnalysis = org.esgAnalysis.at(-1)
+                          if (!lastAnalysis) return null
+
+                          // 🧠 Procesar JSON
+                          const analysisData =
+                            typeof lastAnalysis.analysisJson === "string"
+                              ? JSON.parse(lastAnalysis.analysisJson)
+                              : lastAnalysis.analysisJson
+
+                          if (!analysisData) return null
+
+                          // 🧩 Extraer datos principales
+                          const resumenData =
+                            analysisData.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
+
+                          const contextoData =
+                            analysisData.find((a: any) => a?.response_content?.nombre_empresa)?.response_content || {}
+
+                          const parteA = [...(analysisData?.[1]?.response_content?.materiality_table || [])]
+                          const parteB = [...(analysisData?.[3]?.response_content?.materiality_table || [])]
+
+                          // ======================
+                          // 💾 Asociación Parte A + Parte B
+                          // ======================
+                          const dataFinal = parteA.map((item: any) => {
+                            const match = parteB.find((b: any) => b.tema === item.tema)
+                            const puntaje = match?.puntaje_total ?? 0
+
+                            let x = 0
+                            if (item.materialidad_financiera?.toLowerCase() === "baja") x = 0.5 + Math.random() * 1.5
+                            if (item.materialidad_financiera?.toLowerCase() === "media") x = 2 + Math.random() * 2
+                            if (item.materialidad_financiera?.toLowerCase() === "alta") x = 4 + Math.random() * 2
+
+                            return {
+                              tema: item.tema,
+                              materialidad: item.materialidad_financiera,
+                              puntaje_total: puntaje,
+                              x,
+                              y: puntaje,
+                            }
+                          })
+
+                          // ======================
+                          // 🟢 Agrupar “Alta” con mismo puntaje_total
+                          // ======================
+                          const altaAgrupada = Object.values(
+                            dataFinal
+                              .filter((d) => d.materialidad?.toLowerCase() === "alta")
+                              .reduce((acc: Record<number, any[]>, item: any) => {
+                                if (!acc[item.puntaje_total]) acc[item.puntaje_total] = []
+                                acc[item.puntaje_total].push(item)
+                                return acc
+                              }, {})
+                          ).map((grupo: any) => {
+                            const { puntaje_total } = grupo[0]
+                            const xPromedio = grupo.reduce((sum: number, i: any) => sum + i.x, 0) / grupo.length
+                            return {
+                              temas: grupo.map((g: any) => g.tema),
+                              materialidad: "Alta",
+                              puntaje_total,
+                              x: xPromedio,
+                              y: puntaje_total,
+                            }
+                          })
+
+                          const finalScatterData = [
+                            ...dataFinal.filter((d: any) => d.materialidad?.toLowerCase() !== "alta"),
+                            ...altaAgrupada,
+                          ]
+
+                          // ✅ Mostrar botón
+                          return (
+                            <GenerateEsgPdfButton
+                              contexto={contextoData}
+                              resumen={resumenData}
+                              portada="/Portada-Resumen-Ejecutivo-Adaptia.png"
+                              contraportada="/Contra-Portada-Resumen-Ejecutivo-Adaptia.png"
+                              filename={`Reporte_ESG_${org.company}.pdf`}
+                              dataMaterialidad={finalScatterData}
+                              parteA={parteA}
+                              className="bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 text-white"
+                              dashboard={true}
+                            />
+                          )
+                        } catch (error) {
+                          console.error("❌ Error preparando PDF ESG:", error)
+                          return null
+                        }
+                      })()}
+                    </div>
+                  )}
+
                       </div>
                     </div>
                   )

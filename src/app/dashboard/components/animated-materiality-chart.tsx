@@ -89,7 +89,7 @@ export function AnimatedMaterialityChart({ data, parteA }: AnimatedMaterialityCh
   }
 
   return (
-    <div ref={chartRef} style={{ width: "100%", height: "100%", minHeight: 400, position: "relative" }}>
+    <div id="materiality-chart" ref={chartRef} style={{ width: "100%", height: "100%", minHeight: 400, position: "relative" }}>
       <ResponsiveContainer width="100%" height="100%">
         <ScatterChart margin={{ top: 60, right: 80, bottom: 80, left: 80 }}>
           <defs>

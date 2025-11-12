@@ -2,7 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
-import { MoreHorizontal, Eye, FileText, CheckCircle2 } from "lucide-react"
+import { MoreHorizontal, Eye, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -24,7 +24,6 @@ export default function ActionsMenu({
   org: Organization
   authToken: string
 }) {
-  // 🧠 Último análisis
   const lastAnalysis = org.analysis?.length
     ? [...org.analysis].sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -49,51 +48,55 @@ export default function ActionsMenu({
               </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+            <DropdownMenuContent
+              align="end"
+              className="w-52 p-2 rounded-xl shadow-md border border-gray-100"
+            >
+              <DropdownMenuLabel className="px-2 text-gray-600 text-sm font-semibold">
+                Acciones
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
-
-              {/* 👁️ Ver detalles */}
-              <DropdownMenuItem
-                onClick={openDialogFn}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                <Eye className="w-4 h-4 text-adaptia-blue-primary" />
-                Ver detalles
-              </DropdownMenuItem>
-
-              {/* 📄 Ver análisis */}
-              {showViewAnalysis && (
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={`/dashboard/organization/${org.id}`}
-                    className="flex items-center gap-2 cursor-pointer"
-                  >
-                    <FileText className="w-4 h-4 text-adaptia-green-primary" />
-                    Ver análisis
-                  </Link>
-                </DropdownMenuItem>
-              )}
 
               {/* ✉️ Enviar análisis */}
               {lastAnalysis && (
-                <>
-                  <DropdownMenuSeparator />
+                <div className="px-1">
                   <SendAnalysisButton
                     id={lastAnalysis.id}
                     accessToken={authToken}
                     shippingStatus={lastAnalysis.shipping_status}
                   />
-                </>
+                </div>
               )}
 
-              {/* 🔁 Reintentar si hay análisis fallido */}
+              {/* 👁️ Ver detalles */}
+              <DropdownMenuItem
+                onClick={openDialogFn}
+                className="flex items-center gap-2 px-3 py-2 text-sm rounded-md text-adaptia-blue-primary hover:bg-adaptia-blue-primary hover:text-white transition-colors cursor-pointer mt-1"
+              >
+                <Eye className="w-4 h-4" />
+                Ver detalles
+              </DropdownMenuItem>
+
+              {/* 📄 Ver análisis */}
+              {showViewAnalysis && (
+                <DropdownMenuItem asChild className="mt-1">
+                  <Link
+                    href={`/dashboard/organization/${org.id}`}
+                    className="flex items-center gap-2 px-3 py-2 text-sm rounded-md text-adaptia-blue-primary hover:bg-adaptia-blue-primary hover:text-white transition-colors cursor-pointer"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Ver análisis
+                  </Link>
+                </DropdownMenuItem>
+              )}
+
+              {/* 🔁 Reintentar análisis fallido */}
               {org.analysis?.some((a) => a.status === "FAILED") && (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
+                  <div className="px-1">
                     <RetryEsgButton org={org} />
-                  </DropdownMenuItem>
+                  </div>
                 </>
               )}
             </DropdownMenuContent>

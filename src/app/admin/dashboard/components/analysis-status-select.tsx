@@ -1,7 +1,7 @@
 'use client'
 
 import { useTransition } from 'react'
-import { updateStatusPaymentAnalysisAction } from '@/actions/analysis/update-payment-status.action copy'
+import { updateStatusPaymentAnalysisAction } from '@/actions/analysis/update-payment-status.action'
 import { toast } from 'sonner'
 import {
   Select,

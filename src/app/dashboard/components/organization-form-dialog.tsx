@@ -12,18 +12,59 @@ import OrganizationForm from "@/components/form-org/organization-form"
 import { Button } from "@/components/ui/button"
 import { Building2 } from "lucide-react"
 import { useState } from "react"
-import { PaymentDrawer } from "@/components//form-org/payment-drawer"
+import { PaymentDrawer } from "@/components/form-org/payment-drawer"
 import { Organization } from "@/types/organization.type"
+import { toast } from "sonner"
+import { createPreferenceAction } from "@/actions/payments/create-preference.action"
+import { supabase } from "@/lib/supabase/client"
+
 
 export function AddOrganizationDialog() {
   const [openDialog, setOpenDialog] = useState(false)
   const [openDrawer, setOpenDrawer] = useState(false)
-  const [createdOrg, setCreatedOrg] = useState<Organization | null>(null)
+  const [createdOrg, setCreatedOrg] = useState<(Organization & { checkoutUrl?: string }) | null>(null)
 
-  const handleSuccess = (org: Organization) => {
-    setCreatedOrg(org)
-    setOpenDialog(false) // ✅ cierra el diálogo
-    setTimeout(() => setOpenDrawer(true), 400) // ✅ abre el drawer con una pequeña pausa
+
+  const handleSuccess = async (org: Organization) => {
+    try {
+      toast.loading("Generando link de pago...")
+
+      // 🧠 Obtener usuario autenticado desde Supabase
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user?.id) {
+        toast.error("Usuario no autenticado")
+        return
+      }
+
+      // ✅ Crear la preferencia de pago (en tu backend)
+      const paymentResponse = await createPreferenceAction({
+        userId: user.id,
+        organizationId: org.id,
+      })
+
+      if (!paymentResponse?.success || !paymentResponse?.url) {
+        toast.error("Error al generar el link de pago")
+        return
+      }
+
+      // ✅ Guardar la organización con el link de pago
+      setCreatedOrg({
+        ...org,
+        checkoutUrl: paymentResponse.url,
+      })
+
+      // ✅ Cerrar el diálogo y abrir el drawer de pago
+      setOpenDialog(false)
+      setTimeout(() => setOpenDrawer(true), 400)
+    } catch (error) {
+      console.error("Error al crear preferencia de pago:", error)
+      toast.error("No se pudo generar el link de pago")
+    } finally {
+      toast.dismiss()
+    }
   }
 
   return (
@@ -49,18 +90,19 @@ export function AddOrganizationDialog() {
           <div className="pt-6 pb-4 px-2">
             <OrganizationForm
               redirectToPayment={false}
-              onSuccess={handleSuccess} // ✅ ahora se ejecuta correctamente
+              onSuccess={handleSuccess}
             />
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Drawer de pago o resumen */}
+      {/* Drawer de pago con el link ya generado */}
       {createdOrg && (
         <PaymentDrawer
           open={openDrawer}
           onOpenChange={setOpenDrawer}
           organization={createdOrg}
+          checkoutUrl={createdOrg.checkoutUrl}
           payCta="Completar pago"
         />
       )}

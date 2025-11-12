@@ -66,7 +66,12 @@ export default async function AdminDashboard() {
     organizations?.reduce((acc, org) => acc + (org.analysis?.filter((a) => a.status === "PENDING").length || 0), 0) || 0
   const failedAnalysis =
     organizations?.reduce((acc, org) => acc + (org.analysis?.filter((a) => a.status === "FAILED").length || 0), 0) || 0
-
+    const incompleteAnalysis =
+    organizations?.reduce(
+      (acc, org) => acc + (org.analysis?.filter((a) => a.status === "INCOMPLETE").length || 0),
+      0,
+    ) || 0
+  
   // Payment statistics
   const completedPayments =
     organizations?.reduce(
@@ -122,17 +127,6 @@ export default async function AdminDashboard() {
 
           <Card className="border-adaptia-gray-light/20 shadow-md hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
-              <CardTitle className="text-xs font-medium text-adaptia-gray-dark">Total Análisis</CardTitle>
-              <FileText className="h-4 w-4 text-adaptia-green-primary" />
-            </CardHeader>
-            <CardContent className="px-4 pb-4">
-              <div className="text-2xl font-bold text-adaptia-blue-primary">{totalAnalysis}</div>
-              <p className="text-[10px] text-adaptia-gray-dark mt-1">Análisis generados</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-adaptia-gray-light/20 shadow-md hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
               <CardTitle className="text-xs font-medium text-adaptia-gray-dark">Completados</CardTitle>
               <CheckCircle2 className="h-4 w-4 text-green-600" />
             </CardHeader>
@@ -154,6 +148,20 @@ export default async function AdminDashboard() {
               <p className="text-[10px] text-adaptia-gray-dark mt-1">En proceso</p>
             </CardContent>
           </Card>
+
+          <Card className="border-adaptia-gray-light/20 shadow-md hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
+              <CardTitle className="text-xs font-medium text-adaptia-gray-dark">Incompletos</CardTitle>
+              <Clock className="h-4 w-4 text-orange-600" />
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <div className="text-2xl font-bold text-orange-600">{incompleteAnalysis}</div>
+              <p className="text-[10px] text-adaptia-gray-dark mt-1">
+                {totalAnalysis > 0 ? Math.round((incompleteAnalysis / totalAnalysis) * 100) : 0}% del total
+              </p>
+            </CardContent>
+          </Card>
+
 
           <Card className="border-adaptia-gray-light/20 shadow-md hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
@@ -272,6 +280,12 @@ export default async function AdminDashboard() {
                                 <Badge className="bg-red-100 text-red-800 hover:bg-red-100 text-[10px] px-1.5 py-0.5">
                                   <XCircle className="h-2.5 w-2.5 mr-0.5" />
                                   Fallido
+                                </Badge>
+                              )}
+                              {org.analysis?.some((a) => a.status === "INCOMPLETE") && (
+                                <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100 text-[10px] px-1.5 py-0.5">
+                                  <Clock className="h-2.5 w-2.5 mr-0.5" />
+                                  Incompleto
                                 </Badge>
                               )}
                               {analysisCount === 0 && (

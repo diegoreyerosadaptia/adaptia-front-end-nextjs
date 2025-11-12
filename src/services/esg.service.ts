@@ -29,3 +29,28 @@ export const createEsg = async (data: Esg, authToken?: string) => {
     return null
   }
 }
+
+export const updateAnalysisJson = async (id: string, body: any, authToken?: string) => {
+  try {
+    console.log('🧩 Enviando JSON al backend:', body)
+
+    const response = await fetch(`${BASE_URL}/esg-analysis/${id}/json`, {
+      method: "PUT",
+      headers: getJsonHeaders(authToken),
+      body: JSON.stringify(body),
+    })
+
+    const result = await response.json()
+
+    if (response.ok) {
+      console.log("✅ Backend respondió:", result)
+      return result
+    } else {
+      console.error("❌ Error del backend:", result)
+      return null
+    }
+  } catch (error) {
+    console.error("💥 Error al actualizar análisis ESG:", error)
+    return null
+  }
+}

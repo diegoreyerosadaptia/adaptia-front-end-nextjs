@@ -30,7 +30,19 @@ export default async function OrganizationPage({ params }: OrgPageProps) {
   } = await supabase.auth.getSession()
   
   const token = session?.access_token
-  
+
+  const { data: userProfile, error } = await supabase
+  .from("users")
+  .select("role")
+  .eq("id", user.id)
+  .single()
+
+if (error) {
+  console.error("Error al obtener el rol:", error)
+}
+
+const role = userProfile?.role
+console.log("Rol del usuario:", role)
 
   const organization = await getOrganizationById(id, token)
 
@@ -40,5 +52,5 @@ export default async function OrganizationPage({ params }: OrgPageProps) {
   }
 
 
-  return <OrganizationAnalysisView organization={organization} />
+  return <OrganizationAnalysisView organization={organization} token={token || ''} role={role || 'USER'} />
 }

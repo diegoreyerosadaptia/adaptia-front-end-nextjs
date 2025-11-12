@@ -5,6 +5,7 @@ import { createEsg } from "@/services/esg.service"
 import { supabase } from "@/lib/supabase/client"
 import { Loader2, RotateCcw } from "lucide-react"
 import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
 
 export default function RetryEsgButton({ org }: { org: any }) {
   const [loading, setLoading] = useState(false)
@@ -53,14 +54,16 @@ export default function RetryEsgButton({ org }: { org: any }) {
   }
 
   return (
-    <button
+    <Button
+      size="sm"
+      variant="outline"
       onClick={handleRetry}
       disabled={loading}
-      className={`flex w-full items-center gap-2 px-2 py-1.5 text-sm rounded-md transition-colors
+      className={`flex w-full items-center gap-2 px-3 py-2 text-sm rounded-md border transition-colors
         ${
           loading
-            ? "opacity-70 cursor-not-allowed text-gray-400"
-            : "text-adaptia-blue-primary hover:bg-adaptia-blue-primary/10 hover:text-adaptia-blue-primary"
+            ? "opacity-70 cursor-not-allowed border-green-300 text-green-400"
+            : "border-blue-primary text-blue-primary hover:bg-adaptia-blue-primary hover:text-white"
         }`}
     >
       {loading ? (
@@ -71,9 +74,9 @@ export default function RetryEsgButton({ org }: { org: any }) {
       ) : (
         <>
           <RotateCcw className="w-4 h-4" />
-          Volver a hacer análisis
+          Restaurar análisis
         </>
       )}
-    </button>
+    </Button>
   )
 }
