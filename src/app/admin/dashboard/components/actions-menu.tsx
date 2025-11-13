@@ -33,6 +33,10 @@ export default function ActionsMenu({
   const showViewAnalysis =
     lastAnalysis && lastAnalysis.status !== "PENDING" && lastAnalysis.status !== "FAILED"
 
+    const showSendAnalysis =
+  lastAnalysis && lastAnalysis.status === "COMPLETED"
+
+
   return (
     <div className="flex justify-center">
       <OrganizationInfoDialog org={org}>
@@ -58,7 +62,7 @@ export default function ActionsMenu({
               <DropdownMenuSeparator />
 
               {/* ✉️ Enviar análisis */}
-              {lastAnalysis && (
+              {showSendAnalysis && (
                 <div className="px-1">
                   <SendAnalysisButton
                     id={lastAnalysis.id}
@@ -67,6 +71,7 @@ export default function ActionsMenu({
                   />
                 </div>
               )}
+
 
               {/* 👁️ Ver detalles */}
               <DropdownMenuItem

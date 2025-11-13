@@ -226,7 +226,7 @@ export async function generateEsgPdf({
   /* =======================
    📘 RESUMEN EJECUTIVO
   ======================= */
-  const resumenPage = addPage("Resumen Ejecutivo")
+  let resumenPage = addPage("Resumen Ejecutivo")
   y = pageHeight - 130
 
   resumenPage.drawText("Estrategia de Sostenibilidad Recomendada", {
@@ -238,46 +238,70 @@ export async function generateEsgPdf({
   })
   y -= 25
 
+  function wrapTextByWidth(text: string, font: any, fontSize: number, maxWidth: number) {
+    const words = text.split(" ")
+    const lines = []
+    let current = ""
+  
+    for (const w of words) {
+      const test = current + w + " "
+      const width = font.widthOfTextAtSize(test, fontSize)
+  
+      if (width > maxWidth) {
+        lines.push(current.trim())
+        current = w + " "
+      } else {
+        current = test
+      }
+    }
+  
+    if (current.trim()) lines.push(current.trim())
+    return lines
+  }
+  
   const addParagraph = (text: string) => {
-    const wrapped = wrapText(text, 85)
-    const lineHeight = 20
-    const paragraphHeight = wrapped.length * lineHeight + 20
+    const fontSize = 12
+    const lineHeight = 16
+    const maxWidth = contentWidth - 20 // ancho más cómodo
+    const lines = wrapTextByWidth(text, fontRegular, fontSize, maxWidth)
   
-    // 🟣 Calcular ancho real del texto más largo
-    const longestLine = wrapped.reduce(
-      (max, l) => (l.length > max.length ? l : max),
-      ""
-    )
-    const textWidth = fontRegular.widthOfTextAtSize(longestLine, 11.5)
-    const boxPadding = 8
-    const boxWidth = textWidth + boxPadding * 2
+    // altura dinámica
+    const paragraphHeight = lines.length * lineHeight + 20
   
-    // 🔳 Dibujar fondo ajustado al texto
-    resumenPage.drawRectangle({
+    // salto de página si no entra
+    if (y - paragraphHeight < 60) {
+      resumenPage = addPage("Resumen Ejecutivo")
+      y = pageHeight - 130
+    }
+
+  
+  // Caja ANCHA y ESTÉTICA
+  resumenPage.drawRectangle({
       x: leftMargin,
-      y: y - paragraphHeight + 5,
-      width: boxWidth,
+      y: y - paragraphHeight,
+      width: maxWidth + 20,
       height: paragraphHeight,
-      color: rgb(0.98, 0.98, 0.99),
-      borderColor: rgb(0.85, 0.85, 0.9),
-      borderWidth: 0.5,
+      color: rgb(0.98, 0.98, 0.995),
+      borderColor: rgb(0.85, 0.85, 0.92),
+      borderWidth: 1,
     })
   
-    // 📝 Texto
-    let currentY = y
-    wrapped.forEach((line) => {
+    // Texto
+    let textY = y - 15
+    for (const line of lines) {
       resumenPage.drawText(line, {
-        x: leftMargin + boxPadding,
-        y: currentY,
-        size: 11.5,
+        x: leftMargin + 12,
+        y: textY,
+        size: fontSize,
         font: fontRegular,
         color: textGray,
       })
-      currentY -= lineHeight
-    })
+      textY -= lineHeight
+    }
   
-    y -= paragraphHeight + 10
+    y -= paragraphHeight + 20
   }
+  
   
 
   addParagraph(resumen.parrafo_1)

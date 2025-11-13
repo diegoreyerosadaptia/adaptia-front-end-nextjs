@@ -15,6 +15,7 @@ import {
   Search,
   Eye,
   TrendingUp,
+  Loader2,
 } from "lucide-react"
 import { getOrganizations } from "@/services/organization.service"
 import ActionsMenu from "./components/actions-menu"
@@ -270,12 +271,12 @@ export default async function AdminDashboard() {
                                   Completado
                                 </Badge>
                               )}
-                              {pendingCount > 0 && (
-                                <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 text-[10px] px-1.5 py-0.5">
-                                  <Clock className="h-2.5 w-2.5 mr-0.5" />
-                                  Pendiente
-                                </Badge>
-                              )}
+                            {pendingCount > 0 && (
+                              <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100 text-[10px] px-1.5 py-0.5 flex items-center">
+                                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                Procesando
+                              </Badge>
+                            )}
                               {failedCount > 0 && (
                                 <Badge className="bg-red-100 text-red-800 hover:bg-red-100 text-[10px] px-1.5 py-0.5">
                                   <XCircle className="h-2.5 w-2.5 mr-0.5" />
