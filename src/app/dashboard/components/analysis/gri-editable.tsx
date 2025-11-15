@@ -27,26 +27,41 @@ export function GriEditable({
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [griData, setGriData] = useState<GriItem[]>(griOriginal)
 
-  /* 🧭 Editar celda individual */
+  // 👇 evita undefined y problemas con .map()
+  const [griData, setGriData] = useState<GriItem[]>(griOriginal ?? [])
+
+  /* =============================== */
+  /* ✏️ Editar celda individual      */
+  /* =============================== */
   const handleEditCell = (index: number, field: keyof GriItem, value: string) => {
     const updated = [...griData]
     updated[index][field] = value
     setGriData(updated)
   }
 
-  /* 💾 Guardar cambios */
+  /* =============================== */
+  /* 💾 Guardar cambios              */
+  /* =============================== */
   const handleSaveChanges = async () => {
     try {
       setIsSaving(true)
+
       const newJson = [...analysisData]
 
-      // Buscar la sección GRI (Prompt 7)
-      const griSection = newJson.find((a: any) => a?.name?.includes("Prompt 7"))
-      if (griSection) griSection.response_content.gri_mapping = griData
+      // Buscar sección Prompt 7 GRI
+      const griSection = newJson.find(
+        (a: any) =>
+          a?.name?.includes("Prompt 7") ||
+          a?.name?.toLowerCase().includes("gri")
+      )
+
+      if (griSection) {
+        griSection.response_content.gri_mapping = griData
+      }
 
       const res = await updateAnalysisJsonAction(lastAnalysisId, newJson as any, accessToken)
+
       if (res?.error) {
         toast.error("Error al guardar los cambios")
       } else {
@@ -61,9 +76,11 @@ export function GriEditable({
     }
   }
 
-  /* ❌ Cancelar edición y restaurar estado original */
+  /* =============================== */
+  /* ❌ Cancelar edición             */
+  /* =============================== */
   const handleCancel = () => {
-    setGriData(griOriginal) // restaura datos originales
+    setGriData(griOriginal ?? [])
     setIsEditing(false)
     toast.info("Cambios descartados")
   }
@@ -71,7 +88,7 @@ export function GriEditable({
   return (
     <div className="space-y-8">
       {/* ========================= */}
-      {/* 🧭 Header con dropdown */}
+      {/* 🧭 Header */}
       {/* ========================= */}
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
@@ -84,15 +101,14 @@ export function GriEditable({
             isSaving={isSaving}
             onEditToggle={() => setIsEditing(!isEditing)}
             onSave={handleSaveChanges}
-            onCancel={handleCancel} // 👈 importante
+            onCancel={handleCancel}
           />
         )}
       </div>
 
       <p className="text-lg text-adaptia-gray-dark leading-relaxed">
-        Los estándares <strong>GRI (Global Reporting Initiative)</strong> son el marco más
-        utilizado a nivel mundial para reportes de sostenibilidad, cubriendo
-        impactos económicos, ambientales y sociales.
+        Los estándares <strong>GRI (Global Reporting Initiative)</strong> son el marco más adoptado para reportes de sostenibilidad, describiendo
+        impactos económicos, sociales y ambientales.
       </p>
 
       {/* ========================= */}
@@ -111,13 +127,18 @@ export function GriEditable({
             </thead>
 
             <tbody className="divide-y divide-gray-200 bg-white">
-              {griData.map((row, idx) => (
-                <tr key={idx} className="hover:bg-adaptia-gray-light/10 transition-colors align-top">
-                  {(Object.keys(row) as (keyof GriItem)[]).map((key) => (
+              {griData.map((row: GriItem, idx: number) => (
+                <tr
+                  key={idx}
+                  className="hover:bg-adaptia-gray-light/10 transition-colors align-top"
+                >
+                  {(
+                    Object.keys(row) as (keyof GriItem)[]
+                  ).map((key) => (
                     <td key={key} className="px-4 py-3 text-adaptia-gray-dark leading-relaxed">
                       {isEditing ? (
                         <textarea
-                          value={row[key] || ""}
+                          value={row[key] ?? ""}
                           onChange={(e) => handleEditCell(idx, key, e.target.value)}
                           className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-purple-500 resize-y min-h-[50px]"
                         />

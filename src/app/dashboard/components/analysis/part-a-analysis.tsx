@@ -5,6 +5,9 @@ import { AnalysisActionsMenu } from "./analysis-actions-menu"
 import { updateAnalysisJsonAction } from "@/actions/analysis/update-analysis-json.action"
 import { toast } from "sonner"
 
+/* ================================
+   🎯 Tipos definitivos Parte A
+================================ */
 type ParteAItem = {
   sector: string
   tema: string
@@ -12,6 +15,21 @@ type ParteAItem = {
   accion_marginal: string
   accion_moderada: string
   accion_estructural: string
+}
+
+/* ======================================================
+   🔄 Mapper: convierte el JSON nuevo del modelo → UI
+   (ignora riesgos, oportunidades, valor_financiero, etc.)
+====================================================== */
+function mapPrompt2ToParteA(item: any): ParteAItem {
+  return {
+    sector: item.sector || "",
+    tema: item.tema || "",
+    materialidad_financiera: item.materialidad_financiera || "",
+    accion_marginal: item.accion_marginal || "",
+    accion_moderada: item.accion_moderada || "",
+    accion_estructural: item.accion_estructural || "",
+  }
 }
 
 export function ParteAEditable({
@@ -38,14 +56,20 @@ export function ParteAEditable({
     setParteAData(updated)
   }
 
-  /* 💾 Guardar cambios */
+  /* 💾 Guardar cambios con limpieza de campos */
   const handleSaveChanges = async () => {
     try {
       setIsSaving(true)
+
+      /* 🔥 Limpia y mapea cada fila desde el JSON nuevo del modelo */
+      const cleanedParteA = parteAData.map(mapPrompt2ToParteA)
+
+      /* 🧠 Actualiza el JSON principal del análisis */
       const newJson = [...analysisData]
-      newJson[1].response_content.materiality_table = parteAData
+      newJson[1].response_content.materiality_table = cleanedParteA
 
       const res = await updateAnalysisJsonAction(lastAnalysisId, newJson as any, accessToken)
+
       if (res?.error) {
         toast.error("Error al guardar los cambios")
       } else {
@@ -70,17 +94,18 @@ export function ParteAEditable({
   return (
     <div className="space-y-4">
       {/* ========================= */}
-      {/* 🧭 Header con dropdown */}
+      {/* 🧭 Header con acciones */}
       {/* ========================= */}
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-lg font-semibold text-green-600">Parte A - Acciones</h3>
+
         {userRole === "ADMIN" && (
           <AnalysisActionsMenu
             isEditing={isEditing}
             isSaving={isSaving}
             onEditToggle={() => setIsEditing(!isEditing)}
             onSave={handleSaveChanges}
-            onCancel={handleCancel} // 👈 agregado
+            onCancel={handleCancel}
           />
         )}
       </div>
@@ -104,7 +129,7 @@ export function ParteAEditable({
           <tbody className="divide-y divide-gray-200 bg-white">
             {parteAData.map((row, idx) => (
               <tr key={idx} className="hover:bg-adaptia-gray-light/10 align-top">
-                {/* ✅ Sector */}
+                {/* SECTOR */}
                 <td className="px-4 py-3">
                   {isEditing ? (
                     <textarea
@@ -119,7 +144,7 @@ export function ParteAEditable({
                   )}
                 </td>
 
-                {/* ✅ Tema */}
+                {/* TEMA */}
                 <td className="px-4 py-3">
                   {isEditing ? (
                     <textarea
@@ -134,7 +159,7 @@ export function ParteAEditable({
                   )}
                 </td>
 
-                {/* ✅ Materialidad Financiera */}
+                {/* MATERIALIDAD FINANCIERA */}
                 <td className="px-4 py-3">
                   {isEditing ? (
                     <textarea
@@ -151,7 +176,7 @@ export function ParteAEditable({
                   )}
                 </td>
 
-                {/* ✅ Acción Marginal */}
+                {/* ACCIÓN MARGINAL */}
                 <td className="px-4 py-3">
                   {isEditing ? (
                     <textarea
@@ -166,7 +191,7 @@ export function ParteAEditable({
                   )}
                 </td>
 
-                {/* ✅ Acción Moderada */}
+                {/* ACCIÓN MODERADA */}
                 <td className="px-4 py-3">
                   {isEditing ? (
                     <textarea
@@ -181,7 +206,7 @@ export function ParteAEditable({
                   )}
                 </td>
 
-                {/* ✅ Acción Estructural */}
+                {/* ACCIÓN ESTRUCTURAL */}
                 <td className="px-4 py-3">
                   {isEditing ? (
                     <textarea

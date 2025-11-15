@@ -6,11 +6,9 @@ import { updateAnalysisJsonAction } from "@/actions/analysis/update-analysis-jso
 import { toast } from "sonner"
 
 type RegulacionItem = {
-  tema_material: string
   tipo_regulacion: string
   descripcion: string
   vigencia: string
-  relevancia: string
 }
 
 export function RegulacionesEditable({
@@ -30,10 +28,23 @@ export function RegulacionesEditable({
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [regulacionesData, setRegulacionesData] = useState<RegulacionItem[]>(regulacionesOriginal)
 
-  /* ✏️ Editar celda individual */
-  const handleEditCell = (index: number, field: keyof RegulacionItem, value: string) => {
+  // 🧩 Crear copia segura y tipada
+  const safeOriginal: RegulacionItem[] = (regulacionesOriginal ?? []).map((r) => ({
+    tipo_regulacion: r.tipo_regulacion ?? "",
+    descripcion: r.descripcion ?? "",
+    vigencia: r.vigencia ?? "",
+  }))
+
+  const [regulacionesData, setRegulacionesData] =
+    useState<RegulacionItem[]>(safeOriginal)
+
+  /* ✏️ Editar celda */
+  const handleEditCell = (
+    index: number,
+    field: keyof RegulacionItem,
+    value: string
+  ) => {
     const updated = [...regulacionesData]
     updated[index][field] = value
     setRegulacionesData(updated)
@@ -43,12 +54,21 @@ export function RegulacionesEditable({
   const handleSaveChanges = async () => {
     try {
       setIsSaving(true)
+
       const newJson = [...analysisData]
-      const regulacionesSection = newJson.find((a: any) => a?.response_content?.regulaciones)
-      if (regulacionesSection)
+
+      const regulacionesSection = newJson.find(
+        (a: any) =>
+          a?.name?.includes("Prompt 10") ||
+          a?.response_content?.regulaciones
+      )
+
+      if (regulacionesSection) {
         regulacionesSection.response_content.regulaciones = regulacionesData
+      }
 
       const res = await updateAnalysisJsonAction(lastAnalysisId, newJson as any, accessToken)
+
       if (res?.error) {
         toast.error("Error al guardar los cambios")
       } else {
@@ -63,9 +83,9 @@ export function RegulacionesEditable({
     }
   }
 
-  /* ❌ Cancelar edición y restaurar valores originales */
+  /* ❌ Cancelar edición */
   const handleCancel = () => {
-    setRegulacionesData(regulacionesOriginal)
+    setRegulacionesData(safeOriginal)
     setIsEditing(false)
     toast.info("Cambios descartados")
   }
@@ -73,47 +93,46 @@ export function RegulacionesEditable({
   return (
     <div className="space-y-8">
       {/* ========================= */}
-      {/* 🧭 Header con dropdown */}
+      {/* 🧭 Header */}
       {/* ========================= */}
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
           Regulaciones Relevantes
         </h2>
+
         {userRole === "ADMIN" && (
           <AnalysisActionsMenu
             isEditing={isEditing}
             isSaving={isSaving}
             onEditToggle={() => setIsEditing(!isEditing)}
             onSave={handleSaveChanges}
-            onCancel={handleCancel} // 👈 agregado
+            onCancel={handleCancel}
           />
         )}
       </div>
 
       <p className="text-lg text-adaptia-gray-dark leading-relaxed">
-        Análisis de las <strong>regulaciones de sostenibilidad y ESG</strong> aplicables en{" "}
-        {organization?.country || "el país correspondiente"} y otros países donde opera{" "}
+        Análisis de las <strong>regulaciones ESG</strong> aplicables en{" "}
+        {organization?.country || "el país correspondiente"} y otros mercados donde opera{" "}
         {organization?.company || "la organización"}.
       </p>
 
       {/* ========================= */}
-      {/* 🧾 Tabla editable */}
+      {/* 🧾 Tabla */}
       {/* ========================= */}
       {regulacionesData.length > 0 ? (
         <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
           <table className="w-full border-collapse text-sm">
             <thead className="bg-teal-500 text-white text-left">
               <tr>
-                <th className="px-4 py-3 font-semibold">Tema Material</th>
                 <th className="px-4 py-3 font-semibold">Tipo Regulación</th>
                 <th className="px-4 py-3 font-semibold">Descripción</th>
                 <th className="px-4 py-3 font-semibold">Vigencia</th>
-                <th className="px-4 py-3 font-semibold">Relevancia</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-gray-200 bg-white">
-              {regulacionesData.map((row, idx) => (
+              {regulacionesData.map((row: RegulacionItem, idx: number) => (
                 <tr
                   key={idx}
                   className="hover:bg-adaptia-gray-light/10 transition-colors align-top"
@@ -125,7 +144,7 @@ export function RegulacionesEditable({
                     >
                       {isEditing ? (
                         <textarea
-                          value={row[key] || ""}
+                          value={row[key] ?? ""}
                           onChange={(e) => handleEditCell(idx, key, e.target.value)}
                           className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-teal-500 resize-y min-h-[50px]"
                         />
@@ -146,7 +165,7 @@ export function RegulacionesEditable({
       )}
 
       <p className="text-xs text-adaptia-gray-dark/70 italic">
-        Fuente: Adaptia ESG Analysis – Regulaciones Relevantes 2024.
+        Fuente: Adaptia ESG Analysis – Regulaciones Relevantes 2025.
       </p>
     </div>
   )

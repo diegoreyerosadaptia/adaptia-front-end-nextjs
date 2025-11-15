@@ -20,7 +20,7 @@ import {
   Cell,
   LabelList,
 } from "recharts"
-import { AnimatedMaterialityChart } from "./animated-materiality-chart"
+import { MaterialityChart } from "./materiality-chart"
 import { updateAnalysisJsonAction } from "@/actions/analysis/update-analysis-json.action"
 import { ParteAEditable } from "./analysis/part-a-analysis"
 import { ParteBEditable } from "./analysis/part-b-analysis"
@@ -88,7 +88,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
           </section>
         )
       
-        case "materialidad": {
+        case "materialidad": { 
           // ======================
           // 📦 Parte A y B
           // ======================
@@ -96,47 +96,51 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
           const parteB = [...(analysisData[3]?.response_content?.materiality_table || [])]
         
           // ======================
-          // 💾 Asociación Parte A + Parte B (Puntaje total)
+          // 💾 Asociación Parte A + Parte B
+          // materialidad_esg = valor numérico del Prompt 5
           // ======================
           const dataFinal = parteA.map((item) => {
             const match = parteB.find((b) => b.tema === item.tema)
-            const puntaje = match?.puntaje_total ?? 0
         
-            // Eje X según materialidad
+            const materialidad_esg = Number(match?.materialidad_esg ?? 0)
+        
             let x = 0
-            if (item.materialidad_financiera?.toLowerCase() === "baja") x = 0.5 + Math.random() * 1.5
-            if (item.materialidad_financiera?.toLowerCase() === "media") x = 2 + Math.random() * 2
-            if (item.materialidad_financiera?.toLowerCase() === "alta") x = 4 + Math.random() * 2
+            const fin = item.materialidad_financiera?.toLowerCase()
+        
+            if (fin === "baja") x = 1
+            if (fin === "media") x = 3
+            if (fin === "alta") x = 5
         
             return {
               tema: item.tema,
               materialidad: item.materialidad_financiera,
-              puntaje_total: puntaje,
+              materialidad_esg,
               x,
-              y: puntaje, // eje Y = puntaje
+              y: materialidad_esg,
             }
           })
         
           // ======================
-          // 🟢 Agrupar “Alta” con mismo puntaje_total
+          // 🟢 Agrupar “Alta” con mismo materialidad_esg
           // ======================
           const altaAgrupada = Object.values(
             dataFinal
               .filter((d) => d.materialidad?.toLowerCase() === "alta")
               .reduce((acc, item) => {
-                if (!acc[item.puntaje_total]) acc[item.puntaje_total] = []
-                acc[item.puntaje_total].push(item)
+                if (!acc[item.materialidad_esg]) acc[item.materialidad_esg] = []
+                acc[item.materialidad_esg].push(item)
                 return acc
               }, {} as Record<number, any[]>)
           ).map((grupo) => {
-            const { puntaje_total } = grupo[0]
-            const xPromedio = grupo.reduce((sum, i) => sum + i.x, 0) / grupo.length
+            const { materialidad_esg } = grupo[0]
+            const xProm = grupo.reduce((sum, i) => sum + i.x, 0) / grupo.length
+        
             return {
               temas: grupo.map((g) => g.tema),
               materialidad: "Alta",
-              puntaje_total,
-              x: xPromedio,
-              y: puntaje_total,
+              materialidad_esg,
+              x: xProm,
+              y: materialidad_esg,
             }
           })
         
@@ -185,45 +189,46 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                   <h3 className="text-2xl font-heading font-bold text-green-600">
                     Visualización de Materialidad de Temas
                   </h3>
-                  <section id="materiality-chart">
         
-                  <div className="bg-gradient-to-br from-yellow-50 to-green-50 p-8 rounded-lg border-2 border-green-200 shadow-lg">
-                    <ResponsiveContainer width="100%" height={500}>
-                      <AnimatedMaterialityChart data={finalScatterData} parteA={parteA} />
-                    </ResponsiveContainer>
-                  </div>
+                  <section id="materiality-chart">
+                    <div className="bg-gradient-to-br from-yellow-50 to-green-50 p-8 rounded-lg border-2 border-green-200 shadow-lg">
+                      <ResponsiveContainer width="100%" height={500}>
+                        <MaterialityChart data={finalScatterData} />
+                      </ResponsiveContainer>
+                    </div>
                   </section>
                 </div>
               )}
         
               {/* ======================= */}
-              {/* 2️⃣ Parte A - Acciones */}
+              {/* 2️⃣ Parte A */}
               {/* ======================= */}
               {subTab === "acciones" && (
                 <ParteAEditable
-                    parteAOriginal={parteA}
-                    lastAnalysisId={lastAnalysis?.id || ''}
-                    analysisData={analysisData}
-                    accessToken={token}
-                    userRole={role} // 👈 ajustá según tu auth real
-                  />
-                  )}
-              {/* ======================= */}
-              {/* 3️⃣ Parte B - Evaluación */}
-              {/* ======================= */}
-              {subTab === "evaluacion" && (
-                <ParteBEditable
-                  parteBOriginal={parteB}
-                  lastAnalysisId={lastAnalysis?.id || ''}
+                  parteAOriginal={parteA}
+                  lastAnalysisId={lastAnalysis?.id || ""}
                   analysisData={analysisData}
                   accessToken={token}
                   userRole={role}
                 />
               )}
-
+        
+              {/* ======================= */}
+              {/* 3️⃣ Parte B */}
+              {/* ======================= */}
+              {subTab === "evaluacion" && (
+                <ParteBEditable
+                  parteBOriginal={parteB}
+                  lastAnalysisId={lastAnalysis?.id || ""}
+                  analysisData={analysisData}
+                  accessToken={token}
+                  userRole={role}
+                />
+              )}
             </div>
           )
         }
+        
         
         case "sasb":
           const sasbData =
