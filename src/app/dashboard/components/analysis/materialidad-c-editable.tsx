@@ -112,7 +112,6 @@ export function MaterialidadCEditable({
             <thead className="bg-green-500 text-white text-left">
               <tr>
                 <th className="px-4 py-3 font-semibold">Tema</th>
-                <th className="px-4 py-3 font-semibold">Prioridad ODS</th>
                 <th className="px-4 py-3 font-semibold">Meta ODS</th>
                 <th className="px-4 py-3 font-semibold">Indicador ODS</th>
               </tr>
@@ -138,17 +137,7 @@ export function MaterialidadCEditable({
                   </td>
 
                   {/* PRIORIDAD */}
-                  <td className="px-4 py-3 text-adaptia-gray-dark leading-relaxed">
-                    {isEditing ? (
-                      <textarea
-                        value={row.prioridad}
-                        onChange={(e) => handleEditCell(idx, "prioridad", e.target.value)}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[50px]"
-                      />
-                    ) : (
-                      <p>{row.prioridad}</p>
-                    )}
-                  </td>
+
 
                   {/* META ODS */}
                   <td className="px-4 py-3 text-adaptia-gray-dark leading-relaxed">

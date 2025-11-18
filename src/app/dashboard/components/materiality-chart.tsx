@@ -109,7 +109,7 @@ export function MaterialityChart({ data }: Props) {
     const CHART_MARGIN = 30         // margen interno para no pegarse a los bordes
     const lineHeight = 5         
     // Distancia mínima entre labels (antes 30)
-const minLabelSpacing = 50  
+const minLabelSpacing = 0  
 
 // Multiplicador vertical dinámico según cantidad de temas por punto
 const spreadFactor = Math.max(1, temas.length * 0.65)
@@ -162,7 +162,7 @@ const spreadFactor = Math.max(1, temas.length * 0.65)
     temas.forEach((tema, i) => {
       const wrappedLines = wrapText(tema, 50)
       const labelHeight = wrappedLines.length * lineHeight
-      const labelWidth = 150
+      const labelWidth = 200
   
       // posición base en Y (repartidos verticalmente)
       let targetY = cy + (i - (count - 1) / 2) * (minLabelSpacing * spreadFactor)
@@ -244,12 +244,17 @@ const spreadFactor = Math.max(1, temas.length * 0.65)
           const pos1 = labelPositions[i]
           const pos2 = labelPositions[j]
   
-          if (pos1.side === pos2.side && (pos1.side === "right" || pos1.side === "left")) {
+          if (
+            pos1.side === pos2.side &&
+            (pos1.side === "right" || pos1.side === "left" || pos1.side === "top" || pos1.side === "bottom")
+          ) {
+          
             const dist = Math.abs(pos2.y - pos1.y)
             const minDist = Math.max(
-              minLabelSpacing * 1.2,
-              Math.max(pos1.lines.length, pos2.lines.length) * 18
+              minLabelSpacing * 2.2,                  // antes 1.2 → mucho más espacio
+              Math.max(pos1.lines.length, pos2.lines.length) * 15 // aumenta margen vertical
             )
+            
             
   
             if (dist < minDist) {
