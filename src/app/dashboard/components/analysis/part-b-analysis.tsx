@@ -7,6 +7,7 @@ import { toast } from "sonner"
 
 type ParteBItem = {
   tema: string
+  materialidad_financiera: string;
   tipo_impacto: string
   potencialidad_impacto: string
   horizonte_impacto: string
@@ -26,6 +27,7 @@ function mapPrompt5ToParteB(item: any): ParteBItem {
 
   return {
     tema: item.tema || "",
+    materialidad_financiera: item.materialidad_financiera || "",
     tipo_impacto: item.tipo_impacto || "",
     potencialidad_impacto: item.potencialidad_impacto || "",
     horizonte_impacto: item.horizonte_impacto || "",
@@ -117,6 +119,7 @@ export function ParteBEditable({
           <thead className="bg-green-600 text-white text-left">
             <tr>
               <th className="px-4 py-3">Tema</th>
+              <th className="px-4 py-3 font-semibold">Materialidad Financiera</th>
               <th className="px-4 py-3">Tipo Impacto</th>
               <th className="px-4 py-3">Potencialidad</th>
               <th className="px-4 py-3">Horizonte</th>
@@ -145,6 +148,23 @@ export function ParteBEditable({
                       />
                     ) : row.tema}
                   </td>
+
+                                  {/* MATERIALIDAD FINANCIERA */}
+                <td className="px-4 py-3">
+                  {isEditing ? (
+                    <textarea
+                      value={row.materialidad_financiera}
+                      onChange={(e) =>
+                        handleEditCell(idx, "materialidad_financiera", e.target.value)
+                      }
+                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[60px]"
+                    />
+                  ) : (
+                    <p className="text-adaptia-gray-dark leading-relaxed whitespace-pre-line">
+                      {row.materialidad_financiera}
+                    </p>
+                  )}
+                </td>
 
                   {/* Tipo Impacto */}
                   <td className="px-4 py-3">

@@ -31,6 +31,7 @@ import { MaterialidadCEditable } from "./analysis/materialidad-c-editable"
 import { RegulacionesEditable } from "./analysis/regulaciones-editable"
 import { ResumenEditable } from "./analysis/resumen-editable"
 import { GenerateEsgPdfButton } from "@/components/pdf/generate-esg-button"
+import { GriTabs } from "./analysis/gri-tabs"
 
 interface OrganizationAnalysisViewProps {
   organization: Organization
@@ -246,26 +247,25 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
         
 
           case "gri": {
-            const griData =
-              analysisData?.find((a: any) => a?.name?.includes("Prompt 7"))?.response_content
-                ?.gri_mapping || []
+            const temasPrioritarios =
+            analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content
+            ?.materiality_table || []
+            console.log("ESTOS SON LOS TEMAS", temasPrioritarios)
           
             return (
-              <GriEditable
-                griOriginal={griData}
-                lastAnalysisId={lastAnalysis?.id || ""}
-                analysisData={analysisData}
-                accessToken={token}
-                userRole={role}
+              <GriTabs
+                temasPrioritarios={temasPrioritarios}
+                token={token}
               />
-            )
+            );
           }
+          
           
           case "materialidad_c": {
             const parteC =
               analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content
                 ?.materiality_table || []
-          
+
             return (
               <MaterialidadCEditable
                 parteCOriginal={parteC}

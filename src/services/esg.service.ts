@@ -54,3 +54,26 @@ export const updateAnalysisJson = async (id: string, body: any, authToken?: stri
     return null
   }
 }
+
+
+export const getGriByTemas = async (temas: string[], authToken?: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/esg-analysis/gri/by-topics`, {
+      method: "POST",
+      headers: getJsonHeaders(authToken),
+      body: JSON.stringify({ temas }),  
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      return result;
+    } else {
+      console.error("Error del backend:", result);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error obteniendo contenidos GRI:", error);
+    return null;
+  }
+};

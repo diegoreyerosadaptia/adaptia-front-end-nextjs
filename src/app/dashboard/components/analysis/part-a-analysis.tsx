@@ -11,7 +11,8 @@ import { toast } from "sonner"
 type ParteAItem = {
   sector: string
   tema: string
-  materialidad_financiera: string
+  Riesgos: string;
+  Oportunidades: string
   accion_marginal: string
   accion_moderada: string
   accion_estructural: string
@@ -25,7 +26,8 @@ function mapPrompt2ToParteA(item: any): ParteAItem {
   return {
     sector: item.sector || "",
     tema: item.tema || "",
-    materialidad_financiera: item.materialidad_financiera || "",
+    Riesgos: item.Riesgos || "",
+    Oportunidades: item.Oportunidades || "",
     accion_marginal: item.accion_marginal || "",
     accion_moderada: item.accion_moderada || "",
     accion_estructural: item.accion_estructural || "",
@@ -119,7 +121,8 @@ export function ParteAEditable({
             <tr>
               <th className="px-4 py-3 font-semibold">Sector</th>
               <th className="px-4 py-3 font-semibold">Tema</th>
-              <th className="px-4 py-3 font-semibold">Materialidad Financiera</th>
+              <th className="px-4 py-3 font-semibold">Riesgos</th>
+              <th className="px-4 py-3 font-semibold">Oportunidades</th>
               <th className="px-4 py-3 font-semibold">Acción Marginal</th>
               <th className="px-4 py-3 font-semibold">Acción Moderada</th>
               <th className="px-4 py-3 font-semibold">Acción Estructural</th>
@@ -159,19 +162,34 @@ export function ParteAEditable({
                   )}
                 </td>
 
-                {/* MATERIALIDAD FINANCIERA */}
+
                 <td className="px-4 py-3">
                   {isEditing ? (
                     <textarea
-                      value={row.materialidad_financiera}
+                      value={row.Riesgos}
                       onChange={(e) =>
-                        handleEditCell(idx, "materialidad_financiera", e.target.value)
+                        handleEditCell(idx, "Riesgos", e.target.value)
                       }
                       className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[60px]"
                     />
                   ) : (
                     <p className="text-adaptia-gray-dark leading-relaxed whitespace-pre-line">
-                      {row.materialidad_financiera}
+                      {row.Riesgos}
+                    </p>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  {isEditing ? (
+                    <textarea
+                      value={row.Oportunidades}
+                      onChange={(e) =>
+                        handleEditCell(idx, "Oportunidades", e.target.value)
+                      }
+                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[60px]"
+                    />
+                  ) : (
+                    <p className="text-adaptia-gray-dark leading-relaxed whitespace-pre-line">
+                      {row.Oportunidades}
                     </p>
                   )}
                 </td>
