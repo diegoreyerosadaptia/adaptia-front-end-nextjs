@@ -142,8 +142,8 @@ export function MaterialityChart({ data }: Props) {
   })
 
   return (
-    <div style={{ width: "100%", background: "white", borderRadius: 12, padding: 20, boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}>
-      <div style={{ width: "100%", height: 700 }}>
+    <div style={{ width: "100%", background: "white", borderRadius: 12, padding: 20, boxShadow: "0 2px 10px rgba(168, 39, 39, 0.05)" }}>
+      <div style={{ width: "100%", height: 500 }}>
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 40, right: 40, bottom: 40, left: 100 }}>
             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />

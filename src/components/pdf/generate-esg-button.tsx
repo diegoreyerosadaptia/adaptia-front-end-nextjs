@@ -108,7 +108,7 @@ export function GenerateEsgPdfButton({
       {/* 🔘 Botón visible */}
       <Button
         onClick={handleGeneratePdf}
-        className={`bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 shadow-md ${
+        className={`h-9 px-3 text-xs bg-green-700 hover:bg-green-800 text-white rounded-md ${
           dashboard ? "px-2 py-2 rounded-full" : ""
         } ${className || ""}`}
         title={dashboard ? "Descargar PDF" : ""}

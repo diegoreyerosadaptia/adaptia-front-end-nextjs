@@ -11,7 +11,7 @@ import { toast } from "sonner"
 type ParteAItem = {
   sector: string
   tema: string
-  Riesgos: string;
+  Riesgos: string
   Oportunidades: string
   accion_marginal: string
   accion_moderada: string
@@ -19,18 +19,18 @@ type ParteAItem = {
 }
 
 /* ======================================================
-   🔄 Mapper: convierte el JSON nuevo del modelo → UI
-   (ignora riesgos, oportunidades, valor_financiero, etc.)
+   🔄 Mapper: convierte la data REAL del modelo en el
+      formato EXACTO que la UI necesita
 ====================================================== */
 function mapPrompt2ToParteA(item: any): ParteAItem {
   return {
-    sector: item.sector || "",
-    tema: item.tema || "",
-    Riesgos: item.Riesgos || "",
-    Oportunidades: item.Oportunidades || "",
-    accion_marginal: item.accion_marginal || "",
-    accion_moderada: item.accion_moderada || "",
-    accion_estructural: item.accion_estructural || "",
+    sector: item?.sector || "",
+    tema: item?.tema || "",
+    Riesgos: item?.Riesgos || "",
+    Oportunidades: item?.Oportunidades || "",
+    accion_marginal: item?.accion_marginal || "",
+    accion_moderada: item?.accion_moderada || "",
+    accion_estructural: item?.accion_estructural || "",
   }
 }
 
@@ -41,15 +41,19 @@ export function ParteAEditable({
   accessToken,
   userRole,
 }: {
-  parteAOriginal: ParteAItem[]
+  parteAOriginal: any[]       // ← acepta cualquier data del modelo
   lastAnalysisId: string
   analysisData: any
   accessToken: string
   userRole: string
 }) {
+
+  /* 🧽 Limpiar al MONTAR el componente */
+  const cleanedInitialData = parteAOriginal.map(mapPrompt2ToParteA)
+
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [parteAData, setParteAData] = useState<ParteAItem[]>(parteAOriginal)
+  const [parteAData, setParteAData] = useState<ParteAItem[]>(cleanedInitialData)
 
   /* ✏️ Editar celda individual */
   const handleEditCell = (index: number, field: keyof ParteAItem, value: string) => {
@@ -58,15 +62,15 @@ export function ParteAEditable({
     setParteAData(updated)
   }
 
-  /* 💾 Guardar cambios con limpieza de campos */
+  /* 💾 Guardar cambios */
   const handleSaveChanges = async () => {
     try {
       setIsSaving(true)
 
-      /* 🔥 Limpia y mapea cada fila desde el JSON nuevo del modelo */
+      /* 🔥 Limpiar antes de guardar */
       const cleanedParteA = parteAData.map(mapPrompt2ToParteA)
 
-      /* 🧠 Actualiza el JSON principal del análisis */
+      /* 🧠 Actualizar JSON completo del análisis */
       const newJson = [...analysisData]
       newJson[1].response_content.materiality_table = cleanedParteA
 
@@ -86,15 +90,16 @@ export function ParteAEditable({
     }
   }
 
-  /* ❌ Cancelar edición y restaurar valores originales */
+  /* ❌ Cancelar edición */
   const handleCancel = () => {
-    setParteAData(parteAOriginal)
+    setParteAData(cleanedInitialData)
     setIsEditing(false)
     toast.info("Cambios descartados")
   }
 
   return (
     <div className="space-y-4">
+
       {/* ========================= */}
       {/* 🧭 Header con acciones */}
       {/* ========================= */}
@@ -132,112 +137,36 @@ export function ParteAEditable({
           <tbody className="divide-y divide-gray-200 bg-white">
             {parteAData.map((row, idx) => (
               <tr key={idx} className="hover:bg-adaptia-gray-light/10 align-top">
-                {/* SECTOR */}
-                <td className="px-4 py-3">
-                  {isEditing ? (
-                    <textarea
-                      value={row.sector}
-                      onChange={(e) => handleEditCell(idx, "sector", e.target.value)}
-                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[60px]"
-                    />
-                  ) : (
-                    <p className="text-adaptia-gray-dark leading-relaxed whitespace-pre-line">
-                      {row.sector}
-                    </p>
-                  )}
-                </td>
 
-                {/* TEMA */}
-                <td className="px-4 py-3">
-                  {isEditing ? (
-                    <textarea
-                      value={row.tema}
-                      onChange={(e) => handleEditCell(idx, "tema", e.target.value)}
-                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[60px]"
-                    />
-                  ) : (
-                    <p className="text-adaptia-gray-dark leading-relaxed whitespace-pre-line">
-                      {row.tema}
-                    </p>
-                  )}
-                </td>
+                {/* Campo genérico */}
+                {[
+                  "sector",
+                  "tema",
+                  "Riesgos",
+                  "Oportunidades",
+                  "accion_marginal",
+                  "accion_moderada",
+                  "accion_estructural",
+                ].map((field) => (
+                  <td key={field} className="px-4 py-3 align-top">
+                    {isEditing ? (
+                      <textarea
+                        value={row[field as keyof ParteAItem]}
+                        onChange={(e) =>
+                          handleEditCell(idx, field as keyof ParteAItem, e.target.value)
+                        }
+                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm
+                                   focus:ring-1 focus:ring-green-500 resize-y min-h-[140px]
+                                   leading-relaxed whitespace-pre-line"
+                      />
+                    ) : (
+                      <p className="text-adaptia-gray-dark leading-relaxed whitespace-pre-line max-w-[460px]">
+                        {row[field as keyof ParteAItem]}
+                      </p>
+                    )}
+                  </td>
+                ))}
 
-
-                <td className="px-4 py-3">
-                  {isEditing ? (
-                    <textarea
-                      value={row.Riesgos}
-                      onChange={(e) =>
-                        handleEditCell(idx, "Riesgos", e.target.value)
-                      }
-                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[60px]"
-                    />
-                  ) : (
-                    <p className="text-adaptia-gray-dark leading-relaxed whitespace-pre-line">
-                      {row.Riesgos}
-                    </p>
-                  )}
-                </td>
-                <td className="px-4 py-3">
-                  {isEditing ? (
-                    <textarea
-                      value={row.Oportunidades}
-                      onChange={(e) =>
-                        handleEditCell(idx, "Oportunidades", e.target.value)
-                      }
-                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[60px]"
-                    />
-                  ) : (
-                    <p className="text-adaptia-gray-dark leading-relaxed whitespace-pre-line">
-                      {row.Oportunidades}
-                    </p>
-                  )}
-                </td>
-
-                {/* ACCIÓN MARGINAL */}
-                <td className="px-4 py-3">
-                  {isEditing ? (
-                    <textarea
-                      value={row.accion_marginal}
-                      onChange={(e) => handleEditCell(idx, "accion_marginal", e.target.value)}
-                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[60px]"
-                    />
-                  ) : (
-                    <p className="text-adaptia-gray-dark leading-relaxed whitespace-pre-line">
-                      {row.accion_marginal}
-                    </p>
-                  )}
-                </td>
-
-                {/* ACCIÓN MODERADA */}
-                <td className="px-4 py-3">
-                  {isEditing ? (
-                    <textarea
-                      value={row.accion_moderada}
-                      onChange={(e) => handleEditCell(idx, "accion_moderada", e.target.value)}
-                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[60px]"
-                    />
-                  ) : (
-                    <p className="text-adaptia-gray-dark leading-relaxed whitespace-pre-line">
-                      {row.accion_moderada}
-                    </p>
-                  )}
-                </td>
-
-                {/* ACCIÓN ESTRUCTURAL */}
-                <td className="px-4 py-3">
-                  {isEditing ? (
-                    <textarea
-                      value={row.accion_estructural}
-                      onChange={(e) => handleEditCell(idx, "accion_estructural", e.target.value)}
-                      className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[60px]"
-                    />
-                  ) : (
-                    <p className="text-adaptia-gray-dark leading-relaxed whitespace-pre-line">
-                      {row.accion_estructural}
-                    </p>
-                  )}
-                </td>
               </tr>
             ))}
           </tbody>

@@ -32,6 +32,7 @@ import { RegulacionesEditable } from "./analysis/regulaciones-editable"
 import { ResumenEditable } from "./analysis/resumen-editable"
 import { GenerateEsgPdfButton } from "@/components/pdf/generate-esg-button"
 import { GriTabs } from "./analysis/gri-tabs"
+import { GenerateEsgPdfButtonAll } from "@/components/pdf/generate-esg-all-button"
 
 interface OrganizationAnalysisViewProps {
   organization: Organization
@@ -91,30 +92,29 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
       
         case "materialidad": { 
           // ======================
-          // 📦 Parte A y B
+          // 📦 Solo Parte B
           // ======================
-          const parteA = [...(analysisData[1]?.response_content?.materiality_table || [])]
           const parteB = [...(analysisData[3]?.response_content?.materiality_table || [])]
         
           // ======================
-          // 💾 Asociación Parte A + Parte B
-          // materialidad_esg = valor numérico del Prompt 5
+          // 🧮 Mapear Parte B → datos del gráfico
           // ======================
-          const dataFinal = parteA.map((item) => {
-            const match = parteB.find((b) => b.tema === item.tema)
+          const dataFinal = parteB.map((item) => {
+            const tema = item.tema
+            const materialidad = item.materialidad_financiera || item.materialidad || ""
+            const materialidad_esg = Number(item.materialidad_esg ?? 0)
         
-            const materialidad_esg = Number(match?.materialidad_esg ?? 0)
-        
+            // === Conversión materialidad financiera → eje X ===
             let x = 0
-            const fin = item.materialidad_financiera?.toLowerCase()
+            const fin = materialidad?.toLowerCase()
         
             if (fin === "baja") x = 1
             if (fin === "media") x = 3
             if (fin === "alta") x = 5
         
             return {
-              tema: item.tema,
-              materialidad: item.materialidad_financiera,
+              tema,
+              materialidad,
               materialidad_esg,
               x,
               y: materialidad_esg,
@@ -146,7 +146,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
           })
         
           // ======================
-          // 📊 Datos combinados
+          // 📊 Datos finales para el gráfico
           // ======================
           const finalScatterData = [
             ...dataFinal.filter((d) => d.materialidad?.toLowerCase() !== "alta"),
@@ -206,7 +206,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
               {/* ======================= */}
               {subTab === "acciones" && (
                 <ParteAEditable
-                  parteAOriginal={parteA}
+                  parteAOriginal={analysisData[1]?.response_content?.materiality_table || []}
                   lastAnalysisId={lastAnalysis?.id || ""}
                   analysisData={analysisData}
                   accessToken={token}
@@ -231,6 +231,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
         }
         
         
+        
         case "sasb":
           const sasbData =
             analysisData?.find((a: any) => a?.response_content?.tabla_sasb)?.response_content?.tabla_sasb || []
@@ -250,7 +251,6 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
             const temasPrioritarios =
             analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content
             ?.materiality_table || []
-            console.log("ESTOS SON LOS TEMAS", temasPrioritarios)
           
             return (
               <GriTabs
@@ -297,82 +297,9 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
             const resumenData =
               analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
           
-            const contextoData =
-              analysisData?.find((a: any) => a?.response_content?.nombre_empresa)?.response_content || {}
-
-              const parteA = [...(analysisData[1]?.response_content?.materiality_table || [])]
-              const parteB = [...(analysisData[3]?.response_content?.materiality_table || [])]
-            
-              // ======================
-              // 💾 Asociación Parte A + Parte B (Puntaje total)
-              // ======================
-              const dataFinal = parteA.map((item) => {
-                const match = parteB.find((b) => b.tema === item.tema)
-                const puntaje = match?.puntaje_total ?? 0
-            
-                // Eje X según materialidad
-                let x = 0
-                if (item.materialidad_financiera?.toLowerCase() === "baja") x = 0.5 + Math.random() * 1.5
-                if (item.materialidad_financiera?.toLowerCase() === "media") x = 2 + Math.random() * 2
-                if (item.materialidad_financiera?.toLowerCase() === "alta") x = 4 + Math.random() * 2
-            
-                return {
-                  tema: item.tema,
-                  materialidad: item.materialidad_financiera,
-                  puntaje_total: puntaje,
-                  x,
-                  y: puntaje, // eje Y = puntaje
-                }
-              })
-            
-              // ======================
-              // 🟢 Agrupar “Alta” con mismo puntaje_total
-              // ======================
-              const altaAgrupada = Object.values(
-                dataFinal
-                  .filter((d) => d.materialidad?.toLowerCase() === "alta")
-                  .reduce((acc, item) => {
-                    if (!acc[item.puntaje_total]) acc[item.puntaje_total] = []
-                    acc[item.puntaje_total].push(item)
-                    return acc
-                  }, {} as Record<number, any[]>)
-              ).map((grupo) => {
-                const { puntaje_total } = grupo[0]
-                const xPromedio = grupo.reduce((sum, i) => sum + i.x, 0) / grupo.length
-                return {
-                  temas: grupo.map((g) => g.tema),
-                  materialidad: "Alta",
-                  puntaje_total,
-                  x: xPromedio,
-                  y: puntaje_total,
-                }
-              })
-            
-              // ======================
-              // 📊 Datos combinados
-              // ======================
-              const finalScatterData = [
-                ...dataFinal.filter((d) => d.materialidad?.toLowerCase() !== "alta"),
-                ...altaAgrupada,
-              ]
           
             return (
               <section id="resumen-section">
-                {/* ============================= */}
-                {/* 🧾 Botón de descarga PDF ESG */}
-                {/* ============================= */}
-                <div className="flex justify-end mb-6">
-                <GenerateEsgPdfButton
-                  contexto={contextoData}
-                  resumen={resumenData}
-                  portada="/Portada-Resumen-Ejecutivo-Adaptia.png"
-                  contraportada="/Contra-Portada-Resumen-Ejecutivo-Adaptia.png"
-                  filename={`Reporte_ESG_${organization.company}.pdf`}
-                  dataMaterialidad={finalScatterData}   // 👈 le pasás el dataset del gráfico
-                  parteA={parteA}
-                />
-
-                </div>
           
                 {/* ============================= */}
                 {/* 🧭 Contenido editable resumen */}
@@ -391,6 +318,67 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
     }
   }
 
+  const resumenData =
+  analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
+  const contextoData =
+  analysisData?.find((a: any) => a?.response_content?.nombre_empresa)?.response_content || {}
+
+  const parteA = [...(analysisData[1]?.response_content?.materiality_table || [])]
+  const parteB = [...(analysisData[3]?.response_content?.materiality_table || [])]
+
+  // ======================
+  // 💾 Asociación Parte A + Parte B (Puntaje total)
+  // ======================
+  const dataFinal = parteA.map((item) => {
+    const match = parteB.find((b) => b.tema === item.tema)
+    const puntaje = match?.puntaje_total ?? 0
+
+    // Eje X según materialidad
+    let x = 0
+    if (item.materialidad_financiera?.toLowerCase() === "baja") x = 0.5 + Math.random() * 1.5
+    if (item.materialidad_financiera?.toLowerCase() === "media") x = 2 + Math.random() * 2
+    if (item.materialidad_financiera?.toLowerCase() === "alta") x = 4 + Math.random() * 2
+
+    return {
+      tema: item.tema,
+      materialidad: item.materialidad_financiera,
+      puntaje_total: puntaje,
+      x,
+      y: puntaje, // eje Y = puntaje
+    }
+  })
+
+  // ======================
+  // 🟢 Agrupar “Alta” con mismo puntaje_total
+  // ======================
+  const altaAgrupada = Object.values(
+    dataFinal
+      .filter((d) => d.materialidad?.toLowerCase() === "alta")
+      .reduce((acc, item) => {
+        if (!acc[item.puntaje_total]) acc[item.puntaje_total] = []
+        acc[item.puntaje_total].push(item)
+        return acc
+      }, {} as Record<number, any[]>)
+  ).map((grupo) => {
+    const { puntaje_total } = grupo[0]
+    const xPromedio = grupo.reduce((sum, i) => sum + i.x, 0) / grupo.length
+    return {
+      temas: grupo.map((g) => g.tema),
+      materialidad: "Alta",
+      puntaje_total,
+      x: xPromedio,
+      y: puntaje_total,
+    }
+  })
+
+  // ======================
+  // 📊 Datos combinados
+  // ======================
+  const finalScatterData = [
+    ...dataFinal.filter((d) => d.materialidad?.toLowerCase() !== "alta"),
+    ...altaAgrupada,
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-adaptia-blue-primary/5 to-adaptia-green-primary/5">
       {/* Header */}
@@ -402,24 +390,46 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
               <span className="text-adaptia-gray-dark">|</span>
               <span className="text-lg text-adaptia-gray-dark">{organization.company}</span>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2 items-center">
+
+            {/* Volver */}
             <Link href={href}>
               <Button
                 variant="outline"
-                className="border-adaptia-blue-primary text-adaptia-blue-primary hover:bg-adaptia-blue-primary hover:text-white bg-transparent"
+                className="h-9 px-3 border-adaptia-blue-primary text-adaptia-blue-primary 
+                          hover:bg-adaptia-blue-primary hover:text-white text-sm"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver a Dashboard
+                <ArrowLeft className="mr-1 h-4 w-4" />
+                Volver
               </Button>
             </Link>
-              <Button
-                onClick={() => router.push(`/dashboard?openPaymentFor=${organization.id}`)}
-                className="bg-adaptia-green-primary hover:bg-adaptia-green-primary/90 text-white"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Generar nuevo análisis
-              </Button>
+
+            {/* PDF Ejecutivo */}
+            <div className="h-9">
+              <GenerateEsgPdfButton
+                contexto={contextoData}
+                resumen={resumenData}
+                portada="/Portada-Resumen-Ejecutivo-Adaptia.png"
+                contraportada="/Contra-Portada-Resumen-Ejecutivo-Adaptia.png"
+                filename={`Reporte_ESG_${organization.company}.pdf`}
+                dataMaterialidad={finalScatterData}
+                parteA={parteA}
+
+              />
             </div>
+
+            {/* PDF Completo */}
+            <div className="h-9">
+              <GenerateEsgPdfButtonAll
+                analysisData={analysisData}
+                organizationName={organization.company}
+              />
+            </div>
+
+
+            </div>
+
+
           </div>
         </div>
       </header>
