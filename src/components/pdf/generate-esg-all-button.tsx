@@ -1,7 +1,9 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { Download } from "lucide-react"
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib"
+import { toast } from "sonner"
 
 // ==============================
 // Tipos según tu definición
@@ -22,7 +24,7 @@ type ContextoItem = {
 
 type ParteBItem = {
   tema: string
-  materialidad_financiera: string;
+  materialidad_financiera: string
   tipo_impacto: string
   potencialidad_impacto: string
   horizonte_impacto: string
@@ -32,8 +34,6 @@ type ParteBItem = {
   gravedad: string
   probabilidad: string
   alcance: string
-  impacto_esg: string
-  impacto_financiero: string
   materialidad_esg: string
 }
 
@@ -47,12 +47,11 @@ export type SasbItem = {
 }
 
 type ParteCItem = {
-  tema: string
-  ods: string
-  meta_ods: string
-  indicador_ods: string
+  tema?: string
+  ods?: string
+  meta_ods?: string
+  indicador_ods?: string
 }
-
 
 type RegulacionItem = {
   tipo_regulacion: string
@@ -573,16 +572,22 @@ function drawGriPage(pdfDoc: PDFDocument, font: any, temas: string[]) {
   }
   
 
-function drawOdsPage(pdfDoc: PDFDocument, font: any, boldFont: any, parteC: ParteCItem[]) {
-  const headers = ["Tema", "ODS", "Meta ODS", "Indicador ODS"]
-
-  const columnWidths = [150, 80, 150, 135]
-
-  const rows = parteC.map((r) => [r.tema, r.meta_ods, r.indicador_ods])
-
-  drawTableWithWrapping(pdfDoc, font, boldFont, "Vinculacion con ODS", headers, rows, columnWidths)
-}
-
+  function drawOdsPage(pdfDoc: PDFDocument, font: any, boldFont: any, parteC: ParteCItem[]) {
+    const headers = ["Tema", "ODS", "Meta ODS", "Indicador ODS"]
+  
+    const columnWidths = [150, 80, 150, 135]
+  
+    // 👇 Forzamos a string con ?? "" y corregimos el orden/longitud
+    const rows: (string | number)[][] = parteC.map((r) => [
+      r.tema ?? "",
+      r.ods ?? "",
+      r.meta_ods ?? "",
+      r.indicador_ods ?? "",
+    ])
+  
+    drawTableWithWrapping(pdfDoc, font, boldFont, "Vinculacion con ODS", headers, rows, columnWidths)
+  }
+  
 function drawRegulacionesPage(pdfDoc: PDFDocument, font: any, boldFont: any, regulaciones: RegulacionItem[]) {
   const headers = ["Tipo regulacion", "Descripcion", "Vigencia"]
 
@@ -634,6 +639,8 @@ export function GenerateEsgPdfButtonAll({
   contraportada = "/Contra-Portada-Resumen-Ejecutivo-Adaptia.png",
 }: GenerateEsgPdfButtonAllProps) {
   const handleGenerate = async () => {
+    toast.loading("Generando reporte PDF...")
+
     const pdfDoc = await PDFDocument.create()
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
@@ -714,8 +721,16 @@ export function GenerateEsgPdfButtonAll({
   }
 
   return (
-    <Button onClick={handleGenerate} className="h-9 px-3 text-xs bg-green-700 hover:bg-green-800 text-white rounded-md">
-      Descargar reporte ESG completo
+    <Button
+      onClick={handleGenerate}
+      className="h-full px-4 text-white font-medium shadow-md hover:shadow-lg 
+              transition-all duration-200"
+      style={{ backgroundColor: "#163F6A" }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0F2D4C")}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#163F6A")}
+    >
+      <Download className="mr-2 h-4 w-4" />
+      PDF Completo
     </Button>
   )
 }

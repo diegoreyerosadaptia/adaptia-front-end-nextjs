@@ -17,6 +17,8 @@ import { RegulacionesEditable } from "./analysis/regulaciones-editable"
 import { ResumenEditable } from "./analysis/resumen-editable"
 import { GriTabs } from "./analysis/gri-tabs"
 import Image from "next/image"
+import { GenerateEsgPdfButtonAll } from "@/components/pdf/generate-esg-all-button"
+import { GenerateEsgPdfButton } from "@/components/pdf/generate-esg-button"
 
 interface OrganizationAnalysisViewProps {
   organization: Organization
@@ -294,59 +296,62 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
   const resumenData = analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
   const contextoData = analysisData?.find((a: any) => a?.response_content?.nombre_empresa)?.response_content || {}
 
-  const parteA = [...(analysisData[1]?.response_content?.materiality_table || [])]
   const parteB = [...(analysisData[3]?.response_content?.materiality_table || [])]
 
   // ======================
-  // 💾 Asociación Parte A + Parte B (Puntaje total)
+  // 🧮 Mapear Parte B → datos del gráfico
   // ======================
-  const dataFinal = parteA.map((item) => {
-    const match = parteB.find((b) => b.tema === item.tema)
-    const puntaje = match?.puntaje_total ?? 0
+  const dataFinal = parteB.map((item) => {
+    const tema = item.tema
+    const materialidad = item.materialidad_financiera || item.materialidad || ""
+    const materialidad_esg = Number(item.materialidad_esg ?? 0)
 
-    // Eje X según materialidad
+    // === Conversión materialidad financiera → eje X ===
     let x = 0
-    if (item.materialidad_financiera?.toLowerCase() === "baja") x = 0.5 + Math.random() * 1.5
-    if (item.materialidad_financiera?.toLowerCase() === "media") x = 2 + Math.random() * 2
-    if (item.materialidad_financiera?.toLowerCase() === "alta") x = 4 + Math.random() * 2
+    const fin = materialidad?.toLowerCase()
+
+    if (fin === "baja") x = 1
+    if (fin === "media") x = 3
+    if (fin === "alta") x = 5
 
     return {
-      tema: item.tema,
-      materialidad: item.materialidad_financiera,
-      puntaje_total: puntaje,
+      tema,
+      materialidad,
+      materialidad_esg,
       x,
-      y: puntaje, // eje Y = puntaje
+      y: materialidad_esg,
     }
   })
 
   // ======================
-  // 🟢 Agrupar “Alta” con mismo puntaje_total
+  // 🟢 Agrupar “Alta” con mismo materialidad_esg
   // ======================
   const altaAgrupada = Object.values(
     dataFinal
       .filter((d) => d.materialidad?.toLowerCase() === "alta")
       .reduce(
         (acc, item) => {
-          if (!acc[item.puntaje_total]) acc[item.puntaje_total] = []
-          acc[item.puntaje_total].push(item)
+          if (!acc[item.materialidad_esg]) acc[item.materialidad_esg] = []
+          acc[item.materialidad_esg].push(item)
           return acc
         },
         {} as Record<number, any[]>,
       ),
   ).map((grupo) => {
-    const { puntaje_total } = grupo[0]
-    const xPromedio = grupo.reduce((sum, i) => sum + i.x, 0) / grupo.length
+    const { materialidad_esg } = grupo[0]
+    const xProm = grupo.reduce((sum, i) => sum + i.x, 0) / grupo.length
+
     return {
       temas: grupo.map((g) => g.tema),
       materialidad: "Alta",
-      puntaje_total,
-      x: xPromedio,
-      y: puntaje_total,
+      materialidad_esg,
+      x: xProm,
+      y: materialidad_esg,
     }
   })
 
   // ======================
-  // 📊 Datos combinados
+  // 📊 Datos finales para el gráfico
   // ======================
   const finalScatterData = [...dataFinal.filter((d) => d.materialidad?.toLowerCase() !== "alta"), ...altaAgrupada]
 
@@ -389,30 +394,24 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
 
               {/* PDF Ejecutivo */}
               <div className="h-10 flex items-center">
-                <Button
-                  variant="outline"
-                  className="h-full px-4 border-emerald-300 text-emerald-700 hover:bg-emerald-50 
-                            hover:border-emerald-400 transition-all duration-200 font-medium shadow-sm bg-transparent"
-                >
-                  <FileText className="mr-2 h-4 w-4" />
-                  PDF Ejecutivo
-                </Button>
+              <GenerateEsgPdfButton
+                  contexto={contextoData}
+                  resumen={resumenData}
+                  portada="/Portada-Resumen-Ejecutivo-Adaptia.png"
+                  contraportada="/Contra-Portada-Resumen-Ejecutivo-Adaptia.png"
+                  filename={`Reporte_ESG_${organization.company}.pdf`}
+                  dataMaterialidad={finalScatterData}
+
+                />
               </div>
 
               {/* PDF Completo */}
               <div className="h-10 flex items-center">
-              <Button
-                  className="h-full px-4 text-white font-medium shadow-md hover:shadow-lg 
-                            transition-all duration-200"
-                  style={{
-                    backgroundColor: "#163F6A",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0F2D4C")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#163F6A")}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  PDF Completo
-                </Button>
+              <GenerateEsgPdfButtonAll
+                  analysisData={analysisData}
+                  organizationName={organization.company}
+                  token={token}
+                />
               </div>
             </div>
           </div>

@@ -28,7 +28,7 @@ function FormattedRequirement({ text }: { text: string }) {
           <div key={idx} className={isListItem ? "flex gap-2" : ""}>
             {isListItem ? (
               <>
-                <span className="font-semibold text-purple-700 shrink-0">
+                <span className="font-semibold shrink-0">
                   {trimmed.match(/^(\d+\.[\d.]*|[a-z]\.)/)?.[0]}
                 </span>
                 <span className="text-sm leading-relaxed">
@@ -57,7 +57,6 @@ export function GriTabs({ temasPrioritarios, token }: Props) {
   useEffect(() => {
     async function load() {
       const response = await getGriByTemas(temas, token);
-      console.log("RESPUESTA BACK:", response);
       
       setData(response?.gri ?? []);
       
@@ -135,7 +134,7 @@ export function GriTabs({ temasPrioritarios, token }: Props) {
                         <div className="lg:col-span-5 space-y-4">
                           <div className="flex items-start gap-4">
                             <div className="flex-1">
-                              <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1">
+                              <p className="text-xs font-semibold uppercase tracking-wide mb-1">
                                 Estándar GRI
                               </p>
                               <p className="text-base font-bold text-slate-800">
@@ -144,7 +143,7 @@ export function GriTabs({ temasPrioritarios, token }: Props) {
                             </div>
                             
                             <div className="flex-shrink-0">
-                              <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-1">
+                              <p className="text-xs font-semibold uppercase tracking-wide mb-1">
                                 # Contenido
                               </p>
                               <p className="text-base font-bold text-slate-800">
@@ -154,7 +153,7 @@ export function GriTabs({ temasPrioritarios, token }: Props) {
                           </div>
 
                           <div>
-                            <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-2">
+                            <p className="text-xs font-semibold uppercase tracking-wide mb-2">
                               Contenido
                             </p>
                             <p className="text-sm leading-relaxed text-slate-700">
@@ -164,7 +163,7 @@ export function GriTabs({ temasPrioritarios, token }: Props) {
                         </div>
 
                         <div className="lg:col-span-7 border-l-0 lg:border-l-2 border-slate-200 lg:pl-6">
-                          <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-3">
+                          <p className="text-xs font-semibold uppercase tracking-wide mb-3">
                             Requerimientos
                           </p>
                           <div className="bg-slate-50 rounded-lg p-4">
@@ -217,7 +216,7 @@ export function GriTabs({ temasPrioritarios, token }: Props) {
                               variant={currentPageNum === pageNum ? "default" : "outline"}
                               size="sm"
                               onClick={() => handlePageChange(item.tema, pageNum)}
-                              className={currentPageNum === pageNum ? "bg-purple-600 hover:bg-purple-700" : "border-slate-300"}
+                              className={currentPageNum === pageNum ? "" : "border-slate-300"}
                             >
                               {pageNum}
                             </Button>

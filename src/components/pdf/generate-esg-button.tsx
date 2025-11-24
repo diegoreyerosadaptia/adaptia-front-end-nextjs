@@ -4,9 +4,8 @@ import { useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { generateEsgPdf } from "@/lib/pdf/generate-esg-pdf"
-import { Download } from "lucide-react"
-import StaticMaterialityChart from "@/app/dashboard/components/static-materiality-chart"
-
+import { FileText } from "lucide-react"
+import { MaterialityChart } from "@/app/dashboard/components/materiality-chart"
 
 type ContextoType = {
   nombre_empresa: string
@@ -21,6 +20,15 @@ type ContextoType = {
   stakeholders_relevantes: string
 }
 
+interface MaterialityInput {
+  tema?: string
+  temas?: string[]
+  materialidad?: string
+  materialidad_esg?: number
+  x?: number
+  y?: number
+}
+
 type ResumenType = {
   parrafo_1: string
   parrafo_2?: string
@@ -29,8 +37,7 @@ type ResumenType = {
 interface GenerateEsgPdfButtonProps {
   contexto: ContextoType
   resumen: ResumenType
-  dataMaterialidad: any[]
-  parteA: any[]
+  dataMaterialidad: MaterialityInput[]
   portada?: string
   contraportada?: string
   filename?: string
@@ -42,7 +49,6 @@ export function GenerateEsgPdfButton({
   contexto,
   resumen,
   dataMaterialidad,
-  parteA,
   portada,
   contraportada,
   filename = "Reporte_ESG.pdf",
@@ -55,19 +61,21 @@ export function GenerateEsgPdfButton({
     try {
       toast.loading("Generando reporte PDF...")
 
-      // 🧩 Importación dinámica (solo cliente)
       const domtoimage = (await import("dom-to-image-more")).default
 
-      // 🖼️ Capturar el gráfico oculto
       const el = chartRef.current
       let chartImg: string | undefined
+
       if (el) {
+        // 💡 pequeño delay para asegurarnos que Recharts terminó de pintar
+        await new Promise((res) => setTimeout(res, 300))
+
         chartImg = await domtoimage.toPng(el, {
           quality: 1,
           bgcolor: "#ffffff",
-          width: 1400,
-          height: 1600,
-          scale: 3,
+          width: 1200,
+          height: 900,
+          scale: 2,
           style: {
             transform: "scale(1)",
             transformOrigin: "top left",
@@ -77,7 +85,6 @@ export function GenerateEsgPdfButton({
         console.warn("⚠️ No se encontró el gráfico oculto, se generará PDF sin él.")
       }
 
-      // 📄 Generar el PDF con el gráfico incluido
       const pdfBytes = await generateEsgPdf({
         contexto,
         resumen,
@@ -86,7 +93,7 @@ export function GenerateEsgPdfButton({
         chartImg,
       })
 
-      const blob = new Blob([new Uint8Array(pdfBytes)], { type: "application/pdf" })
+      const blob = new Blob([pdfBytes], { type: "application/pdf" })
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
@@ -108,30 +115,32 @@ export function GenerateEsgPdfButton({
       {/* 🔘 Botón visible */}
       <Button
         onClick={handleGeneratePdf}
-        className={`h-9 px-3 text-xs bg-green-700 hover:bg-green-800 text-white rounded-md ${
-          dashboard ? "px-2 py-2 rounded-full" : ""
-        } ${className || ""}`}
-        title={dashboard ? "Descargar PDF" : ""}
+        variant="outline"
+        className={
+          className ??
+          "h-full px-4 border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-400 transition-all duration-200 font-medium shadow-sm bg-transparent"
+        }
       >
-        <Download className="w-4 h-4" />
+        <FileText className="mr-2 h-4 w-4" />
         {!dashboard && <span>Descargar Resumen Ejecutivo (PDF)</span>}
       </Button>
 
+      {/* 📊 Gráfico oculto para captura */}
       <div
-  ref={chartRef}
-  style={{
-    position: "absolute",
-    top: "-9999px",
-    left: "-9999px",
-    width: 1400,          // 📏 más ancho
-    height: 1600,         // 📏 mucho más alto (para incluir las cards)
-    backgroundColor: "#ffffff",
-    overflow: "visible",  // 👈 importante para que no recorte los cards
-  }}
->
-  <StaticMaterialityChart data={dataMaterialidad} parteA={parteA} />
-</div>
-
+        ref={chartRef}
+        style={{
+          position: "fixed",
+          inset: 0,
+          opacity: 0,
+          pointerEvents: "none",
+          zIndex: -1,
+          backgroundColor: "#ffffff",
+        }}
+      >
+        <div style={{ width: 1200, height: 900 }}>
+          <MaterialityChart data={dataMaterialidad} />
+        </div>
+      </div>
     </>
   )
 }

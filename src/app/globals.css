@@ -753,3 +753,17 @@ body {
   font-family: var(--font-montserrat);
 }
 
+.table-compact th,
+.table-compact td {
+  padding: 6px 8px !important;
+}
+
+.col-sm {
+  max-width: 140px;
+  white-space: normal;
+}
+
+.col-xs {
+  max-width: 70px;
+  white-space: normal;
+}

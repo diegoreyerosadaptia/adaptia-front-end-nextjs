@@ -63,6 +63,8 @@ export function ParteAEditable({
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [parteAData, setParteAData] = useState<ParteAItem[]>(cleanedInitialData)
+  const [expandedRow, setExpandedRow] = useState<number | null>(null)
+
 
   /* ✏️ Editar celda */
   const handleEditCell = (index: number, field: keyof ParteAItem, value: string) => {
@@ -103,6 +105,41 @@ export function ParteAEditable({
     toast.info("Cambios descartados")
   }
 
+  function ExpandableCell({
+    text,
+    expanded,
+    onToggle,
+  }: {
+    text: string
+    expanded: boolean
+    onToggle: () => void
+  }) {
+    const isLong = text && text.length > 50
+  
+    const displayedText = expanded ? text : text.slice(0, 50)
+  
+    return (
+      <div className="max-w-[460px] text-[#163F6A] leading-relaxed whitespace-pre-line">
+        {displayedText}
+  
+        {isLong && !expanded && (
+          <span className="text-gray-500">...</span>
+        )}
+  
+        {isLong && (
+          <button
+            onClick={onToggle}
+            className="text-[#619F44] font-semibold text-xs mt-1 block hover:underline"
+          >
+            {expanded ? "Mostrar menos ▲" : "Mostrar más ▼"}
+          </button>
+        )}
+      </div>
+    )
+  }
+  
+
+  
   return (
     <div className="space-y-4">
 
@@ -168,21 +205,24 @@ export function ParteAEditable({
                           handleEditCell(idx, field as keyof ParteAItem, e.target.value)
                         }
                         className="w-full border border-gray-300 rounded px-2 py-1 text-sm
-                                   focus:ring-1 resize-y min-h-[140px]"
+                                  focus:ring-1 resize-y min-h-[140px]"
                         style={{
                           color: "#163F6A",
                           borderColor: "#619F44",
                         }}
                       />
                     ) : (
-                      <p
-                        className="leading-relaxed whitespace-pre-line max-w-[460px]"
-                        style={{ color: "#163F6A" }}
-                      >
-                        {row[field as keyof ParteAItem]}
-                      </p>
+                      <ExpandableCell
+                        text={row[field as keyof ParteAItem]}
+                        expanded={expandedRow === idx}
+                        onToggle={() =>
+                          setExpandedRow(expandedRow === idx ? null : idx)
+                        }
+                      />
                     )}
                   </td>
+
+
                 ))}
               </tr>
             ))}

@@ -112,10 +112,10 @@ export function MaterialidadCEditable({
           <thead style={{ backgroundColor: "#EAFC53", color: "white" }}>
 
               <tr>
-                <th className="px-4 py-3 font-semibold">Tema</th>
-                <th className="px-4 py-3 font-semibold">ODS</th>
-                <th className="px-4 py-3 font-semibold">Meta ODS</th>
-                <th className="px-4 py-3 font-semibold">Indicador ODS</th>
+                <th className="px-4 py-3 text-[#163F6A]">Tema</th>
+                <th className="px-4 py-3 text-[#163F6A]">ODS</th>
+                <th className="px-4 py-3 text-[#163F6A]">Meta ODS</th>
+                <th className="px-4 py-3 text-[#163F6A]">Indicador ODS</th>
               </tr>
             </thead>
 

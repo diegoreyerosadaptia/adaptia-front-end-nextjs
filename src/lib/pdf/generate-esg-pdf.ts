@@ -205,22 +205,44 @@ export async function generateEsgPdf({
    📊 GRÁFICO DE MATERIALIDAD
   ======================= */
   if (chartImg) {
-    const imgBytes = await fetch(chartImg).then((r) => r.arrayBuffer())
-    const image = await pdfDoc.embedPng(imgBytes)
-    const chartPage = addPage("Matriz de Materialidad")
-    const { width, height } = chartPage.getSize()
+    try {
+      // chartImg viene como dataURL: "data:image/png;base64,...."
+      const base64 = chartImg.includes(",") ? chartImg.split(",")[1] : chartImg
+      const binary = atob(base64)
+      const len = binary.length
+      const imgBytes = new Uint8Array(len)
+      for (let i = 0; i < len; i++) {
+        imgBytes[i] = binary.charCodeAt(i)
+      }
 
-    const imgRatio = image.height / image.width
-    const targetWidth = width - 80
-    const targetHeight = targetWidth * imgRatio
-    
-    chartPage.drawImage(image, {
-      x: 40,
-      y: Math.max(80, height - targetHeight - 150), // centrado vertical si hay espacio
-      width: targetWidth,
-      height: targetHeight,
-    })
-    
+      const image = await pdfDoc.embedPng(imgBytes)
+      const chartPage = addPage("Matriz de Materialidad")
+      const { width, height } = chartPage.getSize()
+
+      const maxWidth = width - 80
+      const maxHeight = height - 180
+
+      const imgRatio = image.height / image.width
+      let targetWidth = maxWidth
+      let targetHeight = targetWidth * imgRatio
+
+      if (targetHeight > maxHeight) {
+        targetHeight = maxHeight
+        targetWidth = targetHeight / imgRatio
+      }
+
+      const x = (width - targetWidth) / 2
+      const yPos = (height - targetHeight) / 2 - 10
+
+      chartPage.drawImage(image, {
+        x,
+        y: yPos,
+        width: targetWidth,
+        height: targetHeight,
+      })
+    } catch (e) {
+      console.warn("No se pudo embeder la imagen del gráfico de materialidad", e)
+    }
   }
 
   /* =======================
@@ -242,11 +264,11 @@ export async function generateEsgPdf({
     const words = text.split(" ")
     const lines = []
     let current = ""
-  
+
     for (const w of words) {
       const test = current + w + " "
       const width = font.widthOfTextAtSize(test, fontSize)
-  
+
       if (width > maxWidth) {
         lines.push(current.trim())
         current = w + " "
@@ -254,29 +276,28 @@ export async function generateEsgPdf({
         current = test
       }
     }
-  
+
     if (current.trim()) lines.push(current.trim())
     return lines
   }
-  
+
   const addParagraph = (text: string) => {
     const fontSize = 12
     const lineHeight = 16
     const maxWidth = contentWidth - 20 // ancho más cómodo
     const lines = wrapTextByWidth(text, fontRegular, fontSize, maxWidth)
-  
+
     // altura dinámica
     const paragraphHeight = lines.length * lineHeight + 20
-  
+
     // salto de página si no entra
     if (y - paragraphHeight < 60) {
       resumenPage = addPage("Resumen Ejecutivo")
       y = pageHeight - 130
     }
 
-  
-  // Caja ANCHA y ESTÉTICA
-  resumenPage.drawRectangle({
+    // Caja ANCHA y ESTÉTICA
+    resumenPage.drawRectangle({
       x: leftMargin,
       y: y - paragraphHeight,
       width: maxWidth + 20,
@@ -285,7 +306,7 @@ export async function generateEsgPdf({
       borderColor: rgb(0.85, 0.85, 0.92),
       borderWidth: 1,
     })
-  
+
     // Texto
     let textY = y - 15
     for (const line of lines) {
@@ -298,11 +319,9 @@ export async function generateEsgPdf({
       })
       textY -= lineHeight
     }
-  
+
     y -= paragraphHeight + 20
   }
-  
-  
 
   addParagraph(resumen.parrafo_1)
   if (resumen.parrafo_2) {
