@@ -7,7 +7,7 @@ import { toast } from "sonner"
 
 type ParteCItem = {
   tema: string
-  prioridad: string
+  ods: string
   meta_ods: string
   indicador_ods: string
 }
@@ -113,6 +113,7 @@ export function MaterialidadCEditable({
 
               <tr>
                 <th className="px-4 py-3 font-semibold">Tema</th>
+                <th className="px-4 py-3 font-semibold">ODS</th>
                 <th className="px-4 py-3 font-semibold">Meta ODS</th>
                 <th className="px-4 py-3 font-semibold">Indicador ODS</th>
               </tr>
@@ -139,7 +140,17 @@ export function MaterialidadCEditable({
 
                   {/* PRIORIDAD */}
 
-
+                  <td className="px-4 py-3 text-adaptia-gray-dark leading-relaxed">
+                    {isEditing ? (
+                      <textarea
+                        value={row.tema}
+                        onChange={(e) => handleEditCell(idx, "tema", e.target.value)}
+                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[50px]"
+                      />
+                    ) : (
+                      <p>{row.ods}</p>
+                    )}
+                  </td>
                   {/* META ODS */}
                   <td className="px-4 py-3 text-adaptia-gray-dark leading-relaxed">
                     {isEditing ? (
