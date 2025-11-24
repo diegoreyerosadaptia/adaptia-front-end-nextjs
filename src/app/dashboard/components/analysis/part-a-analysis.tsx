@@ -10,27 +10,30 @@ import { toast } from "sonner"
 ================================ */
 type ParteAItem = {
   sector: string
-  tema: string
-  Riesgos: string
-  Oportunidades: string
-  accion_marginal: string
-  accion_moderada: string
-  accion_estructural: string
+  temas: string
+  riesgos: string
+  oportunidades: string
+  accióninicial: string
+  acciónmoderada: string
+  acciónestructural: string
 }
 
 /* ======================================================
    🔄 Mapper: convierte la data REAL del modelo en el
       formato EXACTO que la UI necesita
 ====================================================== */
-function mapPrompt2ToParteA(item: any): ParteAItem {
+function mergeParteA(oldItem: ParteAItem, newItem: any): ParteAItem {
   return {
-    sector: item?.sector || "",
-    tema: item?.tema || "",
-    Riesgos: item?.Riesgos || "",
-    Oportunidades: item?.Oportunidades || "",
-    accion_marginal: item?.accion_marginal || "",
-    accion_moderada: item?.accion_moderada || "",
-    accion_estructural: item?.accion_estructural || "",
+    // Se actualizan solo estos dos si vienen del nuevo array:
+    sector: newItem?.sector ?? oldItem.sector,
+    temas: newItem?.tema ?? oldItem.temas,
+
+    // El resto NO se toca, permanece igual
+    riesgos: oldItem.riesgos,
+    oportunidades: oldItem.oportunidades,
+    accióninicial: oldItem.accióninicial,
+    acciónmoderada: oldItem.acciónmoderada,
+    acciónestructural: oldItem.acciónestructural,
   }
 }
 
@@ -41,19 +44,34 @@ export function ParteAEditable({
   accessToken,
   userRole,
 }: {
-  parteAOriginal: any[]       // ← acepta cualquier data del modelo
+  parteAOriginal: any[]
   lastAnalysisId: string
   analysisData: any
   accessToken: string
   userRole: string
 }) {
 
-  /* 🧽 Limpiar al MONTAR el componente */
-  const cleanedInitialData = parteAOriginal.map(mapPrompt2ToParteA)
+  // 🧵 Parte A ya guardada (con textos reales)
+  const parteAOld = analysisData[1]?.response_content?.materiality_table || []
+
+  // 🔥 ORDENAR por Materialidad ESG (mayor primero)
+  const parteANewSorted = [...parteAOriginal].sort((a, b) => {
+    const va = Number(a?.materialidad_esg ?? 0)
+    const vb = Number(b?.materialidad_esg ?? 0)
+    return vb - va
+  })
+
+  // 🔗 FUSIONAR fila por fila:
+  const cleanedInitialData: ParteAItem[] = parteANewSorted.map((newItem, idx) => {
+    const oldItem = parteAOld[idx] || {}
+    return mergeParteA(oldItem, newItem)
+  })
 
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [parteAData, setParteAData] = useState<ParteAItem[]>(cleanedInitialData)
+
+
 
   /* ✏️ Editar celda individual */
   const handleEditCell = (index: number, field: keyof ParteAItem, value: string) => {
@@ -67,10 +85,10 @@ export function ParteAEditable({
     try {
       setIsSaving(true)
 
-      /* 🔥 Limpiar antes de guardar */
-      const cleanedParteA = parteAData.map(mapPrompt2ToParteA)
+      // si querés, acá también podrías reordenar antes de guardar,
+      // pero como ya vino ordenado de entrada no es obligatorio
+      const cleanedParteA = parteAData.map(mergeParteA)
 
-      /* 🧠 Actualizar JSON completo del análisis */
       const newJson = [...analysisData]
       newJson[1].response_content.materiality_table = cleanedParteA
 
@@ -90,7 +108,6 @@ export function ParteAEditable({
     }
   }
 
-  /* ❌ Cancelar edición */
   const handleCancel = () => {
     setParteAData(cleanedInitialData)
     setIsEditing(false)
@@ -99,10 +116,6 @@ export function ParteAEditable({
 
   return (
     <div className="space-y-4">
-
-      {/* ========================= */}
-      {/* 🧭 Header con acciones */}
-      {/* ========================= */}
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-lg font-semibold text-green-600">Parte A - Acciones</h3>
 
@@ -117,9 +130,6 @@ export function ParteAEditable({
         )}
       </div>
 
-      {/* ========================= */}
-      {/* 🧾 Tabla editable */}
-      {/* ========================= */}
       <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
         <table className="w-full border-collapse text-sm">
           <thead className="bg-green-600 text-white text-left">
@@ -137,16 +147,14 @@ export function ParteAEditable({
           <tbody className="divide-y divide-gray-200 bg-white">
             {parteAData.map((row, idx) => (
               <tr key={idx} className="hover:bg-adaptia-gray-light/10 align-top">
-
-                {/* Campo genérico */}
                 {[
                   "sector",
-                  "tema",
-                  "Riesgos",
-                  "Oportunidades",
-                  "accion_marginal",
-                  "accion_moderada",
-                  "accion_estructural",
+                  "temas",
+                  "riesgos",
+                  "oportunidades",
+                  "accióninicial",
+                  "acciónmoderada",
+                  "acciónestructural",
                 ].map((field) => (
                   <td key={field} className="px-4 py-3 align-top">
                     {isEditing ? (
@@ -166,7 +174,6 @@ export function ParteAEditable({
                     )}
                   </td>
                 ))}
-
               </tr>
             ))}
           </tbody>

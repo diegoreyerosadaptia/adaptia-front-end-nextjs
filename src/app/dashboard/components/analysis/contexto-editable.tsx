@@ -75,7 +75,7 @@ export function ContextoEditable({
       {/* 🧭 Header con dropdown */}
       {/* ========================= */}
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
+        <h2 className="text-3xl font-heading font-bold text-purple-600">
           Contexto de organización
         </h2>
         {userRole === "ADMIN" && (
@@ -99,7 +99,7 @@ export function ContextoEditable({
             <textarea
               value={contextoData.nombre_empresa}
               onChange={(e) => handleChange("nombre_empresa", e.target.value)}
-              className="w-full text-2xl md:text-3xl font-heading font-bold text-purple-600 bg-transparent border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-green-500 resize-y"
+              className="w-full text-3xl md:text-3xl font-heading font-bold text-purple-600 bg-transparent border border-gray-300 rounded px-3 py-2 focus:ring-1 focus:ring-green-500 resize-y"
             />
 
             {/* 🌍 Descripción principal */}
@@ -111,7 +111,7 @@ export function ContextoEditable({
           </>
         ) : (
           <>
-            <h3 className="text-2xl font-heading font-bold text-purple-600">
+            <h3 className=" font-heading font-bold">
               {contextoData?.nombre_empresa}
             </h3>
             <p className="text-lg text-adaptia-gray-dark leading-relaxed">

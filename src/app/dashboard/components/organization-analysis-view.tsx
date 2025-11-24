@@ -152,6 +152,8 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
             ...dataFinal.filter((d) => d.materialidad?.toLowerCase() !== "alta"),
             ...altaAgrupada,
           ]
+
+          console.log(analysisData[3]?.response_content?.materiality_table || [])
         
           // ======================
           // 🎨 Render principal
@@ -193,9 +195,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
         
                   <section id="materiality-chart">
                     <div className="bg-gradient-to-br from-yellow-50 to-green-50 p-8 rounded-lg border-2 border-green-200 shadow-lg">
-                      <ResponsiveContainer width="100%" height={500}>
                         <MaterialityChart data={finalScatterData} />
-                      </ResponsiveContainer>
                     </div>
                   </section>
                 </div>
@@ -206,7 +206,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
               {/* ======================= */}
               {subTab === "acciones" && (
                 <ParteAEditable
-                  parteAOriginal={analysisData[1]?.response_content?.materiality_table || []}
+                  parteAOriginal={analysisData[3]?.response_content?.materiality_table || []}
                   lastAnalysisId={lastAnalysis?.id || ""}
                   analysisData={analysisData}
                   accessToken={token}

@@ -46,7 +46,6 @@ export type SasbItem = {
 
 type ParteCItem = {
   tema: string
-  prioridad: string
   meta_ods: string
   indicador_ods: string
 }
