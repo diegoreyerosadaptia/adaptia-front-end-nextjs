@@ -29,7 +29,7 @@ export function WhyAdaptiaSection() {
       title: "Regulación en LATAM",
       stat: "30%",
       description:
-        "de los reguladores financieros en la región ya exigen reportes ESG. Países como Colombia, México y Panamá ya cuentan con taxonomías verdes activas.",
+        "de los reguladores financieros en la región ya exigen reportes ESG. Países como Colombia, México y Chile ya cuentan con taxonomías verdes activas.",
       bgColor: "bg-adaptia-green-light/10",
       borderColor: "border-adaptia-green-light",
       iconColor: "text-adaptia-green-primary",
@@ -47,10 +47,10 @@ export function WhyAdaptiaSection() {
     },
     {
       icon: <Clock className="w-8 h-8" />,
-      title: "Barrera de entrada crítica",
-      stat: "Crítico",
+      title: "Barrera de entrada",
+      stat: "$20,000 USD",
       description:
-        "El estudio de doble materialidad es un paso complejo, lento y con un costo inicial aproximado de $20,000 USD. ",
+        "Es el costo promedio inicial para un estudio de doble materialidad. Un paso complejo, lento y costoso.",
       bgColor: "bg-adaptia-gray-light/20",
       borderColor: "border-adaptia-gray-medium",
       iconColor: "text-adaptia-green-medium",

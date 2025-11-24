@@ -232,7 +232,7 @@ export default function EquipoPage() {
                     <div className="w-32 h-32 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
                     <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden">
                     <img
-                        src="/Foto-perfil-Leslie.jpg"
+                        src="/Foto-Leslie-2.png"
                         alt="Foto de Slaven Ilic"
                         className="w-full h-full object-cover"
                       />

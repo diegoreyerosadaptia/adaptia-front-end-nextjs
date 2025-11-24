@@ -32,7 +32,7 @@ export function Footer() {
           <div className="flex flex-col items-center md:items-end">
             <div className="relative w-24 h-24">
               <Image
-                src="/adaptia-logo-2.png"
+                src="/LOGOS_Adaptia_Final-08.png"
                 alt="Adaptia Logo"
                 fill
                 className="object-contain"

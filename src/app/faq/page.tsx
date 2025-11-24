@@ -54,6 +54,39 @@ export default function FaqPage() {
       answer:
         "Escríbenos. Nos aseguraremos de integrar los parámetros correctos para volver a correr nuestros agentes de IA. Solo recuerda que este análisis es objetivo y busca lograr transparencia y eliminar el error y la subjetividad humana durante la evaluación inicial.",
     },
+    {
+      question: "¿Cuál es la huella ambiental de un análisis de Adaptia?",
+      answer: `Cada análisis completo de Adaptia utiliza en promedio 17,500 tokens. Esto se traduce en una huella ambiental muy baja. En términos simples, por cada análisis:
+    
+      Huella de CO₂e: aproximadamente 13 gramos
+      - Equivalente a enviar 1–2 correos electrónicos con adjunto.
+      - Similar a tener un refrigerador doméstico encendido por 10–12 minutos.
+      
+      Consumo de energía: alrededor de 0.088 kWh
+      - Equivalente al consumo de una laptop durante 5–7 minutos.
+      - Similar a la energía necesaria para calentar agua para ⅛ de taza de té.
+      
+      Uso de agua: entre 0.42 y 0.64 litros
+      - Equivalente al agua asociada a producir 1–2 hojas impresas tamaño carta.
+      - Aproximadamente medio vaso de agua.
+      
+      Para reducir nuestra huella, seguimos mejorando la eficiencia del pipeline para disminuir la cantidad de tokens necesarios en cada análisis.`
+    },    
+    {
+      question: "¿Cómo protegen los datos de mi organización?",
+      answer:
+        "Adaptia utiliza exclusivamente los datos que tu organización proporciona —así como la información generada durante el análisis— para elaborar el estudio contratado. Estos datos no se comparten, no se venden y no se usan para fines distintos a los establecidos en el servicio. Cada análisis es independiente y nunca se mezcla ni se agrega información entre distintas organizaciones./nToda la información se almacena en Supabase (PostgreSQL). El acceso está protegido mediante autenticación con tokens JWT y validación en cada solicitud. Además, todas las conexiones entre la aplicación, el servidor y la base de datos utilizan HTTPS y TLS, garantizando la encriptación, la integridad y la protección de tus datos en todo momento.",
+    },
+    {
+      question: "¿Qué hacen con los datos de mi organización? ",
+      answer:
+        "Toda la información proporcionada por tu organización se considera confidencial y será tratada con ese carácter. Adaptia solo podrá divulgar datos cuando exista una obligación legal expresa.",
+    },
+    {
+      question: "¿Al usar Adaptia, me otorgan licencia sobre la tecnología?",
+      answer:
+        "La contratación de los servicios de Adaptia te da acceso a los resultados del análisis, pero no implica la entrega, cesión ni licencia de uso de la tecnología, metodologías, modelos, algoritmos, bases de datos, flujos de trabajo ni cualquier componente técnico desarrollado por Adaptia. Toda la propiedad intelectual sigue siendo exclusiva de Adaptia. Queda prohibida su copia, modificación, recreación, ingeniería inversa o uso para fines distintos al acceso normal del servicio.",
+    },
   ]
 
   return (

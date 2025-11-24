@@ -1,6 +1,7 @@
 export type ServiceName =
   | 'organizations'
   | 'analysis'
+  | 'users'
 
 
 // Define the cache tags structure
@@ -10,6 +11,9 @@ export const CACHE_TAGS = {
   },
   analysis: {
     all: 'analysis',
+  },
+  users: {
+    all: 'users',
   },
 } as const;
 

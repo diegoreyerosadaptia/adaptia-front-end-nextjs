@@ -123,7 +123,7 @@ export function RegulacionesEditable({
       {regulacionesData.length > 0 ? (
         <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
           <table className="w-full border-collapse text-sm">
-            <thead className="bg-teal-500 text-white text-left">
+          <thead style={{ backgroundColor: "#59B5CA", color: "white" }}>
               <tr>
                 <th className="px-4 py-3 font-semibold">Tipo Regulación</th>
                 <th className="px-4 py-3 font-semibold">Descripción</th>

@@ -122,7 +122,7 @@ export function SasbEditable({
 
           <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
             <table className="w-full border-collapse text-sm">
-              <thead className="bg-blue-400 text-white text-left">
+            <thead style={{ backgroundColor: "#81D0E0", color: "white" }}>
                 <tr>
                   <th className="px-4 py-3 font-semibold">Tema</th>
                   <th className="px-4 py-3 font-semibold">Parámetro Contabilidad</th>

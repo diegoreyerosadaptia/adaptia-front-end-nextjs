@@ -9,7 +9,7 @@ export function HowItWorksSection() {
       number: "1",
       icon: <FileText className="w-8 h-8" />,
       title: "Completa nuestro formulario en menos de 5 minutos",
-      description: "Proporciona información básica sobre tu empresa y objetivos de sostenibilidad.",
+      description: "Proporciona información básica sobre tu empresa y de contacto.",
     },
     {
       number: "2",

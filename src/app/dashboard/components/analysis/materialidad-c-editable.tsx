@@ -109,7 +109,8 @@ export function MaterialidadCEditable({
       {parteCData.length > 0 ? (
         <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
           <table className="w-full border-collapse text-sm">
-            <thead className="bg-green-500 text-white text-left">
+          <thead style={{ backgroundColor: "#EAFC53", color: "white" }}>
+
               <tr>
                 <th className="px-4 py-3 font-semibold">Tema</th>
                 <th className="px-4 py-3 font-semibold">Meta ODS</th>

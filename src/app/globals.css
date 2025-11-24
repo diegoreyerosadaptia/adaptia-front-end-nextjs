@@ -744,3 +744,12 @@
     color: white !important;
   }
 }
+
+:root {
+  --font-montserrat: 'Montserrat', sans-serif;
+}
+
+body {
+  font-family: var(--font-montserrat);
+}
+

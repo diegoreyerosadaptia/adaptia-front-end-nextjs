@@ -21,7 +21,7 @@ export function AnalysisSection() {
     {
       icon: <Lightbulb className="w-8 h-8" />,
       title: "Estrategia de sostenibilidad con acciones concretas",
-      description: "Un plan de acción con tres niveles de recomendaciones de acciones corporativas para mejorar los 10 temas materiales en un nivel moderado, intermedio y estructural.",
+      description: "Un plan de acción con tres niveles de recomendaciones de acciones corporativas para mejorar los 10 temas materiales en un nivel inicial, moderado y estructural.",
     },
   ]
 

@@ -19,16 +19,12 @@ type ParteAItem = {
 }
 
 /* ======================================================
-   🔄 Mapper: convierte la data REAL del modelo en el
-      formato EXACTO que la UI necesita
+   🔄 Mapper: convierte la data REAL del modelo en UI
 ====================================================== */
 function mergeParteA(oldItem: ParteAItem, newItem: any): ParteAItem {
   return {
-    // Se actualizan solo estos dos si vienen del nuevo array:
     sector: newItem?.sector ?? oldItem.sector,
     temas: newItem?.tema ?? oldItem.temas,
-
-    // El resto NO se toca, permanece igual
     riesgos: oldItem.riesgos,
     oportunidades: oldItem.oportunidades,
     accióninicial: oldItem.accióninicial,
@@ -51,17 +47,14 @@ export function ParteAEditable({
   userRole: string
 }) {
 
-  // 🧵 Parte A ya guardada (con textos reales)
   const parteAOld = analysisData[1]?.response_content?.materiality_table || []
 
-  // 🔥 ORDENAR por Materialidad ESG (mayor primero)
   const parteANewSorted = [...parteAOriginal].sort((a, b) => {
     const va = Number(a?.materialidad_esg ?? 0)
     const vb = Number(b?.materialidad_esg ?? 0)
     return vb - va
   })
 
-  // 🔗 FUSIONAR fila por fila:
   const cleanedInitialData: ParteAItem[] = parteANewSorted.map((newItem, idx) => {
     const oldItem = parteAOld[idx] || {}
     return mergeParteA(oldItem, newItem)
@@ -71,9 +64,7 @@ export function ParteAEditable({
   const [isSaving, setIsSaving] = useState(false)
   const [parteAData, setParteAData] = useState<ParteAItem[]>(cleanedInitialData)
 
-
-
-  /* ✏️ Editar celda individual */
+  /* ✏️ Editar celda */
   const handleEditCell = (index: number, field: keyof ParteAItem, value: string) => {
     const updated = [...parteAData]
     updated[index][field] = value
@@ -85,8 +76,6 @@ export function ParteAEditable({
     try {
       setIsSaving(true)
 
-      // si querés, acá también podrías reordenar antes de guardar,
-      // pero como ya vino ordenado de entrada no es obligatorio
       const cleanedParteA = parteAData.map(mergeParteA)
 
       const newJson = [...analysisData]
@@ -116,8 +105,17 @@ export function ParteAEditable({
 
   return (
     <div className="space-y-4">
+
+      {/* ====================== */}
+      {/* Header Parte A */}
+      {/* ====================== */}
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-lg font-semibold text-green-600">Parte A - Acciones</h3>
+        <h3
+          className="text-lg font-semibold"
+          style={{ color: "#619F44" }}
+        >
+          Parte A - Acciones
+        </h3>
 
         {userRole === "ADMIN" && (
           <AnalysisActionsMenu
@@ -130,9 +128,14 @@ export function ParteAEditable({
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
+      {/* ====================== */}
+      {/* Tabla Parte A */}
+      {/* ====================== */}
+      <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
         <table className="w-full border-collapse text-sm">
-          <thead className="bg-green-600 text-white text-left">
+
+          {/* Header */}
+          <thead style={{ backgroundColor: "#619F44", color: "white" }}>
             <tr>
               <th className="px-4 py-3 font-semibold">Sector</th>
               <th className="px-4 py-3 font-semibold">Tema</th>
@@ -144,9 +147,10 @@ export function ParteAEditable({
             </tr>
           </thead>
 
+          {/* Body */}
           <tbody className="divide-y divide-gray-200 bg-white">
             {parteAData.map((row, idx) => (
-              <tr key={idx} className="hover:bg-adaptia-gray-light/10 align-top">
+              <tr key={idx} className="hover:bg-gray-50 align-top">
                 {[
                   "sector",
                   "temas",
@@ -164,11 +168,17 @@ export function ParteAEditable({
                           handleEditCell(idx, field as keyof ParteAItem, e.target.value)
                         }
                         className="w-full border border-gray-300 rounded px-2 py-1 text-sm
-                                   focus:ring-1 focus:ring-green-500 resize-y min-h-[140px]
-                                   leading-relaxed whitespace-pre-line"
+                                   focus:ring-1 resize-y min-h-[140px]"
+                        style={{
+                          color: "#163F6A",
+                          borderColor: "#619F44",
+                        }}
                       />
                     ) : (
-                      <p className="text-adaptia-gray-dark leading-relaxed whitespace-pre-line max-w-[460px]">
+                      <p
+                        className="leading-relaxed whitespace-pre-line max-w-[460px]"
+                        style={{ color: "#163F6A" }}
+                      >
                         {row[field as keyof ParteAItem]}
                       </p>
                     )}
@@ -177,6 +187,7 @@ export function ParteAEditable({
               </tr>
             ))}
           </tbody>
+
         </table>
       </div>
     </div>

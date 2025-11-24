@@ -100,7 +100,11 @@ export function ResumenEditable({
       {/* 🧾 Contenido editable */}
       {/* ========================= */}
       {resumenData?.parrafo_1 ? (
-        <div className="space-y-5 bg-adaptia-gray-light/10 p-8 rounded-lg border-2 border-blue-600">
+        <div
+        className="space-y-5 bg-adaptia-gray-light/10 p-8 rounded-lg border-2"
+        style={{ borderColor: "#C2DA62" }}
+      >
+      
           {isEditing ? (
             <>
               <textarea

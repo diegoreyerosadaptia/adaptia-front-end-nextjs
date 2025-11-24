@@ -71,7 +71,6 @@ export function GriTabs({ temasPrioritarios, token }: Props) {
     load();
   }, []);
   
-  console.log("TEMAS ENVIADOS:", temas)
 
   if (!data || data.length === 0)
     return <p className="text-muted-foreground">Cargando contenidos GRI...</p>;
@@ -100,17 +99,25 @@ export function GriTabs({ temasPrioritarios, token }: Props) {
   return (
     <div className="w-full space-y-6">
       <Tabs value={active} onValueChange={setActive} className="w-full">
-        <TabsList className="inline-flex h-auto gap-2 bg-transparent p-0 mb-8 flex-wrap">
-          {data.map((item) => (
-            <TabsTrigger
-              key={item.tema}
-              value={item.tema}
-              className="px-6 py-3 rounded-lg border-2 border-slate-200 bg-white text-slate-700 font-medium transition-all hover:border-purple-400 hover:bg-purple-50 data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-600 shadow-sm"
-            >
-              {item.tema}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      <TabsList className="inline-flex h-auto gap-2 bg-transparent p-0 mb-8 flex-wrap">
+        {data.map((item) => (
+          <TabsTrigger
+            key={item.tema}
+            value={item.tema}
+            className="px-6 py-3 rounded-lg border-2 font-medium transition-all shadow-sm
+                      text-[#163F6A]
+                      border-[#CBDCDB]
+                      bg-white
+                      hover:border-[#CBDCDB]
+                      hover:bg-[#F3F7F7]
+                      data-[state=active]:bg-[#CBDCDB]
+                      data-[state=active]:text-[#163F6A]
+                      data-[state=active]:border-[#CBDCDB]"
+          >
+            {item.tema}
+          </TabsTrigger>
+        ))}
+      </TabsList>
 
         {data.map((item) => {
           const totalPages = getTotalPages(item.contenidos);

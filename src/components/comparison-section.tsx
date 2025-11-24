@@ -12,7 +12,7 @@ export function ComparisonSection() {
       feature: "Costo",
       icon: <DollarSign className="w-5 h-5" />,
       adaptia: "$2,000 USD",
-      traditional: "+$30,000 USD",
+      traditional: "+ $20,000 USD",
     },
     {
       feature: "Uso de tecnología",
@@ -24,7 +24,7 @@ export function ComparisonSection() {
       feature: "Inversión de tiempo",
       icon: <Users className="w-5 h-5" />,
       adaptia: "5 minutos",
-      traditional: "Decenas de horas (entrevistas, documentos, recolección de métricas)",
+      traditional: "+100 horas por parte de la empresa para entrevistas, documentación, recolección de métricas, etc.",
     },
   ]
 

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { notFound, redirect } from "next/navigation"
 import { getOrganizationById } from "@/services/organization.service"
 import OrganizationAnalysisView from "../../components/organization-analysis-view"
+import { getUserById } from "@/services/users.service"
 
 interface OrgPageProps {
   params: Promise<{ id: string }>
@@ -41,8 +42,7 @@ if (error) {
   console.error("Error al obtener el rol:", error)
 }
 
-const role = userProfile?.role
-console.log("Rol del usuario:", role)
+const userPostgres = await getUserById(user.id, token)
 
   const organization = await getOrganizationById(id, token)
 
@@ -52,5 +52,5 @@ console.log("Rol del usuario:", role)
   }
 
 
-  return <OrganizationAnalysisView organization={organization} token={token || ''} role={role || 'USER'} />
+  return <OrganizationAnalysisView organization={organization} token={token || ''} role={userPostgres?.role || 'USER'} />
 }

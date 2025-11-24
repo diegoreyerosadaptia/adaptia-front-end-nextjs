@@ -13,7 +13,7 @@ import { createOrganizationAction } from "@/actions/organizations/create-organiz
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase/client"
 import { createPreferenceAction } from "@/actions/payments/create-preference.action"
-import { User, Building2, FileText } from "lucide-react"
+import { User, Building2, FileText, Paperclip  } from "lucide-react"
 
 export default function OrganizationForm({
   redirectToPayment = true,
@@ -173,6 +173,32 @@ const onSubmit = (values: OrganizationSchemaType) => {
         </div>
       </div>
 
+      <div className="space-y-2">
+          <Label htmlFor="title" className="text-sm font-semibold text-gray-700">
+            Título / Cargo
+          </Label>
+          <p className="text-sm text-gray-500 leading-relaxed">Tu rol / posición en la empresa.</p>
+          <Input
+            id="title"
+            {...form.register("title")}
+            className="h-12 text-base border-2 focus:border-adaptia-blue-primary transition-colors"
+            placeholder="Ej: Director de Sostenibilidad"
+          />
+        </div>
+
+        <div className="space-y-2">
+            <Label htmlFor="phone" className="text-sm font-semibold text-gray-700">
+              Teléfono
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              {...form.register("phone")}
+              className="h-12 text-base border-2 focus:border-adaptia-blue-primary transition-colors"
+              placeholder="+52 123 456 7890"
+            />
+          </div>
+
       {/* Sección: Información de la Empresa */}
       <div className="space-y-6">
         <div className="flex items-center gap-3 pb-3 border-b-2 border-adaptia-blue-primary/20">
@@ -196,18 +222,6 @@ const onSubmit = (values: OrganizationSchemaType) => {
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="title" className="text-sm font-semibold text-gray-700">
-            Título / Cargo
-          </Label>
-          <p className="text-sm text-gray-500 leading-relaxed">Tu rol / posición en la empresa.</p>
-          <Input
-            id="title"
-            {...form.register("title")}
-            className="h-12 text-base border-2 focus:border-adaptia-blue-primary transition-colors"
-            placeholder="Ej: Director de Sostenibilidad"
-          />
-        </div>
 
         <div className="grid md:grid-cols-1 gap-6">
           <div className="space-y-2">
@@ -330,18 +344,6 @@ const onSubmit = (values: OrganizationSchemaType) => {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone" className="text-sm font-semibold text-gray-700">
-              Teléfono
-            </Label>
-            <Input
-              id="phone"
-              type="tel"
-              {...form.register("phone")}
-              className="h-12 text-base border-2 focus:border-adaptia-blue-primary transition-colors"
-              placeholder="+52 123 456 7890"
-            />
-          </div>
 
           
         <div className="space-y-2">
@@ -366,20 +368,78 @@ const onSubmit = (values: OrganizationSchemaType) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="document" className="text-sm font-semibold text-gray-700">
+          <Label className="text-sm font-semibold text-gray-700">
             Documento de Apoyo
           </Label>
+
           <p className="text-sm text-gray-500 leading-relaxed">
-            Adjunta cualquier documento de apoyo que quieras consideremos en el análisis. Puede ser tu presentación de
-            empresa, reporte de sostenibilidad, infografía, etc. El formato debe de ser PDF, Powerpoint o Word.
+            Sube un PDF, PowerPoint o Word. El archivo se guardará de forma segura.
           </p>
-          <Input
-            id="document"
-            {...form.register("document")}
-            className="h-12 text-base border-2 focus:border-adaptia-blue-primary transition-colors"
-            placeholder="URL del documento"
+
+          <label
+            htmlFor="documentUpload"
+            className="
+              flex items-center gap-3 justify-center
+              w-full h-14 px-4
+              border-2 border-dashed border-adaptia-blue-primary/40
+              rounded-lg cursor-pointer
+              bg-white hover:bg-adaptia-blue-primary/5
+              transition-all duration-200
+            "
+          >
+            <Paperclip className="h-5 w-5 text-adaptia-blue-primary" />
+            <span className="font-medium text-adaptia-blue-primary">
+              Subir archivo
+            </span>
+          </label>
+
+          <input
+            id="documentUpload"
+            type="file"
+            accept=".pdf,.doc,.docx,.ppt,.pptx"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+
+              const {
+                data: { user },
+              } = await supabase.auth.getUser();
+
+              if (!user) {
+                console.error("No user found");
+                return;
+              }
+
+              const filePath = `${user.id}/${Date.now()}_${file.name}`;
+
+              const { data, error } = await supabase.storage
+                .from("adaptia-documents")
+                .upload(filePath, file);
+
+              if (error) {
+                console.error("Error al subir archivo:", error);
+                return;
+              }
+
+              // Obtener URL pública
+              const { data: urlData } = supabase.storage
+                .from("adaptia-documents")
+                .getPublicUrl(filePath);
+
+              // Guardar URL dentro del formulario
+              form.setValue("document", urlData.publicUrl);
+            }}
           />
+
+          {/* Mostrar nombre del archivo si ya fue subido */}
+          {form.watch("document") && (
+            <p className="text-green-600 text-sm mt-2 font-medium">
+              Archivo subido correctamente ✔️
+            </p>
+          )}
         </div>
+
       </div>
 
       <div className="pt-6 border-t-2 border-gray-200">

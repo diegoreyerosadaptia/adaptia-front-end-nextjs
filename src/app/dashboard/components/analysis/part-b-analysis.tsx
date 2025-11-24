@@ -101,7 +101,8 @@ export function ParteBEditable({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-lg font-semibold text-green-600">Parte B – Evaluación</h3>
+        <h3           className="text-lg font-semibold"
+          style={{ color: "#619F44" }}>Parte B – Evaluación</h3>
 
         {userRole === "ADMIN" && (
           <AnalysisActionsMenu
@@ -116,7 +117,7 @@ export function ParteBEditable({
 
       <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
         <table className="w-full border-collapse text-sm">
-          <thead className="bg-green-600 text-white text-left">
+        <thead style={{ backgroundColor: "#619F44", color: "white" }}>
             <tr>
               <th className="px-4 py-3">Tema</th>
               <th className="px-4 py-3 font-semibold">Materialidad Financiera</th>

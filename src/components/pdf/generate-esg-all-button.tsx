@@ -574,7 +574,7 @@ function drawOdsPage(pdfDoc: PDFDocument, font: any, boldFont: any, parteC: Part
 
   const columnWidths = [150, 80, 150, 135]
 
-  const rows = parteC.map((r) => [r.tema, r.prioridad, r.meta_ods, r.indicador_ods])
+  const rows = parteC.map((r) => [r.tema, r.meta_ods, r.indicador_ods])
 
   drawTableWithWrapping(pdfDoc, font, boldFont, "Vinculacion con ODS", headers, rows, columnWidths)
 }
