@@ -22,7 +22,7 @@ type ContextoItem = {
 
 type ParteBItem = {
   tema: string
-  materialidad_financiera: string
+  materialidad_financiera: string;
   tipo_impacto: string
   potencialidad_impacto: string
   horizonte_impacto: string
@@ -32,6 +32,8 @@ type ParteBItem = {
   gravedad: string
   probabilidad: string
   alcance: string
+  impacto_esg: string
+  impacto_financiero: string
   materialidad_esg: string
 }
 
@@ -46,9 +48,11 @@ export type SasbItem = {
 
 type ParteCItem = {
   tema: string
+  ods: string
   meta_ods: string
   indicador_ods: string
 }
+
 
 type RegulacionItem = {
   tipo_regulacion: string
@@ -570,7 +574,7 @@ function drawGriPage(pdfDoc: PDFDocument, font: any, temas: string[]) {
   
 
 function drawOdsPage(pdfDoc: PDFDocument, font: any, boldFont: any, parteC: ParteCItem[]) {
-  const headers = ["Tema", "Prioridad", "Meta ODS", "Indicador ODS"]
+  const headers = ["Tema", "ODS", "Meta ODS", "Indicador ODS"]
 
   const columnWidths = [150, 80, 150, 135]
 

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Eye, MoreHorizontal, FileText, Mail, RotateCcw } from "lucide-react"
 import { Organization } from "@/types/organization.type"
+import RetryEsgButton from "./retry-esg-button"
 
 interface ActionsMenuProps {
   org: Organization
@@ -83,20 +84,14 @@ export default function ActionsMenu({ org, authToken }: ActionsMenuProps) {
             </DropdownMenuItem>
           )}
 
-          {showRetry && (
-            <>
-              <DropdownMenuSeparator className="my-1" />
-              <DropdownMenuItem
-                onClick={() => console.log("Retry analysis", org.id)}
-                className="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-100">
-                  <RotateCcw className="w-4 h-4 text-orange-600" />
-                </div>
-                <span className="font-medium">Reintentar análisis</span>
-              </DropdownMenuItem>
-            </>
-          )}
+          {org.analysis?.some((a) => a.status === "FAILED") && (
+                <>
+                  <DropdownMenuSeparator />
+                  <div className="px-1">
+                    <RetryEsgButton org={org} />
+                  </div>
+                </>
+              )}
         </DropdownMenuContent>
       </DropdownMenu>
 

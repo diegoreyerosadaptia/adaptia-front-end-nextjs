@@ -59,7 +59,7 @@ export default function RetryEsgButton({ org }: { org: any }) {
       variant="outline"
       onClick={handleRetry}
       disabled={loading}
-      className={`flex w-full items-center gap-2 px-3 py-2 text-sm rounded-md border transition-colors
+      className={`flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition-colors cursor-pointer
         ${
           loading
             ? "opacity-70 cursor-not-allowed border-green-300 text-green-400"
@@ -73,7 +73,9 @@ export default function RetryEsgButton({ org }: { org: any }) {
         </>
       ) : (
         <>
-          <RotateCcw className="w-4 h-4" />
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-100">
+        <RotateCcw className="w-4 h-4 text-orange-600" />
+        </div>
           Restaurar análisis
         </>
       )}
