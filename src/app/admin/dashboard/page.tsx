@@ -32,6 +32,14 @@ export default async function AdminDashboard() {
   const organizations = await getOrganizations(token)
   const userPostgres = await getUserById(user.id, token)
 
+  
+  const handleSignOut = async () => {
+    "use server"
+    const supabase = await createClient()
+    await supabase?.auth.signOut()
+    redirect("/auth/login")
+  }
+
 
     // 🚫 Si es USER → redirect al dashboard normal
   if (userPostgres?.role === "USER") {
@@ -115,25 +123,27 @@ return (
               </p>
               <p className="text-xs text-gray-600/70">{userPostgres?.email}</p>
             </div>
-            <Button
-              variant="outline"
-              size="lg"
-              className="
-                border-[#163F6A]/30
-                text-[#163F6A]
-                hover:bg-[#163F6A]
-                hover:text-white 
-                hover:border-[#163F6A]
-                bg-white/50
-                backdrop-blur-sm
-                rounded-lg px-6 py-2.5 flex gap-2 items-center
-                transition-all duration-200
-                shadow-sm hover:shadow-md
-              "
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Cerrar Sesión</span>
-            </Button>
+            <form action={handleSignOut}>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="
+                    border-[#163F6A]/30
+                    text-[#163F6A]
+                    hover:bg-[#163F6A]
+                    hover:text-white 
+                    hover:border-[#163F6A]
+                    bg-white/50
+                    backdrop-blur-sm
+                    rounded-lg px-6 py-2.5 flex gap-2 items-center
+                    transition-all duration-200
+                    shadow-sm hover:shadow-md
+                  "
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Cerrar Sesión</span>
+                </Button>
+              </form>
           </div>
         </div>
 

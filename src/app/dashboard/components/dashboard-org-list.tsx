@@ -302,7 +302,6 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
                               contraportada="/Contra-Portada-Resumen-Ejecutivo-Adaptia.png"
                               filename={`Reporte_ESG_${org.company}.pdf`}
                               dataMaterialidad={finalScatterData}
-                              parteA={parteA}
                               className="bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 text-white"
                               dashboard={true}
                             />

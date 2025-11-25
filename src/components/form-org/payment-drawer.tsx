@@ -19,11 +19,10 @@ const PRICE_BY_EMPLOYEE_RANGE: Record<string, number> = {
 type PaymentDrawerProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  organization: Organization// 👈 se lo vas a pasar en el evento
+  organization: Organization
   payCta?: string
   checkoutUrl?: string
   onPay?: () => void
-  whatsappNumber?: string
   loading?: boolean
 }
 
@@ -36,9 +35,10 @@ export function PaymentDrawer({
   onPay,
   loading = false,
 }: PaymentDrawerProps) {
-  const [amountUSD, setAmountUSD] = useState<number>(PRICE_BY_EMPLOYEE_RANGE[organization.employees_number])
+  const [amountUSD, setAmountUSD] = useState<number>(
+    PRICE_BY_EMPLOYEE_RANGE[organization.employees_number],
+  )
 
-  // 🔁 recalcula automáticamente si cambia el rango
   useEffect(() => {
     setAmountUSD(PRICE_BY_EMPLOYEE_RANGE[organization.employees_number])
   }, [organization.employees_number])
@@ -67,7 +67,12 @@ export function PaymentDrawer({
               payCta={payCta}
               checkoutUrl={checkoutUrl}
               onPay={onPay}
-              organization={organization}
+              organization={{
+                company: organization.company,
+                industry: organization.industry,
+                country: organization.country,
+                employeesRange: organization.employees_number,
+              }}
             />
           </div>
         )}

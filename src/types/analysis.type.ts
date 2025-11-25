@@ -4,7 +4,8 @@ export const ANALYSIS_STATUS = [
   "PENDING",
   "COMPLETED",
   "FAILED",
-  "INCOMPLETE"
+  "INCOMPLETE",
+  "PROCESSING"
 ] as const
 
 export const PAYMENT_STATUS = [

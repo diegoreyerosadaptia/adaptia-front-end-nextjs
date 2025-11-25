@@ -75,10 +75,18 @@ export default function OrganizationForm({
   }, [form])
 
 // dentro de OrganizationForm
+// dentro de OrganizationForm
+
+// dentro de OrganizationForm
+
 const onSubmit = (values: OrganizationSchemaType) => {
   startTransition(async () => {
     const payload: OrganizationSchemaType = { ...values }
-    if (!payload.ownerId) delete payload.ownerId
+
+    // 👇 Si no hay ownerId → la org se crea “anónima” y el backend genera claimToken
+    if (!payload.ownerId) {
+      delete payload.ownerId
+    }
 
     const result = await createOrganizationAction(payload, token || "")
 
@@ -87,22 +95,35 @@ const onSubmit = (values: OrganizationSchemaType) => {
       return
     }
 
-    if (result?.claimToken) {
-      router.push(`/auth/register?orgId=${result.orgId}&claim=${result.claimToken}&openPaymentFor=${result.orgId}`)
+    /**
+     * 🧩 CASO 1: organización anónima
+     * El backend devolvió orgId + claimToken → mandamos al register con esos datos
+     */
+    if (!payload.ownerId && result?.orgId && result?.claimToken) {
+      const params = new URLSearchParams({
+        orgId: result.orgId,
+        claim: result.claimToken,
+        email: values.email || "", // 👈 viene del form de org
+      })
+    
+      router.push(`/auth/register?${params.toString()}`)
       return
     }
-
-    // 🧠 Llamamos al callback para notificar que se creó la organización
+    
+    /**
+     * 🧩 CASO 2: ya había usuario logueado (ownerId lleno)
+     * → ejecutamos callback y flujo de pago como antes
+     */
     if (onSuccess && result?.organization) {
       onSuccess(result.organization)
     }
 
-    // 🔹 opcional: si querés seguir con el flujo de pago directo:
     const {
       data: { user },
     } = await supabase.auth.getUser()
+
     if (!user?.id) {
-      console.error("No se encontró usuario logueado")
+      console.error("No se encontró usuario logueado para crear preferencia de pago")
       return
     }
 
@@ -119,6 +140,7 @@ const onSubmit = (values: OrganizationSchemaType) => {
     }
   })
 }
+
 
 
   return (
@@ -284,44 +306,44 @@ const onSubmit = (values: OrganizationSchemaType) => {
               </SelectTrigger>
               <SelectContent className="max-h-60 overflow-y-auto">
                 {[
-                  "Productos de consumo - No alimenticios",
-                  "Productos de consumo - Alimentos",
-                  "Venta minorista - Alimentos",
-                  "Venta minorista - No alimenticios",
+                  "Aeroespacial y Defensa",
+                  "Aerolíneas",
                   "Agroindustria",
-                  "Farmacéuticos",
-                  "Servicios de atención médica",
-                  "Tecnología Hardware y Semiconductores",
-                  "Software y servicios tecnológicos",
-                  "Telecomunicaciones",
-                  "Medios y Entretenimiento",
-                  "Ocio",
-                  "Servicios Empresariales",
-                  "Productos de papel y forestales",
-                  "Ingeniería y Construcción",
+                  "Autos",
+                  "Banca",
                   "Bienes de capital",
                   "Bienes raíces",
-                  "Autos",
-                  "Infraestructura de transporte",
-                  "Transporte",
-                  "Aerolíneas",
-                  "Aeroespacial y Defensa",
-                  "Banca",
-                  "Seguros",
-                  "Materiales de construcción",
-                  "Químicos",
-                  "Metales y Minería",
-                  "Petróleo y Gas",
                   "Energía Intermedia",
+                  "Farmacéuticos",
                   "Generación de energía",
+                  "Infraestructura de transporte",
+                  "Ingeniería y Construcción",
+                  "Materiales de construcción",
+                  "Medios y Entretenimiento",
+                  "Metales y Minería",
+                  "Ocio",
+                  "Petróleo y Gas",
+                  "Productos de consumo - No alimenticios",
+                  "Productos de consumo – Alimentos",
+                  "Productos de papel y forestales",
+                  "Químicos",
+                  "Seguros",
+                  "Servicios de atención médica",
+                  "Servicios Empresariales",
                   "Servicios públicos",
-                  "Otro",
+                  "Software y servicios tecnológicos",
+                  "Tecnología Hardware y Semiconductores",
+                  "Telecomunicaciones",
+                  "Transporte",
+                  "Venta minorista - Alimentos",
+                  "Venta minorista - No alimenticios",
                 ].map((i) => (
                   <SelectItem key={i} value={i}>
                     {i}
                   </SelectItem>
                 ))}
               </SelectContent>
+
             </Select>
           </div>
         </div>

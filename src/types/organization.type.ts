@@ -28,6 +28,7 @@ export type Organization = {
   owner_id: string
   analysis?: Analysis[]
   esgAnalysis: EsgAnalysis[];
+  createdAt: Date;
 }
 
 

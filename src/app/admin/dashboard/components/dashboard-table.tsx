@@ -3,10 +3,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Building2, CheckCircle2, Clock, XCircle, Search, Loader2 } from "lucide-react"
+import { Building2, CheckCircle2, Clock, XCircle, Search, Loader2, WatchIcon } from "lucide-react"
 import ActionsMenu from "./actions-menu"
 import PaymentStatusSelect from "./analysis-status-select"
 import { useEffect, useState } from "react"
+import { getAnalysisSocket } from "@/lib/analysis-socket"   // 👈 socket.io client
 
 type FilterType =
   | "all"
@@ -93,35 +94,61 @@ export default function DashboardTable({ organizations, token }: DashboardTableP
     applyFilters(value, activeFilter)
   }
 
-  // 🎯 ESCUCHA cuando un análisis cambia de estado
+  // 🎯 ESCUCHA eventos de estado de análisis desde el SOCKET
   useEffect(() => {
-    const handler = (event: any) => {
-      const { id, newStatus } = event.detail
+    const socket = getAnalysisSocket()
 
-      // 🔔 Alerta cuando pasa a COMPLETED
-      if (newStatus === "COMPLETED") {
+    const handler = (payload: any) => {
+      const { analysisId, status } = payload
+
+      // 🔔 Toast cuando pasa a COMPLETED
+      if (status === "COMPLETED") {
         import("sonner").then(({ toast }) =>
-          toast.success("✔ El análisis se completó correctamente.")
+          toast.success("✔ El análisis se completó correctamente."),
         )
       }
 
-      // ⭐ activa animación
-      setHighlightedRow(id)
+      // ⭐ activar animación en la fila que contiene ese análisis
+      setHighlightedRow(analysisId)
       setTimeout(() => setHighlightedRow(null), 1500)
 
-      // 🔄 refresh de la tabla sin recargar
+      // 🔄 actualizar estado de las organizaciones
       setFilteredOrgs((prev) =>
         prev.map((org) => ({
           ...org,
           analysis: org.analysis?.map((a: any) =>
-            a.id === id ? { ...a, status: newStatus } : a
+            a.id === analysisId
+              ? { ...a, status } // 👈 acá se cambia de PROCESSING → COMPLETED, FAILED, etc
+              : a,
           ),
-        }))
+        })),
       )
     }
 
-    window.addEventListener("analysisStatusUpdated", handler)
-    return () => window.removeEventListener("analysisStatusUpdated", handler)
+    socket.on("analysisStatusUpdated", handler)
+
+    return () => {
+      socket.off("analysisStatusUpdated", handler)
+    }
+  }, [])
+
+  // 🔁 Sigue funcionando el evento de pago manual (PaymentStatusSelect)
+  useEffect(() => {
+    const handler = (event: any) => {
+      const { id, newStatus } = event.detail
+
+      setFilteredOrgs((prev) =>
+        prev.map((org) => ({
+          ...org,
+          analysis: org.analysis?.map((a: any) =>
+            a.id === id ? { ...a, payment_status: newStatus } : a,
+          ),
+        })),
+      )
+    }
+
+    window.addEventListener("paymentStatusUpdated", handler)
+    return () => window.removeEventListener("paymentStatusUpdated", handler)
   }, [])
 
   return (
@@ -197,9 +224,11 @@ export default function DashboardTable({ organizations, token }: DashboardTableP
                       org.analysis?.filter((a: any) => a.status === "PENDING").length || 0
                     const failedCount =
                       org.analysis?.filter((a: any) => a.status === "FAILED").length || 0
+                    const processCount =
+                      org.analysis?.filter((a: any) => a.status === "PROCESSING").length || 0
 
                     const shouldAnimate = org.analysis?.some(
-                      (a: any) => a.id === highlightedRow
+                      (a: any) => a.id === highlightedRow,
                     )
 
                     return (
@@ -242,8 +271,8 @@ export default function DashboardTable({ organizations, token }: DashboardTableP
 
                             {pendingCount > 0 && (
                               <Badge className="bg-yellow-100 text-yellow-800 text-[10px] px-1.5 py-0.5 flex items-center">
-                                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                                Procesando
+                                <WatchIcon className="h-3 w-3 mr-1" />
+                                Pendiente
                               </Badge>
                             )}
 
@@ -251,6 +280,13 @@ export default function DashboardTable({ organizations, token }: DashboardTableP
                               <Badge className="bg-red-100 text-red-800 text-[10px] px-1.5 py-0.5">
                                 <XCircle className="h-2.5 w-2.5 mr-0.5" />
                                 Fallido
+                              </Badge>
+                            )}
+
+                            {processCount > 0 && (
+                              <Badge className="bg-blue-100 text-blue-800 text-[10px] px-1.5 py-0.5 flex items-center">
+                                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                Procesando
                               </Badge>
                             )}
 

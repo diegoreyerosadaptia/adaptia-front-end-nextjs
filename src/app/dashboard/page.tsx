@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button"
 import { LogOut, Building2, FileText, CheckCircle2, Clock, User } from "lucide-react"
 import { getOrganizations } from "@/services/organization.service"
 import DashboardOrgList from "./components/dashboard-org-list"
-import DashboardPaymentGate from "@/components/form-org/dashboard-payment-gate"
 import { AddOrganizationDialog } from "./components/organization-form-dialog"
+
+// 👇 importa los dos
+import DashboardPaymentGate from "@/components/form-org/dashboard-payment-gate"
+import DashboardPaymentWrapper from "@/components/form-org/dashboard-payment-wrapper"
 
 function StatCard({ title, icon, value }: { title: string; icon: React.ReactNode; value: number }) {
   return (
@@ -47,7 +50,11 @@ export default async function ClientDashboard() {
 
   const organizations = await getOrganizations(token)
 
-  const { data: userData } = await supabase.from("users").select("role, name, surname").eq("id", user?.id).single()
+  const { data: userData } = await supabase
+    .from("users")
+    .select("role, name, surname")
+    .eq("id", user?.id)
+    .single()
 
   if (userData?.role === "admin") {
     redirect("/admin/dashboard")
@@ -61,15 +68,23 @@ export default async function ClientDashboard() {
   }
 
   const hasPendingPayment =
-    organizations?.some((org) => org.analysis?.some((a) => a.payment_status === "PENDING")) ?? false
+    organizations?.some((org) =>
+      org.analysis?.some((a) => a.payment_status === "PENDING")
+    ) ?? false
 
   const totalOrganizations = organizations?.length || 0
-  const totalAnalysis = organizations?.reduce((acc, org) => acc + (org.analysis?.length || 0), 0) || 0
+  const totalAnalysis =
+    organizations?.reduce((acc, org) => acc + (org.analysis?.length || 0), 0) || 0
   const completedAnalysis =
-    organizations?.reduce((acc, org) => acc + (org.analysis?.filter((a) => a.status === "COMPLETED").length || 0), 0) ||
-    0
+    organizations?.reduce(
+      (acc, org) => acc + (org.analysis?.filter((a) => a.status === "COMPLETED").length || 0),
+      0,
+    ) || 0
   const pendingAnalysis =
-    organizations?.reduce((acc, org) => acc + (org.analysis?.filter((a) => a.status === "PENDING").length || 0), 0) || 0
+    organizations?.reduce(
+      (acc, org) => acc + (org.analysis?.filter((a) => a.status === "PENDING").length || 0),
+      0,
+    ) || 0
 
   const firstOrg = organizations?.[0]
 
@@ -135,46 +150,54 @@ export default async function ClientDashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardPaymentGate openByDefault={hasPendingPayment}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-            <StatCard
-              title="Mis Organizaciones"
-              icon={<Building2 className="h-5 w-5 text-[#163F6A]" />}
-              value={totalOrganizations}
-            />
-            <StatCard
-              title="Total de Análisis"
-              icon={<FileText className="h-5 w-5 text-[#163F6A]/80" />}
-              value={totalAnalysis}
-            />
-            <StatCard
-              title="Completados"
-              icon={<CheckCircle2 className="h-5 w-5 text-green-600" />}
-              value={completedAnalysis}
-            />
-            <StatCard title="En Proceso" icon={<Clock className="h-5 w-5 text-amber-600" />} value={pendingAnalysis} />
-          </div>
+        {/* 👇 Wrapper que dispara el evento desde localStorage (primer login) */}
+        <DashboardPaymentWrapper organizations={organizations ?? []}>
+          {/* 👇 Gate que escucha eventos y muestra el Drawer */}
+          <DashboardPaymentGate openByDefault={hasPendingPayment}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+              <StatCard
+                title="Mis Organizaciones"
+                icon={<Building2 className="h-5 w-5 text-[#163F6A]" />}
+                value={totalOrganizations}
+              />
+              <StatCard
+                title="Total de Análisis"
+                icon={<FileText className="h-5 w-5 text-[#163F6A]/80" />}
+                value={totalAnalysis}
+              />
+              <StatCard
+                title="Completados"
+                icon={<CheckCircle2 className="h-5 w-5 text-green-600" />}
+                value={completedAnalysis}
+              />
+              <StatCard
+                title="En Proceso"
+                icon={<Clock className="h-5 w-5 text-amber-600" />}
+                value={pendingAnalysis}
+              />
+            </div>
 
-          <Card className="border-slate-200 shadow-sm">
-            <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-[#163F6A]/5">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <CardTitle className="text-2xl font-bold bg-gradient-to-r from-[#163F6A] to-[#163F6A]/80 bg-clip-text text-transparent">
-                    Mis Organizaciones
-                  </CardTitle>
-                  <CardDescription className="text-slate-600 mt-1">
-                    Gestiona tus organizaciones y análisis de sostenibilidad
-                  </CardDescription>
+            <Card className="border-slate-200 shadow-sm">
+              <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-[#163F6A]/5">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <CardTitle className="text-2xl font-bold bg-gradient-to-r from-[#163F6A] to-[#163F6A]/80 bg-clip-text text-transparent">
+                      Mis Organizaciones
+                    </CardTitle>
+                    <CardDescription className="text-slate-600 mt-1">
+                      Gestiona tus organizaciones y análisis de sostenibilidad
+                    </CardDescription>
+                  </div>
+                  <AddOrganizationDialog />
                 </div>
-                <AddOrganizationDialog />
-              </div>
-            </CardHeader>
+              </CardHeader>
 
-            <CardContent className="pt-6">
-              <DashboardOrgList organizations={organizations ?? []} />
-            </CardContent>
-          </Card>
-        </DashboardPaymentGate>
+              <CardContent className="pt-6">
+                <DashboardOrgList organizations={organizations ?? []} />
+              </CardContent>
+            </Card>
+          </DashboardPaymentGate>
+        </DashboardPaymentWrapper>
       </main>
     </div>
   )

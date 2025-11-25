@@ -1,7 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
-import { useEffect, useState, useTransition } from "react"
+import { Suspense, useEffect, useState, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -26,6 +25,7 @@ function RegisterForm() {
   const params = useSearchParams()
   const orgIdQS = params.get("orgId") ?? ""
   const claimQS = params.get("claim") ?? ""
+  const emailQS = params.get("email") ?? "" // opcional para prefill
 
   const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(registerSchema),
@@ -42,7 +42,8 @@ function RegisterForm() {
   useEffect(() => {
     if (orgIdQS) form.setValue("orgId", orgIdQS)
     if (claimQS) form.setValue("claimToken", claimQS)
-  }, [orgIdQS, claimQS, form])
+    if (emailQS) form.setValue("email", emailQS)
+  }, [orgIdQS, claimQS, emailQS, form])
 
   const onSubmit = (values: RegisterSchemaType) => {
     setError(null)
@@ -50,6 +51,7 @@ function RegisterForm() {
       if (values.orgId) {
         localStorage.setItem("pending_payment_org", values.orgId)
       }
+
       registerAction({ values, isVerified: false })
         .then((data) => {
           if (data?.error) {
@@ -67,6 +69,9 @@ function RegisterForm() {
             description: "Revisa tu bandeja de entrada para activar tu cuenta.",
             className: "bg-green-600 text-white border-none",
           })
+
+          // opcional: redirigir al login
+          router.push("/auth/login")
         })
         .catch((error) => {
           console.error(error)
@@ -98,6 +103,7 @@ function RegisterForm() {
             </CardHeader>
             <CardContent>
               <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                {/* 👇 estos se rellenan desde los query params */}
                 <input type="hidden" {...form.register("orgId")} />
                 <input type="hidden" {...form.register("claimToken")} />
 
@@ -155,7 +161,6 @@ function RegisterForm() {
   )
 }
 
-// 👇 Envolvemos el componente en un Suspense
 export default function RegisterPage() {
   return (
     <Suspense fallback={<div className="text-center py-10">Cargando...</div>}>

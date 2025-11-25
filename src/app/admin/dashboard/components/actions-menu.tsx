@@ -35,6 +35,14 @@ export default function ActionsMenu({ org, authToken }: ActionsMenuProps) {
 
   const showRetry = org.analysis?.some((a) => a.status === "FAILED")
 
+  const canShowRetry =
+  org.analysis?.some(
+    (a: any) =>
+      a.status === "COMPLETED" ||
+      (a.status === "PENDING" && a.payment_status === "COMPLETED"),
+  ) ?? false
+
+
   return (
     <>
       <DropdownMenu>
@@ -88,10 +96,21 @@ export default function ActionsMenu({ org, authToken }: ActionsMenuProps) {
                 <>
                   <DropdownMenuSeparator />
                   <div className="px-1">
-                    <RetryEsgButton org={org} />
+                    <RetryEsgButton org={org} label="Restaurar análisis" />
                   </div>
                 </>
               )}
+
+
+          {canShowRetry && (
+            <>
+              <DropdownMenuSeparator />
+              <div className="px-1">
+                <RetryEsgButton org={org} label="Realizar análisis" />
+              </div>
+            </>
+          )}
+
         </DropdownMenuContent>
       </DropdownMenu>
 

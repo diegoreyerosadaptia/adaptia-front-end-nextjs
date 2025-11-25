@@ -1,7 +1,14 @@
 "use client"
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useState } from "react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { updateStatusPaymentAnalysisAction } from "@/actions/analysis/update-payment-status.action" // ajustá el import real
 
 interface PaymentStatusSelectProps {
   id: string
@@ -9,17 +16,41 @@ interface PaymentStatusSelectProps {
   accessToken: string
 }
 
-export default function PaymentStatusSelect({ id, initialStatus, accessToken }: PaymentStatusSelectProps) {
+export default function PaymentStatusSelect({
+  id,
+  initialStatus,
+  accessToken,
+}: PaymentStatusSelectProps) {
   const [status, setStatus] = useState(initialStatus)
+  const [loading, setLoading] = useState(false)
 
   const handleStatusChange = async (newStatus: "PENDING" | "COMPLETED") => {
+    if (newStatus === status) return
+
+    const prev = status
     setStatus(newStatus)
-    // Here you would make an API call to update the status
-    // await updatePaymentStatus(id, newStatus, accessToken)
+    setLoading(true)
+
+    const result = await updateStatusPaymentAnalysisAction(id, accessToken)
+
+    if (!result) {
+      // rollback si falla
+      setStatus(prev)
+      console.error("No se pudo actualizar el estado de pago")
+    } else {
+      // 🔔 avisar al resto de la app (DashboardTable / ActionsMenu)
+      window.dispatchEvent(
+        new CustomEvent("paymentStatusUpdated", {
+          detail: { id, newStatus },
+        }),
+      )
+    }
+
+    setLoading(false)
   }
 
   return (
-    <Select value={status} onValueChange={handleStatusChange}>
+    <Select value={status} onValueChange={handleStatusChange} disabled={loading}>
       <SelectTrigger className="w-[130px] h-7 text-xs">
         <SelectValue />
       </SelectTrigger>

@@ -164,3 +164,36 @@ export const sendAnalysis = async (id: string, authToken?: string) => {
     return null
   }
 }
+
+export const claimOrg = async (
+  userId: string,
+  orgId: string,
+  claimToken: string,
+  authToken?: string,
+) => {
+  try {
+    const response = await fetch(`${BASE_URL}/organizations/claim`, {
+      method: "POST",
+      headers: getJsonHeaders(authToken),
+      body: JSON.stringify({
+        userId,
+        orgId,
+        claim: claimToken, // 👈 tiene que matchear con lo que espera tu backend
+      }),
+    })
+
+    const data = await response.json()
+
+    if (response.ok) {
+      // refrescá la cache de organizaciones (ajustá el tag si usás otro)
+      revalidateTag(getCacheTag("organizations", "all"))
+      return data
+    } else {
+      console.error("Error en claimOrg:", data)
+      return null
+    }
+  } catch (error) {
+    console.error("Error de red en claimOrg:", error)
+    return null
+  }
+}

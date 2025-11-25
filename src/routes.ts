@@ -36,4 +36,4 @@ export const publicApiRoutes = []
 /**
  * Ruta por defecto después de login
  */
-export const DEFAULT_LOGIN_REDIRECT = '/dashboard'
+export const DEFAULT_LOGIN_REDIRECT = '/admin/dashboard'

@@ -6,8 +6,9 @@ import { supabase } from "@/lib/supabase/client"
 import { Loader2, RotateCcw } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 
-export default function RetryEsgButton({ org }: { org: any }) {
+export default function RetryEsgButton({ org, label }: { org: any, label: string }) {
   const [loading, setLoading] = useState(false)
 
   const handleRetry = async () => {
@@ -54,31 +55,27 @@ export default function RetryEsgButton({ org }: { org: any }) {
   }
 
   return (
-    <Button
-      size="sm"
-      variant="outline"
-      onClick={handleRetry}
-      disabled={loading}
-      className={`flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition-colors cursor-pointer
-        ${
-          loading
-            ? "opacity-70 cursor-not-allowed border-green-300 text-green-400"
-            : "border-blue-primary text-blue-primary hover:bg-adaptia-blue-primary hover:text-white"
-        }`}
-    >
-      {loading ? (
-        <>
-          <Loader2 className="w-4 h-4 animate-spin" />
-          Procesando...
-        </>
-      ) : (
-        <>
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-100">
-        <RotateCcw className="w-4 h-4 text-orange-600" />
+    <DropdownMenuItem asChild className="mt-1">
+      <button
+        type="button"
+        onClick={handleRetry}
+        disabled={loading}
+        className="flex w-full items-center gap-3 px-3 py-2.5 text-sm rounded-lg 
+                   text-gray-700 hover:bg-orange-50 hover:text-orange-700 
+                   transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-100">
+          {loading ? (
+            <Loader2 className="w-4 h-4 text-orange-600 animate-spin" />
+          ) : (
+            <RotateCcw className="w-4 h-4 text-orange-600" />
+          )}
         </div>
-          Restaurar análisis
-        </>
-      )}
-    </Button>
+
+        <span className="font-medium">
+          {loading ? "Procesando..." : label}
+        </span>
+      </button>
+    </DropdownMenuItem>
   )
 }

@@ -355,6 +355,14 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
   // ======================
   const finalScatterData = [...dataFinal.filter((d) => d.materialidad?.toLowerCase() !== "alta"), ...altaAgrupada]
 
+    // Antes del return (o arriba en el componente)
+  const createdAtLabel = new Date(organization.createdAt).toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50">
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm">
@@ -372,10 +380,23 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
               />
               </div>
               <div className="h-8 w-px bg-slate-300" />
-              <div>
-                <p className="text-sm text-slate-500 font-medium">Análisis ESG</p>
-                <h2 className="text-lg font-bold text-slate-800">{organization.company}</h2>
-              </div>
+              <div className="space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-wide">
+                    Análisis de doble materialidad ESG
+                  </p>
+
+                  <h2 className="text-lg font-bold text-slate-800">
+                    {organization.company}
+                    {organization.country && ` · ${organization.country}`}
+                    {organization.industry && ` · ${organization.industry}`}
+                  </h2>
+
+                  <p className="text-sm text-slate-500">
+                    Creado el{" "}
+                    <span className="font-medium text-slate-700">{createdAtLabel}</span>
+                  </p>
+                </div>
+
             </div>
 
             {/* Acciones del header */}
@@ -384,7 +405,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
               <Link href={href}>
                 <Button
                   variant="outline"
-                  className="h-10 px-4 border-slate-300 text-slate-700 hover:bg-slate-100 
+                  className="h-10 px-4 text-[#CBDCDB] border-slate-300 text-slate-700 hover:bg-slate-100 
                             hover:border-slate-400 transition-all duration-200 font-medium shadow-sm bg-transparent"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -410,7 +431,6 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
               <GenerateEsgPdfButtonAll
                   analysisData={analysisData}
                   organizationName={organization.company}
-                  token={token}
                 />
               </div>
             </div>
