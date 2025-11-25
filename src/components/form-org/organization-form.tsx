@@ -141,6 +141,44 @@ const onSubmit = (values: OrganizationSchemaType) => {
     }
   })
 }
+const INDUSTRIES = [
+  "Aeroespacial y Defensa",
+  "Aerolíneas",
+  "Agroindustria",
+  "Autos",
+  "Banca",
+  "Bienes de capital",
+  "Bienes raíces",
+  "Energía Intermedia",
+  "Farmacéuticos",
+  "Generación de energía",
+  "Infraestructura de transporte",
+  "Ingeniería y Construcción",
+  "Materiales de construcción",
+  "Medios y Entretenimiento",
+  "Metales y Minería",
+  "Ocio",
+  "Petróleo y Gas",
+  "Productos de consumo - No alimenticios",
+  "Productos de consumo – Alimentos",
+  "Productos de papel y forestales",
+  "Químicos",
+  "Seguros",
+  "Servicios de atención médica",
+  "Servicios Empresariales",
+  "Servicios públicos",
+  "Software y servicios tecnológicos",
+  "Tecnología Hardware y Semiconductores",
+  "Telecomunicaciones",
+  "Transporte",
+  "Venta minorista - Alimentos",
+  "Venta minorista - No alimenticios",
+]
+
+// 👇 orden alfabético usando reglas de español
+const SORTED_INDUSTRIES = [...INDUSTRIES].sort((a, b) =>
+  a.localeCompare(b, "es", { sensitivity: "base" }),
+)
 
 
 
@@ -271,47 +309,16 @@ const onSubmit = (values: OrganizationSchemaType) => {
               <SelectTrigger className="h-12 text-base border-2 focus:border-adaptia-blue-primary transition-colors">
                 <SelectValue placeholder="Seleccionar industria" />
               </SelectTrigger>
+
               <SelectContent className="max-h-60 overflow-y-auto">
-                {[
-                  "Aeroespacial y Defensa",
-                  "Aerolíneas",
-                  "Agroindustria",
-                  "Autos",
-                  "Banca",
-                  "Bienes de capital",
-                  "Bienes raíces",
-                  "Energía Intermedia",
-                  "Farmacéuticos",
-                  "Generación de energía",
-                  "Infraestructura de transporte",
-                  "Ingeniería y Construcción",
-                  "Materiales de construcción",
-                  "Medios y Entretenimiento",
-                  "Metales y Minería",
-                  "Ocio",
-                  "Petróleo y Gas",
-                  "Productos de consumo - No alimenticios",
-                  "Productos de consumo – Alimentos",
-                  "Productos de papel y forestales",
-                  "Químicos",
-                  "Seguros",
-                  "Servicios de atención médica",
-                  "Servicios Empresariales",
-                  "Servicios públicos",
-                  "Software y servicios tecnológicos",
-                  "Tecnología Hardware y Semiconductores",
-                  "Telecomunicaciones",
-                  "Transporte",
-                  "Venta minorista - Alimentos",
-                  "Venta minorista - No alimenticios",
-                ].map((i) => (
+                {SORTED_INDUSTRIES.map((i) => (
                   <SelectItem key={i} value={i}>
                     {i}
                   </SelectItem>
                 ))}
               </SelectContent>
-
             </Select>
+
           </div>
         </div>
 
