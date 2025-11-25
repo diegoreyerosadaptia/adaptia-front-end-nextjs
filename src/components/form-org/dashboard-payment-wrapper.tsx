@@ -10,19 +10,22 @@ type Props = {
 
 export default function DashboardPaymentWrapper({ children, organizations }: Props) {
   useEffect(() => {
+    // Si todavía no cargaron las orgs, no hagas nada
+    if (!organizations || organizations.length === 0) return
+
     const pendingOrgId = localStorage.getItem("pending_payment_org")
     if (!pendingOrgId) return
-
-    // lo consumimos una sola vez
-    localStorage.removeItem("pending_payment_org")
 
     const org = organizations.find((o) => o.id === pendingOrgId)
     if (!org) {
       console.warn("⚠️ No se encontró organización para pending_payment_org:", pendingOrgId)
+      // 👇 importante: NO borramos la key acá, para que pueda volver a intentar
       return
     }
 
-    // 🔥 ahora mandamos la ORG COMPLETA
+    // ✅ Ahora sí: consumimos la org y borramos la key
+    localStorage.removeItem("pending_payment_org")
+
     window.dispatchEvent(
       new CustomEvent("open-payment-drawer-from-login", {
         detail: { org },

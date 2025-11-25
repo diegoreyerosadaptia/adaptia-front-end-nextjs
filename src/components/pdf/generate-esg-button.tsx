@@ -114,9 +114,11 @@ export function GenerateEsgPdfButton({
     <>
       {/* 🔘 Botón visible */}
       <Button
-        onClick={handleGeneratePdf}
-        variant="outline"
-      >
+          onClick={handleGeneratePdf}
+          variant="default"
+          className="cursor-pointer bg-[#619F44] !important"
+        >
+
         <FileText className="mr-2 h-4 w-4" />
         {!dashboard && <span>Descargar Resumen Ejecutivo (PDF)</span>}
       </Button>

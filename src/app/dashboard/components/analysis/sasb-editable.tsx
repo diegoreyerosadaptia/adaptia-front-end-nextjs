@@ -112,6 +112,7 @@ export function SasbEditable({
           />
         )}
       </div>
+      <p>Esta tabla enlista las métricas de los Estándares SASB (Sustainability Accounting Standards Board), un marco global de normas sectoriales para la divulgación de riesgos y oportunidades de sostenibilidad, que son aplicables a tu industria. Con estas métricas podrías reportar tus temas materiales siguiendo este marco reconocido internacionalmente.</p>
 
       {/* Tablas por industria */}
       {grouped.map(([industria, rows]) => (
@@ -173,6 +174,7 @@ export function SasbEditable({
           </div>
         </div>
       ))}
+      <p>Nota: Para elaborar un reporte de sostenibilidad bajo los Estándares SASB debes seguir los pasos requeridos por la organización. Esta tabla es un resumen introductorio y no constituye, por sí sola, una base que garantice el cumplimiento de los Estándares SASB.</p>
     </div>
   )
 }

@@ -55,18 +55,28 @@ export default function SendAnalysisButton({ id, accessToken, shippingStatus }: 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={(e) => {
-            e.stopPropagation() // evitar que se cierre el menú
-            setOpen(true)
-          }}
-          className="flex w-full items-center gap-2 px-3 py-2 text-sm rounded-md border text-blue-primary hover:bg-adaptia-blue-primary hover:text-white"    
-        >
-          <SendHorizonal className="w-4 h-4 hover:bg-adaptia-blue-primary hover:text-white" />
-          Enviar análisis
-        </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={(e) => {
+          e.stopPropagation()
+          setOpen(true)
+        }}
+        className="
+          flex items-center gap-3 w-full px-3 py-2.5 
+          text-sm font-medium rounded-lg text-gray-700 
+          hover:bg-purple-50 hover:text-purple-700 
+          transition-colors cursor-pointer
+        "
+      >
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-100">
+          <SendHorizonal className="w-4 h-4 text-purple-600" />
+        </div>
+
+        <span>Enviar análisis</span>
+      </Button>
+
+
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md">

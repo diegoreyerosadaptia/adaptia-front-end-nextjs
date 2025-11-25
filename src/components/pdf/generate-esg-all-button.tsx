@@ -723,7 +723,8 @@ export function GenerateEsgPdfButtonAll({
   return (
     <Button
       onClick={handleGenerate}
-      className="h-full px-4 text-white font-medium shadow-md hover:shadow-lg 
+      variant="default"
+      className="h-full px-4 cursor-pointer font-medium shadow-md hover:shadow-lg 
               transition-all duration-200"
       style={{ backgroundColor: "#163F6A" }}
       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0F2D4C")}

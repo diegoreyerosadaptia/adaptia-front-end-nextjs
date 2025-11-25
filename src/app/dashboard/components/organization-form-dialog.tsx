@@ -71,19 +71,22 @@ export function AddOrganizationDialog() {
     <>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogTrigger asChild>
-          <Button className="bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 text-white shadow-lg hover:shadow-xl transition-all">
+          <Button 
+          className=" shadow-lg hover:shadow-xl transition-all"
+          variant="default"
+          >
             <Building2 className="mr-2 h-4 w-4" />
-            Agregar Organización
+            Generar nuevo análisis
           </Button>
         </DialogTrigger>
 
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border-2 border-adaptia-blue-primary/10">
           <DialogHeader className="space-y-3 pb-6 border-b border-gray-200">
             <DialogTitle className="text-3xl font-bold text-adaptia-blue-primary">
-              Nueva Organización
+              Nueva Analisis
             </DialogTitle>
             <DialogDescription className="text-base text-gray-600">
-              Complete el formulario con la información de su organización para comenzar el análisis de sostenibilidad.
+            Complete el formulario con la información de su organización para comenzar el análisis de sostenibilidad. Todos los análisis nuevos que generes tendrán un 10% de descuento de forma automática. 
             </DialogDescription>
           </DialogHeader>
 

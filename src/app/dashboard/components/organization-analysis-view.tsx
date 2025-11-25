@@ -42,7 +42,7 @@ type TabType =
     { id: "gri" as TabType, label: "Métricas GRI", color: "#CBDCDB" },
     { id: "materialidad_c" as TabType, label: "ODS", color: "#EAFC53" },
     { id: "regulaciones" as TabType, label: "Regulaciones nacionales", color: "#59B5CA" },
-    { id: "resumen" as TabType, label: "Plan de Acción", color: "#C2DA62" },
+    { id: "resumen" as TabType, label: "Estrategia", color: "#C2DA62" },
   ]
   
 
@@ -149,9 +149,9 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
 
             <div className="flex flex-wrap gap-2 mb-6">
               {[
-                { id: "grafico", label: "Gráfico de Materialidad" },
-                { id: "acciones", label: "Parte A - Acciones" },
-                { id: "evaluacion", label: "Parte B - Evaluación" },
+                { id: "grafico", label: "Matriz" },
+                { id: "acciones", label: "Acciones" },
+                { id: "evaluacion", label: "Evaluación" },
               ].map((t) => (
                 <button
                   key={t.id}
@@ -179,11 +179,14 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
             {subTab === "grafico" && (
               <div className="space-y-6">
                 <h3 className="text-2xl font-heading font-bold text-green-600">
-                  Visualización de Materialidad de Temas
+                  Matriz de Materialidad
                 </h3>
+                <p>
+                Esta gráfica resume de forma visual el ánalisis de doble materialidad ESG de tu organización. Los temas más prioritarios para tu empresa, conocidos como temas materiales, serán los que estén más cercanos al cuadrante superior derecho. En otras palabras, aquellos temas que tengan la calificación de importancia agregada en temas financieros y de impactos ESG. 
+                </p>
 
                 <section id="materiality-chart">
-                  <div className="bg-gradient-to-br from-yellow-50 to-green-50 p-8 rounded-lg border-2 border-green-200 shadow-lg">
+                  <div className=" p-8 rounded-lg border-2 border-green-200 shadow-lg">
                     <MaterialityChart data={finalScatterData} />
                   </div>
                 </section>
@@ -404,9 +407,8 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
               {/* Botón volver */}
               <Link href={href}>
                 <Button
-                  variant="outline"
-                  className="h-10 px-4 text-[#CBDCDB] border-slate-300 text-slate-700 hover:bg-slate-100 
-                            hover:border-slate-400 transition-all duration-200 font-medium shadow-sm bg-transparent"
+                  variant="default"
+                  className="h-10 px-4 cursor-pointer"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Volver

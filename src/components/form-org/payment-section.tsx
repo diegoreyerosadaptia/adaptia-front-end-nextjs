@@ -136,8 +136,9 @@ export default function PaymentSection({
 
   <div className="flex items-center justify-center gap-2 mt-4 text-sm text-gray-500">
     <Shield className="w-4 h-4" />
-    <span>Pago seguro a través de Mercado Pago</span>
+    <span>Pago seguro a través de Mercado Pago.</span>
   </div>
+    <span>El cobro se realizará en pesos Chilenos.</span>
 
   <div className="mt-6 text-center text-sm text-gray-600">
     <p>¿Tienes dudas sobre el proceso?</p>

@@ -144,6 +144,31 @@
   --color-adaptia-gray-medium: var(--adaptia-gray-medium);
 }
 
+/* Normaliza el tamaño global */
+html {
+  font-size: 13px !important;
+}
+
+/* Headings sin tamaños locos */
+h1, h2, h3, h4, h5, h6 {
+  font-size: 2rem !important;
+  font-weight: 600;
+}
+
+/* Tipografía uniforme en todo */
+p, span, label, input, button, textarea, select {
+  font-size: 1rem !important;
+}
+
+/* Tamaños secundarios */
+small,
+.badge,
+.table-cell,
+.select-trigger {
+  font-size: 0.875rem !important; /* 14px */
+}
+
+
 @layer base {
   * {
     /* Fixed border-border class issue by using proper border color */

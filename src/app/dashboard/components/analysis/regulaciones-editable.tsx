@@ -97,7 +97,7 @@ export function RegulacionesEditable({
       {/* ========================= */}
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
-          Regulaciones Relevantes
+        Regulaciones nacionales ESG
         </h2>
 
         {userRole === "ADMIN" && (
@@ -111,10 +111,8 @@ export function RegulacionesEditable({
         )}
       </div>
 
-      <p className="text-lg text-adaptia-gray-dark leading-relaxed">
-        Análisis de las <strong>regulaciones ESG</strong> aplicables en{" "}
-        {organization?.country || "el país correspondiente"} y otros mercados donde opera{" "}
-        {organization?.company || "la organización"}.
+      <p>
+      Esta tabla resume algunas de las regulaciones nacionales que podrían ser relevantes para tus operaciones, según el análisis de doble materialidad que realizamos para tu organización. Esta lista se basa en el mapeo de marcos regulatorios ESG en Latinoamérica realizado por GAIL (Alianza Global de Abogados de Impacto).
       </p>
 
       {/* ========================= */}
@@ -163,10 +161,8 @@ export function RegulacionesEditable({
           No se encontraron regulaciones relevantes en este análisis.
         </p>
       )}
+      <p>Nota: Esta lista de regulaciones no es una recopilación completa de todas las leyes que tu empresa debe cumplir ni constituye una evaluación de compliance corporativo. El objetivo de esta lista es proporcionarte una base inicial con las leyes más relevantes relacionadas con temas ESG en tu industria y país.</p>
 
-      <p className="text-xs text-adaptia-gray-dark/70 italic">
-        Fuente: Adaptia ESG Analysis – Regulaciones Relevantes 2025.
-      </p>
     </div>
   )
 }

@@ -96,7 +96,16 @@ export function GriTabs({ temasPrioritarios, token }: Props) {
   };
 
   return (
+    
     <div className="w-full space-y-6">
+            <div className="flex justify-between items-center mb-2">
+        <h3
+          className="text-lg font-semibold"
+        >
+          Métricas GRI
+        </h3>
+      </div>
+      <p>Esta tabla resumen los temas materiales de tu organización y detalla los riesgos y oportunidades de cada uno, así como las acciones que podrías tomar para mitigar estos riesgos y potencializar las oportunidades identificadas. </p>
       <Tabs value={active} onValueChange={setActive} className="w-full">
       <TabsList className="inline-flex h-auto gap-2 bg-transparent p-0 mb-8 flex-wrap">
         {data.map((item) => (
@@ -241,6 +250,7 @@ export function GriTabs({ temasPrioritarios, token }: Props) {
           );
         })}
       </Tabs>
+      <p>Nota: Para elaborar un reporte de sostenibilidad bajo los Estándares GRI debes seguir los pasos requeridos por la organización. Esta tabla es un resumen introductorio y no constituye, por sí sola, una base que garantice el cumplimiento de los Estándares GRI.</p>
     </div>
   );
 }

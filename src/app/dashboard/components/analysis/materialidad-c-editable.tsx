@@ -84,7 +84,7 @@ export function MaterialidadCEditable({
       {/* ========================= */}
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
-          Matriz de Materialidad – Parte C (ODS Vinculados)
+         Objetivos de Desarrollo Sostenible
         </h2>
 
         {userRole === "ADMIN" && (
@@ -98,9 +98,8 @@ export function MaterialidadCEditable({
         )}
       </div>
 
-      <p className="text-adaptia-gray-dark leading-relaxed">
-        Esta sección presenta los{" "}
-        <strong>Objetivos de Desarrollo Sostenible (ODS)</strong> vinculados a cada tema material.
+      <p>
+      Esta tabla detalla el Objetivo de Desarrollo Sostenible, así como la meta e indicador específico con los que cada uno de tus 10 temas materiales tiene incidencia.
       </p>
 
       {/* ========================= */}
@@ -186,6 +185,7 @@ export function MaterialidadCEditable({
           No se encontraron ODS vinculados en este análisis.
         </p>
       )}
+      <p>Nota: Recuerda que los ODS no son un marco de estándares de ESG, sino una agenda global desarrollada por la Organización de las Naciones Unidas. Esta agenda es principalmente útil para comunicar en un lenguaje común.</p>
     </div>
   )
 }

@@ -89,7 +89,7 @@ export function ContextoEditable({
       {/* 🧭 TÍTULO */}
       {/* ---------------------------------- */}
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-heading font-bold" style={{ color: "#C2DA62" }}>
+        <h2 className="text-3xl font-heading font-bold">
           Contexto de organización
         </h2>
 

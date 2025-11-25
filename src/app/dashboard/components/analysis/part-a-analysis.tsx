@@ -151,8 +151,9 @@ export function ParteAEditable({
           className="text-lg font-semibold"
           style={{ color: "#619F44" }}
         >
-          Parte A - Acciones
+          Acciones
         </h3>
+        
 
         {userRole === "ADMIN" && (
           <AnalysisActionsMenu
@@ -164,6 +165,7 @@ export function ParteAEditable({
           />
         )}
       </div>
+      <p>Esta tabla resumen los temas materiales de tu organización y detalla los riesgos y oportunidades de cada uno, así como las acciones que podrías tomar para mitigar estos riesgos y potencializar las oportunidades identificadas. </p>
 
       {/* ====================== */}
       {/* Tabla Parte A */}
@@ -178,7 +180,7 @@ export function ParteAEditable({
               <th className="px-4 py-3 font-semibold">Tema</th>
               <th className="px-4 py-3 font-semibold">Riesgos</th>
               <th className="px-4 py-3 font-semibold">Oportunidades</th>
-              <th className="px-4 py-3 font-semibold">Acción Marginal</th>
+              <th className="px-4 py-3 font-semibold">Acción Inicial</th>
               <th className="px-4 py-3 font-semibold">Acción Moderada</th>
               <th className="px-4 py-3 font-semibold">Acción Estructural</th>
             </tr>

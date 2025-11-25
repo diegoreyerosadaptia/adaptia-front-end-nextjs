@@ -108,7 +108,7 @@ export function ParteBEditable({
       {/* Header */}
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-lg font-semibold" style={{ color: "#619F44" }}>
-          Parte B – Evaluación
+          Evaluación
         </h3>
 
         {userRole === "ADMIN" && (
@@ -121,6 +121,7 @@ export function ParteBEditable({
           />
         )}
       </div>
+      <p>Esta tabla resume los temas materiales de tu organización y muestra la evaluación que realizamos de cada uno. Esta evaluación es la base para definir cuáles son los 10 temas prioritarios para tu organización, también conocidos como “temas materiales”.</p>
 
       {/* Tabla compacta sin scroll */}
       <div className="rounded-lg border border-adaptia-gray-light/40 shadow-sm">

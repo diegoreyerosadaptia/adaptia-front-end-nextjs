@@ -11,7 +11,7 @@ const buttonVariants = cva(
       variant: {
         // ✅ Variante principal: todos tus botones por defecto
         default:
-          "bg-[#163F6A] text-[#CBDCDB] shadow-xs hover:bg-[#0F2D4C]",
+          "cursor-pointer bg-[#163F6A] text-[#CBDCDB] shadow-xs hover:bg-[#0F2D4C]",
 
         // ✅ Dejamos destructive en rojo para mantener semántica
         destructive:

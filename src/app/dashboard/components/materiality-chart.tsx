@@ -17,8 +17,8 @@ import {
 interface MaterialityInput {
   tema?: string
   temas?: string[]
-  materialidad?: string              // 👈 la hago opcional por seguridad
-  materialidad_esg?: number          // 👈 también opcional
+  materialidad?: string
+  materialidad_esg?: number
   x?: number
   y?: number
 }
@@ -50,13 +50,13 @@ export function MaterialityChart({ data }: Props) {
 
     const individualPoints: IndividualPoint[] = []
 
-    // 1️⃣ Construimos puntos individuales
+    // 1️⃣ Construir puntos individuales
     data.forEach((item) => {
       const temas = item.tema ? [item.tema] : item.temas ?? []
       if (!temas.length) return
 
       const matKey = (item.materialidad || "").toLowerCase() as keyof typeof zone
-      // si materialidad no existe o no es baja/media/alta → usa x o 0
+
       const baseX =
         zone[matKey] ??
         (typeof item.x === "number" ? item.x : 0)
@@ -80,13 +80,12 @@ export function MaterialityChart({ data }: Props) {
       })
     })
 
-    // si nada válido, limpiar y salir
     if (!individualPoints.length) {
       setPoints([])
       return
     }
 
-    // 2️⃣ Separamos puntos que caen en la misma coordenada (x,y)
+    // 2️⃣ Separar puntos repetidos
     const offsetMap = new Map<string, number>()
 
     individualPoints.forEach((point) => {
@@ -95,61 +94,52 @@ export function MaterialityChart({ data }: Props) {
       offsetMap.set(key, count + 1)
 
       if (count > 0) {
-        const angle = (count * 4 * Math.PI) / 25 // más distribuido
-        const radius = 0.6 + count * 0.5        // más distancia entre puntos
+        const angle = (count * 4 * Math.PI) / 25
+        const radius = 0.6 + count * 0.5
         point.x = point.originalX + Math.cos(angle) * radius
         point.y = point.originalY + Math.sin(angle) * radius * 0.9
       }
     })
 
-    // 3️⃣ ORDENAR POR materialidad_esg (originalY) DESC
-    const rankedByEsg = [...individualPoints].sort((a, b) => {
-      if (b.originalY !== a.originalY) {
-        return b.originalY - a.originalY
-      }
-      return Math.random() - 0.5
-    })
+    // 3️⃣ Ranking descendente
+    const ranked = [...individualPoints].sort((a, b) => b.originalY - a.originalY)
 
-    // 4️⃣ Asignar número dentro del círculo según ranking
-    rankedByEsg.forEach((p, idx) => {
-      p.realIndex = idx + 1
-    })
+    // 4️⃣ Asignar índice
+    ranked.forEach((p, i) => (p.realIndex = i + 1))
 
-    setPoints(rankedByEsg)
+    setPoints(ranked)
   }, [data])
 
-  /* ============================
-     COLORES
-  ============================= */
-  const getColor = (mat?: string | null) => {
-    const m = (mat || "").toLowerCase()
-    if (m === "alta") return "#10b981"
-    if (m === "media") return "#f59e0b"
-    if (m === "baja") return "#3b82f6"
-    // default por si viene algo raro
-    return "#6b7280"
-  }
+  /* ======================================================
+     🔥 TOP 10 — determinar cuáles son los primeros 10
+  ====================================================== */
+  const top10 = new Set(points.slice(0, 10).map((p) => p.realIndex))
 
-  /* ============================
-     CUSTOM POINT — círculos con números
-  ============================= */
+  /* ======================================================
+     🎨 COLOR FINAL (TOP 10 vs resto)
+  ====================================================== */
+  const getFinalColor = (p: IndividualPoint) =>
+    top10.has(p.realIndex ?? 9999) ? "#990000" : "#163F6A"
+
+  /* ======================================================
+     CUSTOM POINT
+  ====================================================== */
   const CustomPoint = (props: any) => {
     const { cx, cy, payload } = props
     if (!payload) return null
 
-    const color = getColor(payload.materialidad)
-    const circleRadius = 12
+    const color = getFinalColor(payload)
 
     return (
       <g>
         <circle
           cx={cx}
           cy={cy}
-          r={circleRadius}
+          r={13}
           fill={color}
           stroke="white"
           strokeWidth={2.5}
-          style={{ filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.2))" }}
+          style={{ filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.25))" }}
         />
 
         <text
@@ -167,19 +157,13 @@ export function MaterialityChart({ data }: Props) {
     )
   }
 
-  const maxY =
-    points.length > 0
-      ? Math.max(...points.map((p) => p.originalY), 10)
-      : 10
+  /* ============================
+     GRÁFICO
+  ============================= */
+  const maxY = points.length ? Math.max(...points.map((p) => p.originalY), 10) : 10
+  const yTicks = [0, 10, maxY]
 
-  const yTicks = [0, 10, maxY].filter(
-    (v, i, arr) => arr.indexOf(v) === i,
-  )
-
-  // 👉 Ordenamos la leyenda por el mismo ranking (1,2,3,...)
-  const sortedPoints = [...points].sort(
-    (a, b) => (a.realIndex ?? 0) - (b.realIndex ?? 0),
-  )
+  const sortedPoints = [...points].sort((a, b) => (a.realIndex ?? 0) - (b.realIndex ?? 0))
 
   return (
     <div
@@ -191,12 +175,17 @@ export function MaterialityChart({ data }: Props) {
         overflow: "hidden",
       }}
     >
-      {/* 📌 Área del gráfico SIN padding */}
-      <div style={{ width: "100%", height: 400 }}>
+      {/* 📌 Área del gráfico */}
+      <div
+        style={{
+          width: "100%",
+          height: 400,
+          background: "rgba(97, 159, 68, 0.12)",
+          borderRadius: 12,
+        }}
+      >
         <ResponsiveContainer width="100%" height="100%">
-          <ScatterChart
-            margin={{ top: 30, right: 30, bottom: 30, left: 70 }}
-          >
+          <ScatterChart margin={{ top: 30, right: 30, bottom: 30, left: 70 }}>
             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
 
             <XAxis
@@ -231,11 +220,13 @@ export function MaterialityChart({ data }: Props) {
               }}
             />
 
+            {/* Tooltip actualizado */}
             <Tooltip
               cursor={{ strokeDasharray: "3 3" }}
               content={({ payload }) => {
                 if (!payload?.length) return null
                 const d = payload[0].payload as IndividualPoint
+                const color = getFinalColor(d)
 
                 return (
                   <div
@@ -243,22 +234,23 @@ export function MaterialityChart({ data }: Props) {
                       background: "white",
                       padding: "12px 16px",
                       borderRadius: 8,
-                      border: `2px solid ${getColor(d.materialidad)}`,
+                      border: `2px solid ${color}`,
                       fontSize: 13,
                       fontWeight: 500,
                       maxWidth: 280,
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
                     }}
                   >
                     <div
                       style={{
-                        fontWeight: 600,
+                        fontWeight: 700,
                         marginBottom: 8,
-                        color: getColor(d.materialidad),
+                        color,
                       }}
                     >
-                      #{d.realIndex} - {d.tema}
+                      #{d.realIndex} — {d.tema}
                     </div>
+
                     <div
                       style={{
                         borderTop: "1px solid #e5e7eb",
@@ -270,7 +262,7 @@ export function MaterialityChart({ data }: Props) {
                         Materialidad ESG: <strong>{d.originalY}</strong>
                       </div>
                       <div>
-                        Nivel financiero:{" "}
+                        Nivel Financiero:{" "}
                         <strong>{d.materialidad ?? "N/A"}</strong>
                       </div>
                     </div>
@@ -284,7 +276,9 @@ export function MaterialityChart({ data }: Props) {
         </ResponsiveContainer>
       </div>
 
-      {/* Leyenda */}
+      {/* ============================
+         LEYENDA
+      ============================= */}
       <div
         style={{
           padding: "24px 24px 32px",
@@ -310,11 +304,12 @@ export function MaterialityChart({ data }: Props) {
             gap: 12,
           }}
         >
-          {sortedPoints.map((point) => {
-            const color = getColor(point.materialidad)
+          {sortedPoints.map((p) => {
+            const color = getFinalColor(p)
+
             return (
               <div
-                key={point.realIndex}
+                key={p.realIndex}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -325,30 +320,28 @@ export function MaterialityChart({ data }: Props) {
                   border: "1px solid #e5e7eb",
                 }}
               >
-                <div style={{ position: "relative", flexShrink: 0 }}>
-                  <div
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: "50%",
+                    background: color,
+                    border: "2px solid white",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span
                     style={{
-                      width: 24,
-                      height: 24,
-                      borderRadius: "50%",
-                      background: color,
-                      border: "2px solid white",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: "white",
                     }}
                   >
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: "white",
-                      }}
-                    >
-                      {point.realIndex}
-                    </span>
-                  </div>
+                    {p.realIndex}
+                  </span>
                 </div>
 
                 <span
@@ -359,7 +352,7 @@ export function MaterialityChart({ data }: Props) {
                     lineHeight: 1.4,
                   }}
                 >
-                  {point.tema}
+                  {p.tema}
                 </span>
               </div>
             )

@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase/client"
 import { createPreferenceAction } from "@/actions/payments/create-preference.action"
 import { User, Building2, FileText, Paperclip  } from "lucide-react"
+import { CountrySelect } from "./select-country"
 
 export default function OrganizationForm({
   redirectToPayment = true,
@@ -255,41 +256,7 @@ const onSubmit = (values: OrganizationSchemaType) => {
               operación de tu empresa con el cuál te gustaría hagamos el análisis. *Actualmente, nuestro análisis solo
               analiza países Latinoamericanos y produce resultados en Español.
             </p>
-            <Select onValueChange={(val) => form.setValue("country", val)}>
-              <SelectTrigger className="h-12 text-base border-2 focus:border-adaptia-blue-primary transition-colors">
-                <SelectValue placeholder="Seleccionar país" />
-              </SelectTrigger>
-              <SelectContent className="max-h-60 overflow-y-auto">
-                {[
-                  "Argentina",
-                  "Bolivia",
-                  "Brasil",
-                  "Chile",
-                  "Colombia",
-                  "Costa Rica",
-                  "Cuba",
-                  "Ecuador",
-                  "El Salvador",
-                  "Guatemala",
-                  "Haití",
-                  "Honduras",
-                  "México",
-                  "Nicaragua",
-                  "Panamá",
-                  "Paraguay",
-                  "Perú",
-                  "Puerto Rico",
-                  "República Dominicana",
-                  "Uruguay",
-                  "Venezuela",
-                  "Otro",
-                ].map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CountrySelect form={form} />
           </div>
 
           <div className="space-y-2">
@@ -399,67 +366,73 @@ const onSubmit = (values: OrganizationSchemaType) => {
           </p>
 
           <label
-            htmlFor="documentUpload"
-            className="
-              flex items-center gap-3 justify-center
-              w-full h-14 px-4
-              border-2 border-dashed border-adaptia-blue-primary/40
-              rounded-lg cursor-pointer
-              bg-white hover:bg-adaptia-blue-primary/5
-              transition-all duration-200
-            "
-          >
-            <Paperclip className="h-5 w-5 text-adaptia-blue-primary" />
-            <span className="font-medium text-adaptia-blue-primary">
-              Subir archivo
-            </span>
-          </label>
+  htmlFor="documentUpload"
+  className="
+    flex items-center gap-3 justify-center
+    w-full h-14 px-4
+    border-2 border-dashed border-adaptia-blue-primary/40
+    rounded-lg cursor-pointer
+    bg-white hover:bg-adaptia-blue-primary/5
+    transition-all duration-200
+  "
+>
+  <Paperclip className="h-5 w-5 text-adaptia-blue-primary" />
+  <span className="font-medium text-adaptia-blue-primary">
+    Subir archivo
+  </span>
+</label>
 
-          <input
-            id="documentUpload"
-            type="file"
-            accept=".pdf,.doc,.docx,.ppt,.pptx"
-            className="hidden"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
+<input
+  id="documentUpload"
+  type="file"
+  accept=".pdf,.doc,.docx,.ppt,.pptx"
+  className="hidden"
+  onChange={async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-              const {
-                data: { user },
-              } = await supabase.auth.getUser();
+    // 🚀 Asegurar sesión SUPABASE
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-              if (!user) {
-                console.error("No user found");
-                return;
-              }
+    if (!user) {
+      alert("Debes iniciar sesión para subir documentos.");
+      return;
+    }
 
-              const filePath = `${user.id}/${Date.now()}_${file.name}`;
+    const filePath = `${user.id}/${Date.now()}_${file.name}`;
 
-              const { data, error } = await supabase.storage
-                .from("adaptia-documents")
-                .upload(filePath, file);
+    const { error } = await supabase.storage
+      .from("adaptia-documents")
+      .upload(filePath, file);
 
-              if (error) {
-                console.error("Error al subir archivo:", error);
-                return;
-              }
+    if (error) {
+      console.error("Error al subir archivo:", error);
+      alert("Error al subir archivo");
+      return;
+    }
 
-              // Obtener URL pública
-              const { data: urlData } = supabase.storage
-                .from("adaptia-documents")
-                .getPublicUrl(filePath);
+    const { data: urlData } = supabase.storage
+      .from("adaptia-documents")
+      .getPublicUrl(filePath);
 
-              // Guardar URL dentro del formulario
-              form.setValue("document", urlData.publicUrl);
-            }}
-          />
+    // ⭐ FIX: actualizar RHF correctamente
+    form.setValue("document", urlData.publicUrl, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  }}
+/>
 
-          {/* Mostrar nombre del archivo si ya fue subido */}
-          {form.watch("document") && (
-            <p className="text-green-600 text-sm mt-2 font-medium">
-              Archivo subido correctamente ✔️
-            </p>
-          )}
+{/* ✔ Mostrar nombre/confirmación */}
+{form.watch("document") && (
+  <p className="text-green-600 text-sm mt-2 font-medium">
+    Archivo subido correctamente ✔️
+  </p>
+)}
+
         </div>
 
       </div>
