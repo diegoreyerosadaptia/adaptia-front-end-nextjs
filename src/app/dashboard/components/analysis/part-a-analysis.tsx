@@ -18,18 +18,15 @@ type ParteAItem = {
   acciónestructural: string
 }
 
-/* ======================================================
-   🔄 Mapper: convierte la data REAL del modelo en UI
-====================================================== */
-function mergeParteA(oldItem: ParteAItem, newItem: any): ParteAItem {
+function mergeParteA(oldItem: any = {}, newItem: any = {}): ParteAItem {
   return {
-    sector: newItem?.sector ?? oldItem.sector,
-    temas: newItem?.tema ?? oldItem.temas,
-    riesgos: oldItem.riesgos,
-    oportunidades: oldItem.oportunidades,
-    accióninicial: oldItem.accióninicial,
-    acciónmoderada: oldItem.acciónmoderada,
-    acciónestructural: oldItem.acciónestructural,
+    sector: newItem?.sector ?? oldItem.sector ?? "",
+    temas: newItem?.temas ?? newItem?.tema ?? oldItem.temas ?? "",
+    riesgos: newItem?.riesgos ?? oldItem.riesgos ?? "",
+    oportunidades: newItem?.oportunidades ?? oldItem.oportunidades ?? "",
+    accióninicial: newItem?.accióninicial ?? oldItem.accióninicial ?? "",
+    acciónmoderada: newItem?.acciónmoderada ?? oldItem.acciónmoderada ?? "",
+    acciónestructural: newItem?.acciónestructural ?? oldItem.acciónestructural ?? "",
   }
 }
 
@@ -46,19 +43,38 @@ export function ParteAEditable({
   accessToken: string
   userRole: string
 }) {
-
   const parteAOld = analysisData[1]?.response_content?.materiality_table || []
 
-  const parteANewSorted = [...parteAOriginal].sort((a, b) => {
-    const va = Number(a?.materialidad_esg ?? 0)
-    const vb = Number(b?.materialidad_esg ?? 0)
-    return vb - va
-  })
-
-  const cleanedInitialData: ParteAItem[] = parteANewSorted.map((newItem, idx) => {
-    const oldItem = parteAOld[idx] || {}
+  // Índice por tema del JSON viejo
+  const parteAOldByTema = new Map(
+    parteAOld.map((item: any) => {
+      const key = String(item.temas || item.tema || "").trim()
+      return [key, item]
+    })
+  )
+  
+  // 1️⃣ Merge por tema (no por posición)
+  let merged: ParteAItem[] = parteAOriginal.map((newItem: any) => {
+    const key = String(newItem.temas || newItem.tema || "").trim()
+    const oldItem = parteAOldByTema.get(key) || {}
     return mergeParteA(oldItem, newItem)
   })
+  
+  // 2️⃣ (Opcional) si querés seguir ordenando por materialidad_esg:
+  merged = merged.sort((a, b) => {
+    const findScore = (tema: string) =>
+      Number(
+        parteAOriginal.find(
+          (x: any) => String(x.temas || x.tema || "").trim() === tema
+        )?.materialidad_esg ?? 0
+      )
+  
+    return findScore(b.temas) - findScore(a.temas)
+  })
+  
+  const cleanedInitialData: ParteAItem[] = merged
+  
+  
 
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)

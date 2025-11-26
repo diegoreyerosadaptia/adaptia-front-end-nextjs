@@ -433,6 +433,8 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
               <GenerateEsgPdfButtonAll
                   analysisData={analysisData}
                   organizationName={organization.company}
+                  portada="/portada_analisis_completo_page-0001.jpg"
+                  contraportada="/contraportada_analisis_completo_page-0001.jpg"
                 />
               </div>
             </div>
@@ -481,6 +483,13 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
       <img
         id="contraportada-img"
         src="/Contra-Portada-Resumen-Ejecutivo-Adaptia.png"
+        alt="Contraportada PDF"
+        className="hidden"
+      />
+      <img id="portada-completa-img" src="/portada_analisis_completo_page-0001.jpg" alt="Portada PDF" className="hidden" />
+      <img
+        id="contraportada-completa-img"
+        src="/contraportada_analisis_completo_page-0001.jpg"
         alt="Contraportada PDF"
         className="hidden"
       />

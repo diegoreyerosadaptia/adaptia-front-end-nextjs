@@ -428,7 +428,6 @@ function buildParteB(analysisData: any[]): ParteBItem[] {
 function drawParteBPage(pdfDoc: PDFDocument, font: any, boldFont: any, parteB: ParteBItem[]) {
   const headers = [
     "Tema",
-    "Mat. Fin.",
     "Tipo",
     "Potenc.",
     "Horizonte",
@@ -442,11 +441,10 @@ function drawParteBPage(pdfDoc: PDFDocument, font: any, boldFont: any, parteB: P
   ]
 
   // Anchos de columnas ajustados para que quepan en la página
-  const columnWidths = [80, 40, 40, 40, 48, 55, 45, 45, 30, 30, 30, 45]
+  const columnWidths = [80, 45, 45, 53, 60, 50, 50, 35, 35, 35, 50]
 
   const rows = parteB.map((row) => [
     row.tema,
-    row.materialidad_financiera,
     row.tipo_impacto,
     row.potencialidad_impacto,
     row.horizonte_impacto,
@@ -605,7 +603,7 @@ function drawResumenPage(pdfDoc: PDFDocument, font: any, resumen: ResumenData) {
   const maxWidth = PAGE_WIDTH - MARGIN_X * 2
 
   if (resumen.parrafo_1) {
-    page.drawText("Parrafo 1:", {
+    page.drawText("", {
       x: MARGIN_X,
       y,
       size: 12,
@@ -617,7 +615,7 @@ function drawResumenPage(pdfDoc: PDFDocument, font: any, resumen: ResumenData) {
   }
 
   if (resumen.parrafo_2) {
-    page.drawText("Parrafo 2:", {
+    page.drawText("", {
       x: MARGIN_X,
       y,
       size: 12,
@@ -635,89 +633,128 @@ function drawResumenPage(pdfDoc: PDFDocument, font: any, resumen: ResumenData) {
 export function GenerateEsgPdfButtonAll({
   analysisData,
   organizationName,
-  portada = "/Portada-Resumen-Ejecutivo-Adaptia.png",
-  contraportada = "/Contra-Portada-Resumen-Ejecutivo-Adaptia.png",
+  portada,
+  contraportada,
 }: GenerateEsgPdfButtonAllProps) {
   const handleGenerate = async () => {
-    toast.loading("Generando reporte PDF...")
+    const toastId = toast.loading("Generando reporte PDF...")
 
-    const pdfDoc = await PDFDocument.create()
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
-    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
-
-    // 1) Portada
     try {
-      const portadaBytes = await fetch(portada).then((r) => r.arrayBuffer())
-      const portadaImage = await pdfDoc.embedPng(portadaBytes)
-      const portadaPage = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT])
-      portadaPage.drawImage(portadaImage, {
-        x: 0,
-        y: 0,
-        width: PAGE_WIDTH,
-        height: PAGE_HEIGHT,
-      })
-    } catch (e) {
-      console.warn("No se pudo cargar portada", e)
+      const pdfDoc = await PDFDocument.create()
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
+      const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+
+      // 1) Portada (PNG o JPG)
+      try {
+        if (portada) {
+          const res = await fetch(portada)
+          if (!res.ok) throw new Error(`Status ${res.status} al cargar portada`)
+
+          const bytes = await res.arrayBuffer()
+
+          const isJpg =
+            portada.toLowerCase().endsWith(".jpg") ||
+            portada.toLowerCase().endsWith(".jpeg")
+
+          const portadaImage = isJpg
+            ? await pdfDoc.embedJpg(bytes)
+            : await pdfDoc.embedPng(bytes)
+
+          const portadaPage = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT])
+          portadaPage.drawImage(portadaImage, {
+            x: 0,
+            y: 0,
+            width: PAGE_WIDTH,
+            height: PAGE_HEIGHT,
+          })
+        }
+      } catch (e) {
+        console.warn("No se pudo cargar portada", e)
+      }
+
+
+      // 2) Contexto
+      const contexto: Partial<ContextoItem> | undefined = analysisData[0]?.response_content
+      drawContextoPage(pdfDoc, font, contexto)
+
+      // 3) Parte B
+      const parteB = buildParteB(analysisData)
+      drawParteBPage(pdfDoc, font, boldFont, parteB)
+
+      // 4) SASB
+      const sasbData: SasbItem[] =
+        analysisData?.find((a: any) => a?.response_content?.tabla_sasb)?.response_content?.tabla_sasb || []
+      drawSasbPage(pdfDoc, font, boldFont, sasbData)
+
+      // 5) GRI
+      const temasPrioritarios =
+        analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
+      const temas = temasPrioritarios.map((t: any) => t.tema) as string[]
+      drawGriPage(pdfDoc, font, temas)
+
+      // 6) ODS
+      const parteC: ParteCItem[] =
+        analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
+      drawOdsPage(pdfDoc, font, boldFont, parteC)
+
+      // 7) Regulaciones
+      const regulacionesData: RegulacionItem[] =
+        analysisData?.find((a: any) => a?.response_content?.regulaciones)?.response_content?.regulaciones || []
+      drawRegulacionesPage(pdfDoc, font, boldFont, regulacionesData)
+
+      // 8) Resumen
+      const resumenData: ResumenData =
+        analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
+      drawResumenPage(pdfDoc, font, resumenData)
+
+      // 9) Contraportada (PNG o JPG)
+      try {
+        if (contraportada) {
+          const res = await fetch(contraportada)
+          if (!res.ok) throw new Error(`Status ${res.status} al cargar contraportada`)
+
+          const bytes = await res.arrayBuffer()
+
+          const isJpg =
+            contraportada.toLowerCase().endsWith(".jpg") ||
+            contraportada.toLowerCase().endsWith(".jpeg")
+
+          const contraImg = isJpg
+            ? await pdfDoc.embedJpg(bytes)
+            : await pdfDoc.embedPng(bytes)
+
+          const contraPage = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT])
+          contraPage.drawImage(contraImg, {
+            x: 0,
+            y: 0,
+            width: PAGE_WIDTH,
+            height: PAGE_HEIGHT,
+          })
+        }
+      } catch (e) {
+        console.warn("No se pudo cargar contraportada", e)
+      }
+
+
+      // Descargar
+      const pdfBytes = await pdfDoc.save()
+      const blob = new Blob([pdfBytes], { type: "application/pdf" })
+      const url = URL.createObjectURL(blob)
+
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `Reporte_ESG_${organizationName}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+
+      toast.success("PDF generado correctamente")
+    } catch (error) {
+      console.error("Error al generar PDF completo", error)
+      toast.error("Error al generar el PDF", { id: toastId })
+    } finally {
+      // por si success/error no reemplazan el loading
+      toast.dismiss(toastId)
     }
-
-    // 2) Contexto
-    const contexto: Partial<ContextoItem> | undefined = analysisData[0]?.response_content
-    drawContextoPage(pdfDoc, font, contexto)
-
-    // 3) Parte B (doble materialidad) como tabla
-    const parteB = buildParteB(analysisData)
-    drawParteBPage(pdfDoc, font, boldFont, parteB)
-
-    // 4) SASB
-    const sasbData: SasbItem[] =
-      analysisData?.find((a: any) => a?.response_content?.tabla_sasb)?.response_content?.tabla_sasb || []
-    drawSasbPage(pdfDoc, font, boldFont, sasbData)
-
-    // 5) GRI: solo temas
-    const temasPrioritarios =
-      analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
-    const temas = temasPrioritarios.map((t: any) => t.tema) as string[]
-    drawGriPage(pdfDoc, font, temas)
-
-    // 6) ODS (Parte C)
-    const parteC: ParteCItem[] =
-      analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
-    drawOdsPage(pdfDoc, font, boldFont, parteC)
-
-    // 7) Regulaciones
-    const regulacionesData: RegulacionItem[] =
-      analysisData?.find((a: any) => a?.response_content?.regulaciones)?.response_content?.regulaciones || []
-    drawRegulacionesPage(pdfDoc, font, boldFont, regulacionesData)
-
-    // 8) Resumen
-    const resumenData: ResumenData =
-      analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
-    drawResumenPage(pdfDoc, font, resumenData)
-
-    // 9) Contraportada
-    try {
-      const contraBytes = await fetch(contraportada).then((r) => r.arrayBuffer())
-      const contraImg = await pdfDoc.embedPng(contraBytes)
-      const contraPage = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT])
-      contraPage.drawImage(contraImg, {
-        x: 0,
-        y: 0,
-        width: PAGE_WIDTH,
-        height: PAGE_HEIGHT,
-      })
-    } catch (e) {
-      console.warn("No se pudo cargar contraportada", e)
-    }
-
-    // Descargar
-    const pdfBytes = await pdfDoc.save()
-    const blob = new Blob([pdfBytes], { type: "application/pdf" })
-    const url = URL.createObjectURL(blob)
-
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `Reporte_ESG_${organizationName}.pdf`
-    a.click()
   }
 
   return (

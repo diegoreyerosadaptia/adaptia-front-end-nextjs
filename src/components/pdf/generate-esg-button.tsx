@@ -124,21 +124,23 @@ export function GenerateEsgPdfButton({
       </Button>
 
       {/* 📊 Gráfico oculto para captura */}
+      {/* 📊 Gráfico oculto para captura */}
       <div
         ref={chartRef}
         style={{
-          position: "fixed",
-          inset: 0,
-          opacity: 0,
-          pointerEvents: "none",
-          zIndex: -1,
+          position: "absolute",
+          top: -10000,
+          left: -10000,
+          width: 1200,
+          height: 900,
           backgroundColor: "#ffffff",
+          opacity: 1,          // 👈 que no esté a 0 por las dudas
+          pointerEvents: "none",
         }}
       >
-        <div style={{ width: 1200, height: 900 }}>
-          <MaterialityChart data={dataMaterialidad} />
-        </div>
+        <MaterialityChart data={dataMaterialidad} />
       </div>
+
     </>
   )
 }
