@@ -181,7 +181,7 @@ export function ParteAEditable({
           />
         )}
       </div>
-      <p>Esta tabla resumen los temas materiales de tu organización y detalla los riesgos y oportunidades de cada uno, así como las acciones que podrías tomar para mitigar estos riesgos y potencializar las oportunidades identificadas. </p>
+      <p>Esta tabla resume los temas materiales de tu organización y detalla los riesgos y oportunidades asociados a cada uno, así como las acciones recomendadas para mitigar dichos riesgos y potenciar las oportunidades identificadas.</p>
 
       {/* ====================== */}
       {/* Tabla Parte A */}

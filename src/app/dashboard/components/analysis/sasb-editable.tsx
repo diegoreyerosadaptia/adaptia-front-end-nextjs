@@ -117,7 +117,7 @@ export function SasbEditable({
       {/* Tablas por industria */}
       {grouped.map(([industria, rows]) => (
         <div key={industria} className="space-y-3">
-          <h3 className="text-xl font-semibold text-adaptia-blue-primary border-b pb-1">
+          <h3 className="text-xl font-semibold border-b pb-1">
             Industria: {industria}
           </h3>
 

@@ -10,6 +10,9 @@ type ParteCItem = {
   ods: string
   meta_ods: string
   indicador_ods: string
+  // opcional, por si viene en el JSON
+  tema_material?: string
+  // también puede venir como "Tema Material" (lo manejamos con brackets en runtime)
 }
 
 export function MaterialidadCEditable({
@@ -28,8 +31,12 @@ export function MaterialidadCEditable({
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
-  // 👇 evita undefined y errores TS
-  const [parteCData, setParteCData] = useState<ParteCItem[]>(parteCOriginal ?? [])
+  // 🔎 helper para filtrar solo los que tienen Tema Material = "Sí"
+  const getFilteredParteC = (data: ParteCItem[] = []) =>
+    data.filter((row: any) => row?.tema_material === "Tema Material")
+
+  // Estado solo con los temas materiales ("Sí")
+  const [parteCData, setParteCData] = useState<ParteCItem[]>(getFilteredParteC(parteCOriginal ?? []))
 
   /* ✏️ Editar celda individual */
   const handleEditCell = (index: number, field: keyof ParteCItem, value: string) => {
@@ -47,11 +54,25 @@ export function MaterialidadCEditable({
 
       // Buscar Prompt 6
       const parteCSection = newJson.find(
-        (a: any) => a?.name?.includes("Prompt 6") || a?.name?.includes("ODS")
+        (a: any) => a?.name?.includes("Prompt 6") || a?.name?.includes("ODS"),
       )
 
       if (parteCSection) {
-        parteCSection.response_content.materiality_table = parteCData
+        const originalTable: any[] = parteCSection.response_content?.materiality_table ?? []
+
+        // 🔁 Actualizamos SOLO las filas que son Tema Material "Sí"
+        const updatedTable = originalTable.map((row: any) => {
+          const match = parteCData.find((p) => p.tema === row.tema)
+          if (!match) return row
+
+          // respetamos el flag "Tema Material" si existe
+          return {
+            ...row,
+            ...match,
+          }
+        })
+
+        parteCSection.response_content.materiality_table = updatedTable
       }
 
       const res = await updateAnalysisJsonAction(lastAnalysisId, newJson as any, accessToken)
@@ -72,7 +93,7 @@ export function MaterialidadCEditable({
 
   /* ❌ Cancelar edición */
   const handleCancel = () => {
-    setParteCData(parteCOriginal ?? [])
+    setParteCData(getFilteredParteC(parteCOriginal ?? []))
     setIsEditing(false)
     toast.info("Cambios descartados")
   }
@@ -84,7 +105,7 @@ export function MaterialidadCEditable({
       {/* ========================= */}
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
-         Objetivos de Desarrollo Sostenible
+          Objetivos de Desarrollo Sostenible
         </h2>
 
         {userRole === "ADMIN" && (
@@ -99,7 +120,8 @@ export function MaterialidadCEditable({
       </div>
 
       <p>
-      Esta tabla detalla el Objetivo de Desarrollo Sostenible, así como la meta e indicador específico con los que cada uno de tus 10 temas materiales tiene incidencia.
+        Esta tabla detalla el Objetivo de Desarrollo Sostenible, así como la meta e indicador
+        específico con los que cada uno de tus temas materiales tiene incidencia.
       </p>
 
       {/* ========================= */}
@@ -108,8 +130,7 @@ export function MaterialidadCEditable({
       {parteCData.length > 0 ? (
         <div className="overflow-x-auto rounded-lg border border-adaptia-gray-light/40 shadow-sm">
           <table className="w-full border-collapse text-sm">
-          <thead style={{ backgroundColor: "#EAFC53", color: "white" }}>
-
+            <thead style={{ backgroundColor: "#EAFC53", color: "white" }}>
               <tr>
                 <th className="px-4 py-3 text-[#163F6A]">Tema</th>
                 <th className="px-4 py-3 text-[#163F6A]">ODS</th>
@@ -137,19 +158,19 @@ export function MaterialidadCEditable({
                     )}
                   </td>
 
-                  {/* PRIORIDAD */}
-
+                  {/* ODS */}
                   <td className="px-4 py-3 text-adaptia-gray-dark leading-relaxed">
                     {isEditing ? (
                       <textarea
-                        value={row.tema}
-                        onChange={(e) => handleEditCell(idx, "tema", e.target.value)}
+                        value={row.ods}
+                        onChange={(e) => handleEditCell(idx, "ods", e.target.value)}
                         className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[50px]"
                       />
                     ) : (
                       <p>{row.ods}</p>
                     )}
                   </td>
+
                   {/* META ODS */}
                   <td className="px-4 py-3 text-adaptia-gray-dark leading-relaxed">
                     {isEditing ? (
@@ -168,8 +189,10 @@ export function MaterialidadCEditable({
                     {isEditing ? (
                       <textarea
                         value={row.indicador_ods}
-                        onChange={(e) => handleEditCell(idx, "indicador_ods", e.target.value)}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min_h-[50px]"
+                        onChange={(e) =>
+                          handleEditCell(idx, "indicador_ods", e.target.value)
+                        }
+                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[50px]"
                       />
                     ) : (
                       <p>{row.indicador_ods}</p>
@@ -182,10 +205,15 @@ export function MaterialidadCEditable({
         </div>
       ) : (
         <p className="text-adaptia-gray-dark text-center py-8">
-          No se encontraron ODS vinculados en este análisis.
+          No se encontraron ODS vinculados a temas materiales en este análisis.
         </p>
       )}
-      <p>Nota: Recuerda que los ODS no son un marco de estándares de ESG, sino una agenda global desarrollada por la Organización de las Naciones Unidas. Esta agenda es principalmente útil para comunicar en un lenguaje común.</p>
+
+      <p>
+        Nota: Recuerda que los ODS no son un marco de estándares de ESG, sino una agenda global
+        desarrollada por la Organización de las Naciones Unidas. Esta agenda es principalmente útil
+        para comunicar en un lenguaje común.
+      </p>
     </div>
   )
 }

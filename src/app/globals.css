@@ -150,10 +150,18 @@ html {
 }
 
 /* Headings sin tamaños locos */
-h1, h2, h3, h4, h5, h6 {
+h1, h2 {
   font-size: 2rem !important;
   font-weight: 600;
+  color: #1B4539 !important;
 }
+
+h3, h4, h5, h6{
+  font-size: 1.5rem !important;
+  font-weight: 600;
+}
+
+
 
 /* Tipografía uniforme en todo */
 p, span, label, input, button, textarea, select {

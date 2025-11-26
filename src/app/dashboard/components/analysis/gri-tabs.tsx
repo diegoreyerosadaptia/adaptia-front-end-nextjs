@@ -105,7 +105,7 @@ export function GriTabs({ temasPrioritarios, token }: Props) {
           Métricas GRI
         </h3>
       </div>
-      <p>Esta tabla resumen los temas materiales de tu organización y detalla los riesgos y oportunidades de cada uno, así como las acciones que podrías tomar para mitigar estos riesgos y potencializar las oportunidades identificadas. </p>
+      <p>Esta tabla enlista las métricas de los Estándares GRI (Global Reporting Initiative), el principal marco global para que las organizaciones reporten su desempeño en sostenibilidad (ambiental, social y de gobernanza), que resultan aplicables a tu empresa. Con estas métricas podrás reportar tus temas materiales de manera alineada y referenciada con GRI.</p>
       <Tabs value={active} onValueChange={setActive} className="w-full">
       <TabsList className="inline-flex h-auto gap-2 bg-transparent p-0 mb-8 flex-wrap">
         {data.map((item) => (

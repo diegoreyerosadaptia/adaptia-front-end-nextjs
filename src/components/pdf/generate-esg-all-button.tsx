@@ -72,6 +72,13 @@ interface GenerateEsgPdfButtonAllProps {
 }
 
 // ==============================
+// Paleta Adaptia
+// ==============================
+
+const COLOR_TEXT_PRIMARY = rgb(22 / 255, 63 / 255, 106 / 255) // #163F6A
+const COLOR_SECTION_TITLE = rgb(27 / 255, 69 / 255, 57 / 255) // #1B4539
+
+// ==============================
 // Helpers genéricos
 // ==============================
 
@@ -81,15 +88,66 @@ const MARGIN_X = 40
 const TOP_Y = 800
 const BOTTOM_MARGIN = 50
 
-function addTitledPage(pdfDoc: PDFDocument, font: any, title: string) {
+// contador global de páginas de contenido (excluye portada/contraportada)
+let PAGE_COUNTER = 0
+
+/**
+ * Crea una página de contenido con:
+ * - Título de sección
+ * - Logo Adaptia arriba derecha (si hay logo)
+ * - Número de página abajo derecha
+ */
+function addTitledPage(
+  pdfDoc: PDFDocument,
+  font: any,
+  boldFont: any,
+  title: string,
+  logo?: any,
+) {
+  PAGE_COUNTER += 1
+
   const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT])
+
+  // Título
   page.drawText(title, {
     x: MARGIN_X,
     y: TOP_Y,
     size: 20,
-    font,
-    color: rgb(0.1, 0.3, 0.6),
+    font: boldFont,
+    color: COLOR_SECTION_TITLE,
   })
+
+  // Línea decorativa
+  page.drawLine({
+    start: { x: MARGIN_X, y: TOP_Y - 12 },
+    end: { x: PAGE_WIDTH - MARGIN_X, y: TOP_Y - 12 },
+    thickness: 2,
+    color: COLOR_SECTION_TITLE,
+  })
+
+  // Logo (si existe)
+  if (logo) {
+    const logoWidth = 55
+    const ratio = logo.height / logo.width
+    const logoHeight = logoWidth * ratio
+
+    page.drawImage(logo, {
+      x: PAGE_WIDTH - logoWidth - 25,
+      y: PAGE_HEIGHT - logoHeight - 25,
+      width: logoWidth,
+      height: logoHeight,
+    })
+  }
+
+  // Número de página
+  page.drawText(String(PAGE_COUNTER), {
+    x: PAGE_WIDTH - 30,
+    y: 25,
+    size: 10,
+    font,
+    color: COLOR_TEXT_PRIMARY,
+  })
+
   return page
 }
 
@@ -135,7 +193,7 @@ function drawWrappedText(
     const testLine = line ? `${line} ${word}` : word
     const width = font.widthOfTextAtSize(testLine, fontSize)
     if (width > maxWidth) {
-      page.drawText(line, { x, y, size: fontSize, font })
+      page.drawText(line, { x, y, size: fontSize, font, color: COLOR_TEXT_PRIMARY })
       y -= lineHeight
       line = word
     } else {
@@ -144,7 +202,7 @@ function drawWrappedText(
   }
 
   if (line) {
-    page.drawText(line, { x, y, size: fontSize, font })
+    page.drawText(line, { x, y, size: fontSize, font, color: COLOR_TEXT_PRIMARY })
     y -= lineHeight
   }
 
@@ -155,12 +213,13 @@ function drawTableWithWrapping(
   pdfDoc: PDFDocument,
   font: any,
   boldFont: any,
+  logo: any,
   title: string,
   headers: string[],
   rows: (string | number)[][],
   columnWidths: number[],
 ) {
-  let currentPage = addTitledPage(pdfDoc, font, title)
+  let currentPage = addTitledPage(pdfDoc, font, boldFont, title, logo)
   let y = TOP_Y - 40
 
   const fontSizeHeader = 10
@@ -177,7 +236,7 @@ function drawTableWithWrapping(
     y: y - headerHeight + cellPadding,
     width: tableWidth,
     height: headerHeight,
-    color: rgb(0.85, 0.85, 0.85),
+    color: rgb(0.88, 0.88, 0.88),
   })
 
   // Bordes verticales del header
@@ -207,7 +266,7 @@ function drawTableWithWrapping(
       y: y - cellPadding,
       size: fontSizeHeader,
       font: boldFont,
-      color: rgb(0, 0, 0),
+      color: COLOR_TEXT_PRIMARY,
     })
     xPos += columnWidths[i]
   })
@@ -218,7 +277,7 @@ function drawTableWithWrapping(
     start: { x: MARGIN_X, y },
     end: { x: MARGIN_X + tableWidth, y },
     thickness: 1.5,
-    color: rgb(0.1, 0.3, 0.6),
+    color: COLOR_SECTION_TITLE,
   })
 
   rows.forEach((row, rowIndex) => {
@@ -236,28 +295,18 @@ function drawTableWithWrapping(
 
     // Verificar si necesitamos una nueva página
     if (y - rowHeight < BOTTOM_MARGIN) {
-      currentPage = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT])
-      y = TOP_Y - 20
+      currentPage = addTitledPage(pdfDoc, font, boldFont, `${title} (continuación)`, logo)
+      y = TOP_Y - 40
 
       // Redibujar headers en nueva página
-      currentPage.drawText(`${title} (continuación)`, {
-        x: MARGIN_X,
-        y: y + 20,
-        size: 14,
-        font: boldFont,
-        color: rgb(0.1, 0.3, 0.6),
-      })
-
-      // Fondo del header
       currentPage.drawRectangle({
         x: MARGIN_X,
         y: y - headerHeight + cellPadding,
         width: tableWidth,
         height: headerHeight,
-        color: rgb(0.85, 0.85, 0.85),
+        color: rgb(0.88, 0.88, 0.88),
       })
 
-      // Bordes verticales del header
       xPos = MARGIN_X
       columnWidths.forEach((width) => {
         currentPage.drawLine({
@@ -275,7 +324,6 @@ function drawTableWithWrapping(
         color: rgb(0.5, 0.5, 0.5),
       })
 
-      // Texto del header
       xPos = MARGIN_X
       headers.forEach((header, i) => {
         currentPage.drawText(header, {
@@ -283,7 +331,7 @@ function drawTableWithWrapping(
           y: y - cellPadding,
           size: fontSizeHeader,
           font: boldFont,
-          color: rgb(0, 0, 0),
+          color: COLOR_TEXT_PRIMARY,
         })
         xPos += columnWidths[i]
       })
@@ -303,7 +351,7 @@ function drawTableWithWrapping(
         y: y - rowHeight,
         width: tableWidth,
         height: rowHeight,
-        color: rgb(0.95, 0.95, 0.95),
+        color: rgb(0.96, 0.96, 0.96),
       })
     }
 
@@ -317,7 +365,6 @@ function drawTableWithWrapping(
       })
       xPos += width
     })
-    // Última línea vertical
     currentPage.drawLine({
       start: { x: xPos, y },
       end: { x: xPos, y: y - rowHeight },
@@ -325,7 +372,6 @@ function drawTableWithWrapping(
       color: rgb(0.7, 0.7, 0.7),
     })
 
-    // Línea horizontal superior de la fila
     currentPage.drawLine({
       start: { x: MARGIN_X, y },
       end: { x: MARGIN_X + tableWidth, y },
@@ -342,14 +388,13 @@ function drawTableWithWrapping(
           y: cellY,
           size: fontSizeRow,
           font,
-          color: rgb(0, 0, 0),
+          color: COLOR_TEXT_PRIMARY,
         })
         cellY -= lineHeight
       })
       xPos += columnWidths[colIndex]
     })
 
-    // Línea horizontal inferior de la fila
     currentPage.drawLine({
       start: { x: MARGIN_X, y: y - rowHeight },
       end: { x: MARGIN_X + tableWidth, y: y - rowHeight },
@@ -365,8 +410,14 @@ function drawTableWithWrapping(
 // Helpers por sección
 // ==============================
 
-function drawContextoPage(pdfDoc: PDFDocument, font: any, contexto: Partial<ContextoItem> | undefined) {
-  const page = addTitledPage(pdfDoc, font, "Contexto organizacional")
+function drawContextoPage(
+  pdfDoc: PDFDocument,
+  font: any,
+  boldFont: any,
+  logo: any,
+  contexto: Partial<ContextoItem> | undefined,
+) {
+  const page = addTitledPage(pdfDoc, font, boldFont, "Contexto organizacional", logo)
   if (!contexto) return
 
   let y = TOP_Y - 40
@@ -391,8 +442,8 @@ function drawContextoPage(pdfDoc: PDFDocument, font: any, contexto: Partial<Cont
       x: MARGIN_X,
       y,
       size: 12,
-      font,
-      color: rgb(0, 0, 0),
+      font: boldFont,
+      color: COLOR_SECTION_TITLE,
     })
     y -= 16
     y = drawWrappedText(page, font, value, MARGIN_X + 10, y, maxWidth - 10, 10, 13)
@@ -425,7 +476,7 @@ function buildParteB(analysisData: any[]): ParteBItem[] {
   return parteB
 }
 
-function drawParteBPage(pdfDoc: PDFDocument, font: any, boldFont: any, parteB: ParteBItem[]) {
+function drawParteBPage(pdfDoc: PDFDocument, font: any, boldFont: any, logo: any, parteB: ParteBItem[]) {
   const headers = [
     "Tema",
     "Tipo",
@@ -440,7 +491,6 @@ function drawParteBPage(pdfDoc: PDFDocument, font: any, boldFont: any, parteB: P
     "Mat. ESG",
   ]
 
-  // Anchos de columnas ajustados para que quepan en la página
   const columnWidths = [80, 45, 45, 53, 60, 50, 50, 35, 35, 35, 50]
 
   const rows = parteB.map((row) => [
@@ -461,6 +511,7 @@ function drawParteBPage(pdfDoc: PDFDocument, font: any, boldFont: any, parteB: P
     pdfDoc,
     font,
     boldFont,
+    logo,
     "Matriz de materialidad (doble materialidad)",
     headers,
     rows,
@@ -468,7 +519,7 @@ function drawParteBPage(pdfDoc: PDFDocument, font: any, boldFont: any, parteB: P
   )
 }
 
-function drawSasbPage(pdfDoc: PDFDocument, font: any, boldFont: any, sasbData: SasbItem[]) {
+function drawSasbPage(pdfDoc: PDFDocument, font: any, boldFont: any, logo: any, sasbData: SasbItem[]) {
   const headers = ["Industria", "Tema", "Parametro", "Categoria", "Unidad", "Codigo"]
 
   const columnWidths = [80, 100, 150, 70, 60, 65]
@@ -482,147 +533,139 @@ function drawSasbPage(pdfDoc: PDFDocument, font: any, boldFont: any, sasbData: S
     r.codigo,
   ])
 
-  drawTableWithWrapping(pdfDoc, font, boldFont, "Tabla SASB", headers, rows, columnWidths)
+  drawTableWithWrapping(pdfDoc, font, boldFont, logo, "Tabla SASB", headers, rows, columnWidths)
 }
 
-function drawGriPage(pdfDoc: PDFDocument, font: any, temas: string[]) {
-    const title = "Temas prioritarios (GRI / materialidad)"
-  
-    let page = addTitledPage(pdfDoc, font, title)
-    let y = TOP_Y - 60
-  
-    const fontSize = 11
-    const boxPadding = 12
-    const lineHeight = 16
-    const maxWidth = PAGE_WIDTH - MARGIN_X * 2
-  
-    // Dibuja subtítulo caja
-    page.drawText("Listado de temas:", {
-      x: MARGIN_X,
-      y,
-      size: 12,
-      font,
-      color: rgb(0.1, 0.3, 0.6),
-    })
-  
-    y -= 18
-  
-    temas.forEach((tema, index) => {
-      if (!tema) return
-  
-      // Si se termina la página → crear nueva
-      if (y < 80) {
-        page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT])
-        y = TOP_Y - 40
-  
-        page.drawText(`${title} (continuación)`, {
-          x: MARGIN_X,
-          y,
-          size: 14,
-          font,
-          color: rgb(0.1, 0.3, 0.6),
-        })
-  
-        y -= 30
-  
-        page.drawText("Listado de temas:", {
-          x: MARGIN_X,
-          y,
-          size: 12,
-          font,
-          color: rgb(0.1, 0.3, 0.6),
-        })
-        y -= 18
-      }
-  
-      // Caja de fondo alternada
-      const boxHeight = lineHeight + boxPadding
-      page.drawRectangle({
-        x: MARGIN_X,
-        y: y - boxHeight + 4,
-        width: maxWidth,
-        height: boxHeight,
-        color: index % 2 === 0 ? rgb(0.96, 0.96, 0.96) : rgb(1, 1, 1),
-        borderColor: rgb(0.8, 0.8, 0.8),
-        borderWidth: 0.5,
-      })
-  
-      // Viñeta redonda •
-      page.drawText("•", {
-        x: MARGIN_X + 10,
-        y: y - 12,
-        size: fontSize + 1,
-        font,
-        color: rgb(0.1, 0.3, 0.6),
-      })
-  
-      // Texto del tema
-      page.drawText(tema, {
-        x: MARGIN_X + 26,
-        y: y - 12,
-        size: fontSize,
-        font,
-        color: rgb(0, 0, 0),
-      })
-  
-      y -= boxHeight + 4
-    })
-  }
-  
+function drawGriPage(pdfDoc: PDFDocument, font: any, boldFont: any, logo: any, temas: string[]) {
+  const title = "Temas prioritarios (GRI / materialidad)"
 
-  function drawOdsPage(pdfDoc: PDFDocument, font: any, boldFont: any, parteC: ParteCItem[]) {
-    const headers = ["Tema", "ODS", "Meta ODS", "Indicador ODS"]
-  
-    const columnWidths = [150, 80, 150, 135]
-  
-    // 👇 Forzamos a string con ?? "" y corregimos el orden/longitud
-    const rows: (string | number)[][] = parteC.map((r) => [
-      r.tema ?? "",
-      r.ods ?? "",
-      r.meta_ods ?? "",
-      r.indicador_ods ?? "",
-    ])
-  
-    drawTableWithWrapping(pdfDoc, font, boldFont, "Vinculacion con ODS", headers, rows, columnWidths)
-  }
-  
-function drawRegulacionesPage(pdfDoc: PDFDocument, font: any, boldFont: any, regulaciones: RegulacionItem[]) {
+  let page = addTitledPage(pdfDoc, font, boldFont, title, logo)
+  let y = TOP_Y - 60
+
+  const fontSize = 11
+  const boxPadding = 12
+  const lineHeight = 16
+  const maxWidth = PAGE_WIDTH - MARGIN_X * 2
+
+  page.drawText("Listado de temas:", {
+    x: MARGIN_X,
+    y,
+    size: 12,
+    font: boldFont,
+    color: COLOR_SECTION_TITLE,
+  })
+
+  y -= 18
+
+  temas.forEach((tema, index) => {
+    if (!tema) return
+
+    if (y < 80) {
+      page = addTitledPage(pdfDoc, font, boldFont, `${title} (continuación)`, logo)
+      y = TOP_Y - 60
+
+      page.drawText("Listado de temas:", {
+        x: MARGIN_X,
+        y,
+        size: 12,
+        font: boldFont,
+        color: COLOR_SECTION_TITLE,
+      })
+      y -= 18
+    }
+
+    const boxHeight = lineHeight + boxPadding
+    page.drawRectangle({
+      x: MARGIN_X,
+      y: y - boxHeight + 4,
+      width: maxWidth,
+      height: boxHeight,
+      color: index % 2 === 0 ? rgb(0.96, 0.96, 0.96) : rgb(1, 1, 1),
+      borderColor: rgb(0.8, 0.8, 0.8),
+      borderWidth: 0.5,
+    })
+
+    page.drawText("•", {
+      x: MARGIN_X + 10,
+      y: y - 12,
+      size: fontSize + 1,
+      font,
+      color: COLOR_SECTION_TITLE,
+    })
+
+    page.drawText(tema, {
+      x: MARGIN_X + 26,
+      y: y - 12,
+      size: fontSize,
+      font,
+      color: COLOR_TEXT_PRIMARY,
+    })
+
+    y -= boxHeight + 4
+  })
+}
+
+function drawOdsPage(pdfDoc: PDFDocument, font: any, boldFont: any, logo: any, parteC: ParteCItem[]) {
+  const headers = ["Tema", "ODS", "Meta ODS", "Indicador ODS"]
+
+  const columnWidths = [150, 80, 150, 135]
+
+  const rows: (string | number)[][] = parteC.map((r) => [
+    r.tema ?? "",
+    r.ods ?? "",
+    r.meta_ods ?? "",
+    r.indicador_ods ?? "",
+  ])
+
+  drawTableWithWrapping(pdfDoc, font, boldFont, logo, "Vinculacion con ODS", headers, rows, columnWidths)
+}
+
+function drawRegulacionesPage(
+  pdfDoc: PDFDocument,
+  font: any,
+  boldFont: any,
+  logo: any,
+  regulaciones: RegulacionItem[],
+) {
   const headers = ["Tipo regulacion", "Descripcion", "Vigencia"]
 
   const columnWidths = [120, 290, 105]
 
   const rows = regulaciones.map((r) => [r.tipo_regulacion, r.descripcion, r.vigencia])
 
-  drawTableWithWrapping(pdfDoc, font, boldFont, "Regulaciones nacionales relevantes", headers, rows, columnWidths)
+  drawTableWithWrapping(
+    pdfDoc,
+    font,
+    boldFont,
+    logo,
+    "Regulaciones nacionales relevantes",
+    headers,
+    rows,
+    columnWidths,
+  )
 }
 
-function drawResumenPage(pdfDoc: PDFDocument, font: any, resumen: ResumenData) {
-  const page = addTitledPage(pdfDoc, font, "Resumen ejecutivo")
+function drawResumenPage(
+  pdfDoc: PDFDocument,
+  font: any,
+  boldFont: any,
+  logo: any,
+  resumen: ResumenData,
+) {
+  const page = addTitledPage(pdfDoc, font, boldFont, "Resumen ejecutivo", logo)
 
   let y = TOP_Y - 40
   const maxWidth = PAGE_WIDTH - MARGIN_X * 2
 
   if (resumen.parrafo_1) {
-    page.drawText("", {
-      x: MARGIN_X,
-      y,
-      size: 12,
-      font,
-    })
-    y -= 18
-    y = drawWrappedText(page, font, resumen.parrafo_1, MARGIN_X, y, maxWidth, 10, 13)
+    y -= 4
+    y = drawWrappedText(page, font, resumen.parrafo_1, MARGIN_X, y, maxWidth, 11, 15)
     y -= 16
   }
 
   if (resumen.parrafo_2) {
-    page.drawText("", {
-      x: MARGIN_X,
-      y,
-      size: 12,
-      font,
-    })
-    y -= 18
-    drawWrappedText(page, font, resumen.parrafo_2, MARGIN_X, y, maxWidth, 10, 13)
+    y -= 4
+    drawWrappedText(page, font, resumen.parrafo_2, MARGIN_X, y, maxWidth, 11, 15)
   }
 }
 
@@ -640,11 +683,27 @@ export function GenerateEsgPdfButtonAll({
     const toastId = toast.loading("Generando reporte PDF...")
 
     try {
+      PAGE_COUNTER = 0
+
       const pdfDoc = await PDFDocument.create()
       const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
       const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
 
-      // 1) Portada (PNG o JPG)
+      // Logo Adaptia
+      let logo: any = null
+      try {
+        const resLogo = await fetch("/adaptia-logo.png")
+        if (resLogo.ok) {
+          const logoBytes = await resLogo.arrayBuffer()
+          logo = await pdfDoc.embedPng(logoBytes)
+        } else {
+          console.warn("No se encontró /adaptia-logo.png o no cargó correctamente")
+        }
+      } catch (e) {
+        console.warn("Error cargando logo Adaptia", e)
+      }
+
+      // 1) Portada (PNG o JPG) - sin logo ni número
       try {
         if (portada) {
           const res = await fetch(portada)
@@ -672,42 +731,43 @@ export function GenerateEsgPdfButtonAll({
         console.warn("No se pudo cargar portada", e)
       }
 
-
       // 2) Contexto
       const contexto: Partial<ContextoItem> | undefined = analysisData[0]?.response_content
-      drawContextoPage(pdfDoc, font, contexto)
+      drawContextoPage(pdfDoc, font, boldFont, logo, contexto)
 
       // 3) Parte B
       const parteB = buildParteB(analysisData)
-      drawParteBPage(pdfDoc, font, boldFont, parteB)
+      drawParteBPage(pdfDoc, font, boldFont, logo, parteB)
 
       // 4) SASB
       const sasbData: SasbItem[] =
         analysisData?.find((a: any) => a?.response_content?.tabla_sasb)?.response_content?.tabla_sasb || []
-      drawSasbPage(pdfDoc, font, boldFont, sasbData)
+      drawSasbPage(pdfDoc, font, boldFont, logo, sasbData)
 
       // 5) GRI
       const temasPrioritarios =
         analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
       const temas = temasPrioritarios.map((t: any) => t.tema) as string[]
-      drawGriPage(pdfDoc, font, temas)
+      drawGriPage(pdfDoc, font, boldFont, logo, temas)
 
       // 6) ODS
       const parteC: ParteCItem[] =
         analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
-      drawOdsPage(pdfDoc, font, boldFont, parteC)
+      drawOdsPage(pdfDoc, font, boldFont, logo, parteC)
 
       // 7) Regulaciones
       const regulacionesData: RegulacionItem[] =
         analysisData?.find((a: any) => a?.response_content?.regulaciones)?.response_content?.regulaciones || []
-      drawRegulacionesPage(pdfDoc, font, boldFont, regulacionesData)
+      drawRegulacionesPage(pdfDoc, font, boldFont, logo, regulacionesData)
 
       // 8) Resumen
       const resumenData: ResumenData =
-        analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
-      drawResumenPage(pdfDoc, font, resumenData)
+        analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {
+          parrafo_1: "",
+        }
+      drawResumenPage(pdfDoc, font, boldFont, logo, resumenData)
 
-      // 9) Contraportada (PNG o JPG)
+      // 9) Contraportada (PNG o JPG) - sin logo ni número
       try {
         if (contraportada) {
           const res = await fetch(contraportada)
@@ -735,7 +795,6 @@ export function GenerateEsgPdfButtonAll({
         console.warn("No se pudo cargar contraportada", e)
       }
 
-
       // Descargar
       const pdfBytes = await pdfDoc.save()
       const blob = new Blob([pdfBytes], { type: "application/pdf" })
@@ -743,16 +802,15 @@ export function GenerateEsgPdfButtonAll({
 
       const a = document.createElement("a")
       a.href = url
-      a.download = `Reporte_ESG_${organizationName}.pdf`
+      a.download = `Anáisis completo Adaptia _ ESG _ ${organizationName} _ Adaptia.pdf`
       a.click()
       URL.revokeObjectURL(url)
 
-      toast.success("PDF generado correctamente")
+      toast.success("PDF generado correctamente", { id: toastId })
     } catch (error) {
       console.error("Error al generar PDF completo", error)
       toast.error("Error al generar el PDF", { id: toastId })
     } finally {
-      // por si success/error no reemplazan el loading
       toast.dismiss(toastId)
     }
   }
@@ -768,7 +826,7 @@ export function GenerateEsgPdfButtonAll({
       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#163F6A")}
     >
       <Download className="mr-2 h-4 w-4" />
-      PDF Completo
+      Análisis completo (PDF)
     </Button>
   )
 }

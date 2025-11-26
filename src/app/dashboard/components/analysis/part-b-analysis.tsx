@@ -121,7 +121,7 @@ export function ParteBEditable({
           />
         )}
       </div>
-      <p>Esta tabla resume los temas materiales de tu organización y muestra la evaluación que realizamos de cada uno. Esta evaluación es la base para definir cuáles son los 10 temas prioritarios para tu organización, también conocidos como “temas materiales”.</p>
+      <p>Esta tabla resume los temas materiales de tu organización y muestra la evaluación realizada para cada uno. Esta evaluación sirve como base para determinar los 10 temas prioritarios para tu empresa, también conocidos como “temas materiales”.</p>
 
       {/* Tabla compacta sin scroll */}
       <div className="rounded-lg border border-adaptia-gray-light/40 shadow-sm">

@@ -36,14 +36,15 @@ type TabType =
   | "resumen"
 
   const tabs = [
-    { id: "contexto" as TabType, label: "Contexto de organización", color: "#C2DA62" },
-    { id: "materialidad" as TabType, label: "Matriz de materialidad", color: "#619F44" },
-    { id: "sasb" as TabType, label: "Métricas SASB", color: "#81D0E0" },
-    { id: "gri" as TabType, label: "Métricas GRI", color: "#CBDCDB" },
-    { id: "materialidad_c" as TabType, label: "ODS", color: "#EAFC53" },
-    { id: "regulaciones" as TabType, label: "Regulaciones nacionales", color: "#59B5CA" },
-    { id: "resumen" as TabType, label: "Estrategia", color: "#C2DA62" },
+    { id: "contexto" as TabType,       label: "Contexto de organización",  color: "#C2DA62", textColor: "#163F6A" },
+    { id: "materialidad" as TabType,   label: "Matriz de materialidad",    color: "#619F44", textColor: "#163F6A" },
+    { id: "sasb" as TabType,           label: "Métricas SASB",             color: "#81D0E0", textColor: "#163F6A" },
+    { id: "gri" as TabType,            label: "Métricas GRI",              color: "#CBDCDB", textColor: "#163F6A" },
+    { id: "materialidad_c" as TabType, label: "ODS",                       color: "#EAFC53", textColor: "#163F6A" },
+    { id: "regulaciones" as TabType,   label: "Regulaciones nacionales",   color: "#59B5CA", textColor: "#163F6A" },
+    { id: "resumen" as TabType,        label: "Estrategia",                color: "#C2DA62", textColor: "#163F6A" },
   ]
+  
   
 
 export default function OrganizationAnalysisView({ organization, token, role }: OrganizationAnalysisViewProps) {
@@ -178,11 +179,11 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
             {/* ======================= */}
             {subTab === "grafico" && (
               <div className="space-y-6">
-                <h3 className="text-2xl font-heading font-bold text-green-600">
+                <h3 className="text-2xl font-heading font-bold text-[#619F44] !important">
                   Matriz de Materialidad
                 </h3>
                 <p>
-                Esta gráfica resume de forma visual el ánalisis de doble materialidad ESG de tu organización. Los temas más prioritarios para tu empresa, conocidos como temas materiales, serán los que estén más cercanos al cuadrante superior derecho. En otras palabras, aquellos temas que tengan la calificación de importancia agregada en temas financieros y de impactos ESG. 
+                Esta gráfica muestra de manera visual el análisis de doble materialidad ESG de tu organización. Los temas más prioritarios —los llamados temas materiales— son aquellos ubicados más cerca del cuadrante superior derecho. Es decir, los temas que presentan una mayor relevancia tanto en su impacto financiero como en sus impactos ESG.
                 </p>
 
                 <section id="materiality-chart">
@@ -246,6 +247,8 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
       case "materialidad_c": {
         const parteC =
           analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
+
+          console.log('PARTE', parteC)
 
         return (
           <MaterialidadCEditable
@@ -422,7 +425,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                   resumen={resumenData}
                   portada="/Portada-Resumen-Ejecutivo-Adaptia.png"
                   contraportada="/Contra-Portada-Resumen-Ejecutivo-Adaptia.png"
-                  filename={`Reporte_ESG_${organization.company}.pdf`}
+                  filename={organization.company}
                   dataMaterialidad={finalScatterData}
 
                 />
@@ -445,28 +448,29 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
       <div className="bg-white/60 backdrop-blur-sm border-b border-slate-200/60 shadow-sm overflow-x-hidden">
         <div className="w-full px-4 sm:px-6 lg:px-12 xl:px-16">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 py-4">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id
 
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{ backgroundColor: tab.color }}
-                className={`
-                  px-3 py-3 rounded-lg font-semibold text-slate-800 text-center text-xs sm:text-sm 
-                  leading-tight transition-all duration-300 
-                  ${isActive 
-                    ? "ring-2 ring-offset-2 ring-slate-300 scale-105 shadow-lg" 
-                    : "opacity-90 hover:opacity-100 hover:shadow-md"
-                  }
-                `}
-              >
-                {tab.label}
-              </button>
-            )
-          })}
-        </div>
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{ backgroundColor: tab.color, color: tab.textColor }}
+                  className={`
+                    px-3 py-3 rounded-lg font-semibold text-center text-xs sm:text-sm 
+                    leading-tight transition-all duration-300 
+                    ${isActive 
+                      ? "ring-2 ring-offset-2 ring-slate-300 scale-105 shadow-lg" 
+                      : "opacity-90 hover:opacity-100 hover:shadow-md"
+                    }
+                  `}
+                >
+                  {tab.label}
+                </button>
+              )
+            })}
+          </div>
+
 
         </div>
       </div>

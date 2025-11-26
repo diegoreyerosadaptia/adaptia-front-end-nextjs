@@ -97,7 +97,8 @@ export function GenerateEsgPdfButton({
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
-      a.download = filename
+      a.download = `Resumen Ejecutivo Adaptia _ ESG _ ${filename}.pdf`
+
       a.click()
       URL.revokeObjectURL(url)
 
@@ -120,7 +121,7 @@ export function GenerateEsgPdfButton({
         >
 
         <FileText className="mr-2 h-4 w-4" />
-        {!dashboard && <span>Descargar Resumen Ejecutivo (PDF)</span>}
+        {!dashboard && <span>Resumen Ejecutivo (PDF)</span>}
       </Button>
 
       {/* 📊 Gráfico oculto para captura */}
