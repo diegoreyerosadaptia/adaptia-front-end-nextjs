@@ -55,7 +55,14 @@ export default function RetryEsgButton({ org, label }: { org: any, label: string
   }
 
   return (
-    <DropdownMenuItem asChild className="mt-1">
+    <DropdownMenuItem
+      asChild
+      className="
+        mt-1
+        data-[highlighted]:bg-orange-50
+        data-[highlighted]:text-orange-700
+      "
+    >
       <button
         type="button"
         onClick={handleRetry}
@@ -71,11 +78,12 @@ export default function RetryEsgButton({ org, label }: { org: any, label: string
             <RotateCcw className="w-4 h-4 text-orange-600" />
           )}
         </div>
-
+  
         <span className="font-medium">
           {loading ? "Procesando..." : label}
         </span>
       </button>
     </DropdownMenuItem>
   )
+  
 }
