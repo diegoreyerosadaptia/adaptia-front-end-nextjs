@@ -1,3 +1,4 @@
+import { Coupon } from "./cupones.type";
 import { Organization } from "./organization.type"
 
 export const ANALYSIS_STATUS = [
@@ -27,4 +28,6 @@ export type Analysis = {
   createdAt: string
   updatedAt: string
   organization: Organization
+  coupon?: Coupon | null
+  discount_percentage?: string | null
 }

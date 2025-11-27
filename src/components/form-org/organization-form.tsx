@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabase/client"
 import { createPreferenceAction } from "@/actions/payments/create-preference.action"
 import { User, Building2, FileText, Paperclip  } from "lucide-react"
 import { CountrySelect } from "./select-country"
+import { toast } from "sonner"
 
 export default function OrganizationForm({
   redirectToPayment = true,
@@ -362,85 +363,91 @@ const SORTED_INDUSTRIES = [...INDUSTRIES].sort((a, b) =>
           <FileText className="h-6 w-6 text-adaptia-blue-primary" />
           <h3 className="text-xl font-semibold text-gray-900">Información Adicional</h3>
         </div>
-
         <div className="space-y-2">
-          <Label className="text-sm font-semibold text-gray-700">
-            Documento de Apoyo
-          </Label>
+  <Label className="text-sm font-semibold text-gray-700">
+    Documento de Apoyo
+  </Label>
 
-          <p className="text-sm text-gray-500 leading-relaxed">
-            Sube un PDF, PowerPoint o Word. El archivo se guardará de forma segura.
-          </p>
-
-          <label
-  htmlFor="documentUpload"
-  className="
-    flex items-center gap-3 justify-center
-    w-full h-14 px-4
-    border-2 border-dashed border-adaptia-blue-primary/40
-    rounded-lg cursor-pointer
-    bg-white hover:bg-adaptia-blue-primary/5
-    transition-all duration-200
-  "
->
-  <Paperclip className="h-5 w-5 text-adaptia-blue-primary" />
-  <span className="font-medium text-adaptia-blue-primary">
-    Subir archivo
-  </span>
-</label>
-
-<input
-  id="documentUpload"
-  type="file"
-  accept=".pdf,.doc,.docx,.ppt,.pptx"
-  className="hidden"
-  onChange={async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // 🚀 Asegurar sesión SUPABASE
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      alert("Debes iniciar sesión para subir documentos.");
-      return;
-    }
-
-    const filePath = `${user.id}/${Date.now()}_${file.name}`;
-
-    const { error } = await supabase.storage
-      .from("adaptia-documents")
-      .upload(filePath, file);
-
-    if (error) {
-      console.error("Error al subir archivo:", error);
-      alert("Error al subir archivo");
-      return;
-    }
-
-    const { data: urlData } = supabase.storage
-      .from("adaptia-documents")
-      .getPublicUrl(filePath);
-
-    // ⭐ FIX: actualizar RHF correctamente
-    form.setValue("document", urlData.publicUrl, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
-  }}
-/>
-
-{/* ✔ Mostrar nombre/confirmación */}
-{form.watch("document") && (
-  <p className="text-green-600 text-sm mt-2 font-medium">
-    Archivo subido correctamente ✔️
+  <p className="text-sm text-gray-500 leading-relaxed">
+    Sube un PDF, PowerPoint o Word. El archivo se guardará de forma segura.
   </p>
-)}
 
-        </div>
+  {/* Botón visual para subir archivo */}
+  <label
+    htmlFor="documentUpload"
+    className="
+      flex items-center gap-3 justify-center
+      w-full h-14 px-4
+      border-2 border-dashed border-adaptia-blue-primary/40
+      rounded-lg cursor-pointer
+      bg-white hover:bg-adaptia-blue-primary/5
+      transition-all duration-200
+    "
+  >
+    <Paperclip className="h-5 w-5 text-adaptia-blue-primary" />
+    <span className="font-medium text-adaptia-blue-primary">
+      Subir archivo
+    </span>
+  </label>
+
+  <input
+    id="documentUpload"
+    type="file"
+    accept=".pdf,.doc,.docx,.ppt,.pptx"
+    className="hidden"
+    onChange={async (e) => {
+      const file = e.target.files?.[0]
+      if (!file) return
+
+      // 1) Aseguramos usuario (para armar path por user)
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        toast.error("Debes iniciar sesión para subir documentos.")
+        return
+      }
+
+      const filePath = `${user.id}/${Date.now()}_${file.name}`
+
+      // 2) Subir al bucket
+      const { error: uploadError } = await supabase.storage
+        .from("adaptia-documents")
+        .upload(filePath, file)
+
+      if (uploadError) {
+        console.error("Error al subir archivo:", uploadError)
+        toast.error("Error al subir archivo")
+        return
+      }
+
+      // 3) Obtener URL pública (o path)
+      const { data: urlData } = supabase.storage
+        .from("adaptia-documents")
+        .getPublicUrl(filePath)
+
+      const publicUrl = urlData.publicUrl
+
+      // 4) Guardar en el form (campo document)
+      form.setValue("document", publicUrl, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      })
+
+      toast.success("Archivo subido correctamente ✔️")
+    }}
+  />
+
+  {/* Mostrar feedback si ya está seteado el campo document */}
+  {form.watch("document") && (
+    <p className="text-green-600 text-sm mt-2 font-medium">
+      Archivo subido correctamente ✔️
+    </p>
+  )}
+</div>
+      
 
       </div>
 

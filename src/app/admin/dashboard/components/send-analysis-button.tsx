@@ -14,6 +14,7 @@ import {
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { CheckCircle2, Loader2, SendHorizonal } from "lucide-react"
 import { sendAnalysisAction } from "@/actions/analysis/send-analysis.action"
+import { toast } from "sonner"   // 👈 IMPORTANTE
 
 interface Props {
   id: string
@@ -26,11 +27,9 @@ export default function SendAnalysisButton({ id, accessToken, shippingStatus }: 
   const [sent, setSent] = useState(false)
   const [open, setOpen] = useState(false)
 
-  // ✅ Estado ENVIADO: mismo estilo que otros items, pero deshabilitado
   if (shippingStatus === "SENT" || sent) {
     return (
       <DropdownMenuItem
-        variant="destructive"   
         disabled
         className="
           mt-1 flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg
@@ -48,18 +47,19 @@ export default function SendAnalysisButton({ id, accessToken, shippingStatus }: 
   const handleConfirmSend = () => {
     startTransition(async () => {
       const result = await sendAnalysisAction(id, accessToken)
+
       if (result?.success) {
         setSent(true)
         setOpen(false)
+        toast.success("El análisis se envió correctamente 🎉") // ✅ TOAST SUCCESS
       } else {
-        alert(result?.error || "Error al enviar el análisis")
+        toast.error(result?.error || "Error al enviar el análisis") // ❌ TOAST ERROR
       }
     })
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {/* 🔘 ÍTEM DEL MENÚ IGUAL A LOS DEMÁS */}
       <DialogTrigger asChild>
         <DropdownMenuItem
           className="
@@ -67,10 +67,7 @@ export default function SendAnalysisButton({ id, accessToken, shippingStatus }: 
             text-gray-700 hover:bg-purple-50 hover:text-purple-700
             transition-colors cursor-pointer
           "
-          onClick={(e) => {
-            e.stopPropagation()
-            setOpen(true)
-          }}
+          onSelect={(event) => event.preventDefault()} // 👈 evita que se cierre el dropdown
         >
           <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-100">
             <SendHorizonal className="w-4 h-4 text-purple-600" />
@@ -79,7 +76,6 @@ export default function SendAnalysisButton({ id, accessToken, shippingStatus }: 
         </DropdownMenuItem>
       </DialogTrigger>
 
-      {/* 🧾 Diálogo de confirmación */}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-adaptia-blue-primary">

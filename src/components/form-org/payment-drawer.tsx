@@ -3,7 +3,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import PaymentSection from "./payment-section"
 import { Loader2 } from "lucide-react"
-import { useEffect, useState } from "react"
 import { Organization } from "@/types/organization.type"
 
 const PRICE_BY_EMPLOYEE_RANGE: Record<string, number> = {
@@ -35,13 +34,30 @@ export function PaymentDrawer({
   onPay,
   loading = false,
 }: PaymentDrawerProps) {
-  const [amountUSD, setAmountUSD] = useState<number>(
-    PRICE_BY_EMPLOYEE_RANGE[organization.employees_number],
-  )
+  // 1️⃣ Precio base según rango de empleados
+  const basePrice = PRICE_BY_EMPLOYEE_RANGE[organization.employees_number] ?? 0
 
-  useEffect(() => {
-    setAmountUSD(PRICE_BY_EMPLOYEE_RANGE[organization.employees_number])
-  }, [organization.employees_number])
+  // 2️⃣ Buscar el análisis asociado (ideal: el que tiene pago pendiente)
+  const currentAnalysis =
+    organization.analysis?.find((a) => a.payment_status === "PENDING") ??
+    organization.analysis?.[0]
+
+  // 3️⃣ Descuento leído directamente del analysis (discount_percentage)
+  const discountPercentage = currentAnalysis?.discount_percentage
+    ? Number(currentAnalysis.discount_percentage)
+    : 0
+
+  const hasDiscount = discountPercentage > 0
+
+  // 4️⃣ Calcular precio final y monto de descuento
+  const finalPriceRaw = hasDiscount
+    ? basePrice * (1 - discountPercentage / 100)
+    : basePrice
+
+  const finalPrice = Number(finalPriceRaw.toFixed(2))
+  const discountAmount = hasDiscount
+    ? Number((basePrice - finalPrice).toFixed(2))
+    : 0
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -59,11 +75,73 @@ export function PaymentDrawer({
             <p>Generando enlace de pago...</p>
           </div>
         ) : (
-          <div className="mt-8">
+          <div className="mt-8 space-y-6">
+            {/* 🧾 Resumen de precios con descuento aplicado desde organization.analysis */}
+            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 flex flex-col gap-2">
+              <p className="text-sm text-slate-600">
+                Análisis ESG para{" "}
+                <span className="font-semibold text-slate-900">{organization.company}</span>{" "}
+                ({organization.employees_number} empleados)
+              </p>
+
+              <div className="flex items-baseline gap-3 flex-wrap">
+                {/* Precio base */}
+                <div className="flex flex-col">
+                  <span className="text-xs text-slate-500 uppercase tracking-wide">
+                    Precio base
+                  </span>
+                  <span
+                    className={`text-lg ${
+                      hasDiscount ? "line-through text-slate-400" : "text-slate-900"
+                    }`}
+                  >
+                    USD {basePrice.toFixed(2)}
+                  </span>
+                </div>
+
+                {hasDiscount && (
+                  <>
+                    {/* Descuento */}
+                    <div className="flex flex-col">
+                      <span className="text-xs text-emerald-600 uppercase tracking-wide">
+                        Descuento aplicado
+                      </span>
+                      <span className="text-sm font-semibold text-emerald-700">
+                        -{discountPercentage}% (USD {discountAmount.toFixed(2)})
+                      </span>
+                    </div>
+
+                    {/* Precio final */}
+                    <div className="flex flex-col ml-auto">
+                      <span className="text-xs text-[#163F6A] uppercase tracking-wide">
+                        Total a pagar
+                      </span>
+                      <span className="text-2xl font-bold text-[#163F6A]">
+                        USD {finalPrice.toFixed(2)}
+                      </span>
+                    </div>
+                  </>
+                )}
+
+                {!hasDiscount && (
+                  <div className="flex flex-col ml-auto">
+                    <span className="text-xs text-[#163F6A] uppercase tracking-wide">
+                      Total a pagar
+                    </span>
+                    <span className="text-2xl font-bold text-[#163F6A]">
+                      USD {finalPrice.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+            {/* 💳 Sección de pago – usa el PRECIO FINAL con descuento */}
             <PaymentSection
               asEmbedded
               showBack={false}
-              amountUSD={amountUSD}
+              amountUSD={finalPrice}
               payCta={payCta}
               checkoutUrl={checkoutUrl}
               onPay={onPay}

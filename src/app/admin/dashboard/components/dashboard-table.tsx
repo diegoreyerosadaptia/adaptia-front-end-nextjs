@@ -7,7 +7,7 @@ import { Building2, CheckCircle2, Clock, XCircle, Search, Loader2, WatchIcon } f
 import ActionsMenu from "./actions-menu"
 import PaymentStatusSelect from "./analysis-status-select"
 import { useEffect, useState } from "react"
-import { getAnalysisSocket } from "@/lib/analysis-socket"   // 👈 socket.io client
+import { getAnalysisSocket } from "@/lib/analysis-socket"
 
 type FilterType =
   | "all"
@@ -22,7 +22,6 @@ interface DashboardTableProps {
   token: string
 }
 
-// ⭐ Animación inline
 const style = `
 @keyframes rowHighlight {
   0%   { background-color: #d8f5df; }
@@ -35,8 +34,6 @@ export default function DashboardTable({ organizations, token }: DashboardTableP
   const [filteredOrgs, setFilteredOrgs] = useState(organizations)
   const [searchTerm, setSearchTerm] = useState("")
   const [activeFilter, setActiveFilter] = useState<FilterType>("all")
-
-  // ⭐ mantiene la fila que debe animarse
   const [highlightedRow, setHighlightedRow] = useState<string | null>(null)
 
   useEffect(() => {
@@ -94,32 +91,26 @@ export default function DashboardTable({ organizations, token }: DashboardTableP
     applyFilters(value, activeFilter)
   }
 
-  // 🎯 ESCUCHA eventos de estado de análisis desde el SOCKET
   useEffect(() => {
     const socket = getAnalysisSocket()
 
     const handler = (payload: any) => {
       const { analysisId, status } = payload
 
-      // 🔔 Toast cuando pasa a COMPLETED
       if (status === "COMPLETED") {
         import("sonner").then(({ toast }) =>
           toast.success("✔ El análisis se completó correctamente."),
         )
       }
 
-      // ⭐ activar animación en la fila que contiene ese análisis
       setHighlightedRow(analysisId)
       setTimeout(() => setHighlightedRow(null), 1500)
 
-      // 🔄 actualizar estado de las organizaciones
       setFilteredOrgs((prev) =>
         prev.map((org) => ({
           ...org,
           analysis: org.analysis?.map((a: any) =>
-            a.id === analysisId
-              ? { ...a, status } // 👈 acá se cambia de PROCESSING → COMPLETED, FAILED, etc
-              : a,
+            a.id === analysisId ? { ...a, status } : a,
           ),
         })),
       )
@@ -132,7 +123,6 @@ export default function DashboardTable({ organizations, token }: DashboardTableP
     }
   }, [])
 
-  // 🔁 Sigue funcionando el evento de pago manual (PaymentStatusSelect)
   useEffect(() => {
     const handler = (event: any) => {
       const { id, newStatus } = event.detail
@@ -205,6 +195,10 @@ export default function DashboardTable({ organizations, token }: DashboardTableP
                   </th>
                   <th className="px-3 py-3 text-center text-xs font-semibold text-[#163F6A]">
                     Estado Análisis
+                  </th>
+                  {/* 👇 NUEVA COLUMNA */}
+                  <th className="px-3 py-3 text-center text-xs font-semibold text-[#163F6A]">
+                    Descuento
                   </th>
                   <th className="px-3 py-3 text-center text-xs font-semibold text-[#163F6A]">
                     Estado Pago
@@ -299,8 +293,43 @@ export default function DashboardTable({ organizations, token }: DashboardTableP
                           </div>
                         </td>
 
+                        {/* 👇 CELDA DE DESCUENTO POR ANÁLISIS */}
                         <td className="px-3 py-3 text-center">
-                          {org.analysis.map((a: any) => (
+                          {org.analysis && org.analysis.length > 0 ? (
+                            <div className="flex flex-col items-center gap-1">
+                              {org.analysis.map((a: any) => {
+                                const discount = a.discount_percentage
+                                  ? Number(a.discount_percentage)
+                                  : 0
+
+                                return (
+                                  <span
+                                    key={a.id}
+                                    className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium ${
+                                      discount > 0
+                                        ? "bg-emerald-50 text-emerald-700"
+                                        : "bg-gray-50 text-gray-500"
+                                    }`}
+                                  >
+                                    {discount > 0 ? (
+                                      <>
+                                        <span className="mr-1">{discount}%</span>
+                                        <span>descuento</span>
+                                      </>
+                                    ) : (
+                                      "Sin descuento"
+                                    )}
+                                  </span>
+                                )
+                              })}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">—</span>
+                          )}
+                        </td>
+
+                        <td className="px-3 py-3 text-center">
+                          {org.analysis?.map((a: any) => (
                             <PaymentStatusSelect
                               key={a.id}
                               id={a.id}
@@ -318,7 +347,8 @@ export default function DashboardTable({ organizations, token }: DashboardTableP
                   })
                 ) : (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center">
+                    {/* 👇 ahora son 8 columnas */}
+                    <td colSpan={8} className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center gap-2">
                         <Building2 className="h-12 w-12 text-gray-300" />
                         <p className="text-gray-600">
