@@ -10,9 +10,6 @@ type ParteCItem = {
   ods: string
   meta_ods: string
   indicador_ods: string
-  // opcional, por si viene en el JSON
-  tema_material?: string
-  // también puede venir como "Tema Material" (lo manejamos con brackets en runtime)
 }
 
 export function MaterialidadCEditable({
@@ -31,12 +28,7 @@ export function MaterialidadCEditable({
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
-  // 🔎 helper para filtrar solo los que tienen Tema Material = "Sí"
-  const getFilteredParteC = (data: ParteCItem[] = []) =>
-    data.filter((row: any) => row?.tema_material === "Tema Material")
-
-  // Estado solo con los temas materiales ("Sí")
-  const [parteCData, setParteCData] = useState<ParteCItem[]>(getFilteredParteC(parteCOriginal ?? []))
+  const [parteCData, setParteCData] = useState<ParteCItem[]>(parteCOriginal ?? [])
 
   /* ✏️ Editar celda individual */
   const handleEditCell = (index: number, field: keyof ParteCItem, value: string) => {
@@ -54,25 +46,11 @@ export function MaterialidadCEditable({
 
       // Buscar Prompt 6
       const parteCSection = newJson.find(
-        (a: any) => a?.name?.includes("Prompt 6") || a?.name?.includes("ODS"),
+        (a: any) => a?.name?.includes("Prompt 6") || a?.name?.includes("ODS")
       )
 
       if (parteCSection) {
-        const originalTable: any[] = parteCSection.response_content?.materiality_table ?? []
-
-        // 🔁 Actualizamos SOLO las filas que son Tema Material "Sí"
-        const updatedTable = originalTable.map((row: any) => {
-          const match = parteCData.find((p) => p.tema === row.tema)
-          if (!match) return row
-
-          // respetamos el flag "Tema Material" si existe
-          return {
-            ...row,
-            ...match,
-          }
-        })
-
-        parteCSection.response_content.materiality_table = updatedTable
+        parteCSection.response_content.materiality_table = parteCData
       }
 
       const res = await updateAnalysisJsonAction(lastAnalysisId, newJson as any, accessToken)
@@ -93,7 +71,7 @@ export function MaterialidadCEditable({
 
   /* ❌ Cancelar edición */
   const handleCancel = () => {
-    setParteCData(getFilteredParteC(parteCOriginal ?? []))
+    setParteCData(parteCOriginal ?? [])
     setIsEditing(false)
     toast.info("Cambios descartados")
   }
