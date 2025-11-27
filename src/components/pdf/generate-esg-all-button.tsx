@@ -91,6 +91,43 @@ const BOTTOM_MARGIN = 50
 // contador global de páginas de contenido (excluye portada/contraportada)
 let PAGE_COUNTER = 0
 
+// 🔤 Mapeo de caracteres conflictivos → equivalentes
+const SUPER_SCRIPT_MAP: Record<string, string> = {
+  "⁰": "0",
+  "¹": "1",
+  "²": "2",
+  "³": "3",
+  "⁴": "4",
+  "⁵": "5",
+  "⁶": "6",
+  "⁷": "7",
+  "⁸": "8",
+  "⁹": "9",
+}
+
+/**
+ * Sanea texto para que Helvetica (WinAnsi) lo pueda codificar:
+ * - Reemplaza superíndices por números normales.
+ * - Si algún carácter no se puede codificar, lo reemplaza por "?".
+ */
+function sanitizeText(font: any, raw: string): string {
+  if (!raw) return ""
+  let result = ""
+
+  for (const ch of raw) {
+    const mapped = SUPER_SCRIPT_MAP[ch] ?? ch
+    try {
+      // Si esto tira error, el char no se puede codificar
+      font.encodeText(mapped)
+      result += mapped
+    } catch {
+      result += "?"
+    }
+  }
+
+  return result
+}
+
 /**
  * Crea una página de contenido con:
  * - Título de sección
@@ -152,7 +189,9 @@ function addTitledPage(
 }
 
 function wrapText(font: any, text: string, maxWidth: number, fontSize: number): string[] {
-  const words = String(text || "").split(" ")
+  // 🧼 limpiamos antes de medir
+  const safeText = sanitizeText(font, String(text || ""))
+  const words = safeText.split(" ")
   const lines: string[] = []
   let currentLine = ""
 
@@ -185,7 +224,9 @@ function drawWrappedText(
   fontSize: number,
   lineHeight: number,
 ) {
-  const words = text.split(" ")
+  // 🧼 limpiamos antes de partir
+  const safeText = sanitizeText(font, text || "")
+  const words = safeText.split(" ")
   let line = ""
   let y = yStart
 
@@ -261,7 +302,8 @@ function drawTableWithWrapping(
   // Texto del header
   xPos = MARGIN_X
   headers.forEach((header, i) => {
-    currentPage.drawText(header, {
+    const safeHeader = sanitizeText(font, header)
+    currentPage.drawText(safeHeader, {
       x: xPos + cellPadding,
       y: y - cellPadding,
       size: fontSizeHeader,
@@ -286,7 +328,8 @@ function drawTableWithWrapping(
     let maxLines = 1
 
     row.forEach((cell, colIndex) => {
-      const lines = wrapText(font, String(cell ?? ""), columnWidths[colIndex] - cellPadding * 2, fontSizeRow)
+      const safeCell = sanitizeText(font, String(cell ?? ""))
+      const lines = wrapText(font, safeCell, columnWidths[colIndex] - cellPadding * 2, fontSizeRow)
       cellLines.push(lines)
       maxLines = Math.max(maxLines, lines.length)
     })
@@ -326,7 +369,8 @@ function drawTableWithWrapping(
 
       xPos = MARGIN_X
       headers.forEach((header, i) => {
-        currentPage.drawText(header, {
+        const safeHeader = sanitizeText(font, header)
+        currentPage.drawText(safeHeader, {
           x: xPos + cellPadding,
           y: y - cellPadding,
           size: fontSizeHeader,
@@ -383,7 +427,8 @@ function drawTableWithWrapping(
     cellLines.forEach((lines, colIndex) => {
       let cellY = y - cellPadding - lineHeight / 2
       lines.forEach((line) => {
-        currentPage.drawText(line, {
+        const safeLine = sanitizeText(font, line)
+        currentPage.drawText(safeLine, {
           x: xPos + cellPadding,
           y: cellY,
           size: fontSizeRow,
@@ -438,7 +483,8 @@ function drawContextoPage(
 
   entries.forEach(([label, value]) => {
     if (!value) return
-    page.drawText(`${label}:`, {
+    const safeLabel = sanitizeText(font, `${label}:`)
+    page.drawText(safeLabel, {
       x: MARGIN_X,
       y,
       size: 12,
@@ -593,7 +639,8 @@ function drawGriPage(pdfDoc: PDFDocument, font: any, boldFont: any, logo: any, t
       color: COLOR_SECTION_TITLE,
     })
 
-    page.drawText(tema, {
+    const safeTema = sanitizeText(font, tema)
+    page.drawText(safeTema, {
       x: MARGIN_X + 26,
       y: y - 12,
       size: fontSize,
@@ -820,7 +867,7 @@ export function GenerateEsgPdfButtonAll({
       onClick={handleGenerate}
       variant="default"
       className="h-full px-4 cursor-pointer font-medium shadow-md hover:shadow-lg 
-              transition-all duration-200"
+              transition-all duración-200"
       style={{ backgroundColor: "#163F6A" }}
       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0F2D4C")}
       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#163F6A")}
