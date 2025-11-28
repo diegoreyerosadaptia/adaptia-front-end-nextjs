@@ -78,6 +78,13 @@ export default function OrganizationForm({
 
 // dentro de OrganizationForm
 // dentro de OrganizationForm
+// utils muy simple para limpiar el nombre del archivo
+function sanitizeFileName(name: string) {
+  return name
+    .normalize("NFD")                      // separa acentos
+    .replace(/[\u0300-\u036f]/g, "")       // quita acentos
+    .replace(/[^a-zA-Z0-9.\-_]/g, "_")     // reemplaza todo lo raro por "_"
+}
 
 // dentro de OrganizationForm
 
@@ -409,7 +416,9 @@ const SORTED_INDUSTRIES = [...INDUSTRIES].sort((a, b) =>
         return
       }
 
-      const filePath = `${user.id}/${Date.now()}_${file.name}`
+      const safeName = sanitizeFileName(file.name)
+      const filePath = `${user.id}/${Date.now()}_${safeName}`
+
 
       // 2) Subir al bucket
       const { error: uploadError } = await supabase.storage
