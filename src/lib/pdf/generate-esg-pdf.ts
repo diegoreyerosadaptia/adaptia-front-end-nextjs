@@ -22,7 +22,7 @@ export async function generateEsgPdf({
     madurez_esg: string
     stakeholders_relevantes: string
   }
-  resumen: { parrafo_1: string; parrafo_2?: string }
+  resumen: { parrafo_1: string; parrafo_2?: string; parrafo_3?: string  }
   portada?: string
   contraportada?: string
   chartImg?: string
@@ -373,6 +373,8 @@ const addPage = (title?: string, skipBranding = false) => {
 
   addParagraph(resumen.parrafo_1)
   if (resumen.parrafo_2) addParagraph(resumen.parrafo_2)
+  if (resumen.parrafo_3) addParagraph(resumen.parrafo_3)
+
 
   /* =======================
      🖼️ Contraportada

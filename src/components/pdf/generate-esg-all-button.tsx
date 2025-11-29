@@ -62,6 +62,7 @@ type RegulacionItem = {
 type ResumenData = {
   parrafo_1: string
   parrafo_2?: string
+  parrafo_3?: string
 }
 type GriContenido = {
   estandar_gri: string
@@ -821,6 +822,12 @@ function drawResumenPage(
     ensureSpace(resumen.parrafo_2)
     y -= 4
     y = drawWrappedText(page, font, resumen.parrafo_2, MARGIN_X, y, maxWidth, fontSize, lineHeight)
+  }
+
+  if (resumen.parrafo_3) {
+    ensureSpace(resumen.parrafo_3)
+    y -= 4
+    y = drawWrappedText(page, font, resumen.parrafo_3, MARGIN_X, y, maxWidth, fontSize, lineHeight)
   }
 }
 

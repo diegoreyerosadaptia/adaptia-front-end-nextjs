@@ -20,7 +20,14 @@ interface ActionsMenuProps {
   org: Organization
   authToken?: string
 }
-
+interface MaterialityInput {
+  tema?: string
+  temas?: string[]
+  materialidad?: string
+  materialidad_esg?: number
+  x?: number
+  y?: number
+}
 export default function ActionsMenu({ org, authToken }: ActionsMenuProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
@@ -43,6 +50,62 @@ export default function ActionsMenu({ org, authToken }: ActionsMenuProps) {
       (a.status === "PENDING" && a.payment_status === "COMPLETED"),
   ) ?? false
 
+  // ============================
+  // ESG para el gráfico (safe)
+  // ============================
+  const lastAnalysisEsg = org?.esgAnalysis?.length
+    ? org.esgAnalysis[org.esgAnalysis.length - 1]
+    : null
+
+  let dataFinal: MaterialityInput[] = []
+
+  if (showSendAnalysis && lastAnalysisEsg?.analysisJson) {
+    const raw =
+      typeof lastAnalysisEsg.analysisJson === "string"
+        ? JSON.parse(lastAnalysisEsg.analysisJson)
+        : lastAnalysisEsg.analysisJson
+
+    // Puede venir como array por índice [3] o como lista de prompts
+    let materialityTable: any[] = []
+
+    if (Array.isArray(raw)) {
+      materialityTable = raw[3]?.response_content?.materiality_table || []
+
+      // Fallback por si cambió el orden y preferís buscar Prompt 6
+      if (!materialityTable.length) {
+        materialityTable =
+          raw.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content
+            ?.materiality_table || []
+      }
+    }
+
+    const parteB = [...materialityTable]
+
+    const parteBSorted = [...parteB].sort(
+      (a, b) => Number(b.materialidad_esg ?? 0) - Number(a.materialidad_esg ?? 0),
+    )
+
+    dataFinal = parteBSorted.map((item) => {
+      const tema = item.tema
+      const materialidad = item.materialidad_financiera || item.materialidad || ""
+      const materialidad_esg = Number(item.materialidad_esg ?? 0)
+
+      let x = 0
+      const fin = materialidad?.toLowerCase()
+
+      if (fin === "baja") x = 1
+      if (fin === "media") x = 3
+      if (fin === "alta") x = 5
+
+      return {
+        tema,
+        materialidad,
+        materialidad_esg,
+        x,
+        y: materialidad_esg,
+      }
+    })
+  }
 
   return (
     <>
@@ -82,7 +145,7 @@ export default function ActionsMenu({ org, authToken }: ActionsMenuProps) {
           )}
 
           {showSendAnalysis && (
-            <SendAnalysisButton id={lastAnalysis.id} accessToken={authToken || ""} shippingStatus={lastAnalysis.shipping_status} />
+            <SendAnalysisButton id={lastAnalysis.id} accessToken={authToken || ""} shippingStatus={lastAnalysis.shipping_status} dataMaterialidad={dataFinal} />
           )}
 
           {org.analysis?.some((a) => a.status === "FAILED") && (

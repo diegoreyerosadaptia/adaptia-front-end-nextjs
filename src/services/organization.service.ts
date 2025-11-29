@@ -144,12 +144,19 @@ export const updateStatusPaymentAnalysis = async (id: string, authToken?: string
   }
 }
 
-export const sendAnalysis = async (id: string, authToken?: string) => {
+// services/organization.service.ts
+export const sendAnalysis = async (
+  id: string,
+  authToken?: string,
+  chartImgBase64?: string,
+) => {
   try {
     const response = await fetch(`${BASE_URL}/analysis/sendAnalysis/${id}`, {
       method: "PATCH",
       headers: getJsonHeaders(authToken),
+      body: JSON.stringify({ chartImgBase64 }),  // 👈 mandamos la imagen
     })
+
     const data = await response.json()
 
     if (response.ok) {

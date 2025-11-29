@@ -1,16 +1,21 @@
-'use server';
+// actions/analysis/send-analysis.action.ts
+'use server'
 
-import { sendAnalysis as sendAnalysisAPI } from '@/services/organization.service';
+import { sendAnalysis as sendAnalysisAPI } from '@/services/organization.service'
 
-export async function sendAnalysisAction(id: string, accessToken: string) {
+export async function sendAnalysisAction(
+  id: string,
+  accessToken: string,
+  chartImgBase64?: string,
+) {
   try {
-    const success = await sendAnalysisAPI(id, accessToken);
+    const success = await sendAnalysisAPI(id, accessToken, chartImgBase64)
     if (!success) {
-      return { error: 'Error al enviar analisis' };
+      return { error: 'Error al enviar analisis' }
     }
-    return { success: 'Analisis enviado exitosamente' };
+    return { success: 'Analisis enviado exitosamente' }
   } catch (error) {
-    console.log(error);
-    return { error: 'Error al enviar analisis' };
+    console.log(error)
+    return { error: 'Error al enviar analisis' }
   }
 }

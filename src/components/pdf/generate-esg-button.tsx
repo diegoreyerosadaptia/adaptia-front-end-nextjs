@@ -32,6 +32,7 @@ interface MaterialityInput {
 type ResumenType = {
   parrafo_1: string
   parrafo_2?: string
+  parrafo_3?: string
 }
 
 interface GenerateEsgPdfButtonProps {
