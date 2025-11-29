@@ -66,7 +66,7 @@ export default function SendAnalysisButton({
   const handleConfirmSend = () => {
     startTransition(async () => {
       try {
-        toast.loading("Generando imagen y enviando análisis...")
+        toast.loading("Enviando analisis...")
 
         // 1️⃣ Capturar el gráfico como PNG base64
         let chartImgBase64: string | undefined
@@ -96,7 +96,7 @@ export default function SendAnalysisButton({
         if (result?.success) {
           setSent(true)
           setOpen(false)
-          toast.success("El análisis se envió correctamente 🎉")
+          toast.success("El análisis se envió correctamente")
         } else {
           toast.error(result?.error || "Error al enviar el análisis")
         }
