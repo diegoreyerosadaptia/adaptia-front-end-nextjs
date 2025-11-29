@@ -146,20 +146,22 @@
 
 /* Normaliza el tamaño global */
 html {
-  font-size: 13px !important;
+  font-size: 13px;
 }
 
 /* Headings sin tamaños locos */
-h1, h2 {
-  font-size: 2rem !important;
+h1 {
+  font-size: 2rem;
   font-weight: 600;
-  color: #1B4539 !important;
+  color: #1B4539
 }
 
 h3, h4, h5, h6{
-  font-size: 1.5rem !important;
+  font-size: 1.5rem;
   font-weight: 600;
 }
+
+
 
 
 

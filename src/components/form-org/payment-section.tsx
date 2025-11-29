@@ -36,7 +36,7 @@ type PaymentSectionProps = {
 export default function PaymentSection({
   showBack = true,
   backHref = "/formulario",
-  amountUSD = 2000,
+  amountUSD,
   payCta = "Realizar pago ahora",
   checkoutUrl,
   onPay,
@@ -54,6 +54,9 @@ export default function PaymentSection({
     if (onPay) return onPay()
     if (checkoutUrl) window.open(checkoutUrl, "_blank", "noopener,noreferrer")
   }
+
+
+  console.log('amountUSD', amountUSD)
 
   const content = (
     <>
@@ -130,7 +133,7 @@ export default function PaymentSection({
   >
     <CreditCard className="w-5 h-5" />
     <span className="font-medium">
-      Realizar pago ahora con <strong>Mercado Pago</strong> — ${amountUSD.toLocaleString("en-US")} USD
+      Realizar pago ahora con <strong>Mercado Pago</strong> — ${amountUSD?.toLocaleString("en-US")} USD
     </span>
   </Button>
 

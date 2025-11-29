@@ -13,7 +13,7 @@ import { createOrganizationAction } from "@/actions/organizations/create-organiz
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase/client"
 import { createPreferenceAction } from "@/actions/payments/create-preference.action"
-import { User, Building2, FileText, Paperclip  } from "lucide-react"
+import { User, Building2, FileText, Paperclip, Loader2, CheckCircle2, Trash2  } from "lucide-react"
 import { CountrySelect } from "./select-country"
 import { toast } from "sonner"
 
@@ -29,6 +29,7 @@ export default function OrganizationForm({
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null)
   const [openPaymentDrawer, setOpenPaymentDrawer] = useState(false)
   const [token, setToken] = useState<string | null>(null)
+  
 
   const form = useForm<OrganizationSchemaType>({
     resolver: zodResolver(organizationSchema),
@@ -45,6 +46,10 @@ export default function OrganizationForm({
       ownerId: "",
     },
   })
+
+  const [isUploading, setIsUploading] = useState(false)
+  const documentUrl = form.watch("document")
+
 
   useEffect(() => {
     const loadUser = async () => {
@@ -370,95 +375,123 @@ const SORTED_INDUSTRIES = [...INDUSTRIES].sort((a, b) =>
           <FileText className="h-6 w-6 text-adaptia-blue-primary" />
           <h3 className="text-xl font-semibold text-gray-900">Información Adicional</h3>
         </div>
+
         <div className="space-y-2">
-  <Label className="text-sm font-semibold text-gray-700">
-    Documento de Apoyo
-  </Label>
+          <Label className="text-sm font-semibold text-gray-700">
+            Documento de Apoyo
+          </Label>
 
-  <p className="text-sm text-gray-500 leading-relaxed">
-    Sube un PDF, PowerPoint o Word. El archivo se guardará de forma segura.
-  </p>
+          <p className="text-sm text-gray-500 leading-relaxed">
+            Sube un PDF, PowerPoint o Word. El archivo se guardará de forma segura.
+          </p>
 
-  {/* Botón visual para subir archivo */}
-  <label
-    htmlFor="documentUpload"
-    className="
-      flex items-center gap-3 justify-center
-      w-full h-14 px-4
-      border-2 border-dashed border-adaptia-blue-primary/40
-      rounded-lg cursor-pointer
-      bg-white hover:bg-adaptia-blue-primary/5
-      transition-all duration-200
-    "
-  >
-    <Paperclip className="h-5 w-5 text-adaptia-blue-primary" />
-    <span className="font-medium text-adaptia-blue-primary">
-      Subir archivo
-    </span>
-  </label>
+          {/* Botón visual para subir archivo */}
+          <label
+            htmlFor="documentUpload"
+            className={`
+              flex items-center gap-3 justify-center
+              w-full h-14 px-4
+              border-2 border-dashed border-adaptia-blue-primary/40
+              rounded-lg cursor-pointer
+              bg-white hover:bg-adaptia-blue-primary/5
+              transition-all duration-200
+              ${isUploading ? "opacity-60 cursor-wait" : ""}
+            `}
+          >
+            {isUploading ? (
+              <>
+                <Loader2 className="h-5 w-5 text-adaptia-blue-primary animate-spin" />
+                <span className="font-medium text-adaptia-blue-primary">
+                  Subiendo archivo...
+                </span>
+              </>
+            ) : (
+              <>
+                <Paperclip className="h-5 w-5 text-adaptia-blue-primary" />
+                <span className="font-medium text-adaptia-blue-primary">
+                  Subir archivo
+                </span>
+              </>
+            )}
+          </label>
 
-  <input
-    id="documentUpload"
-    type="file"
-    accept=".pdf,.doc,.docx,.ppt,.pptx"
-    className="hidden"
-    onChange={async (e) => {
-      const file = e.target.files?.[0]
-      if (!file) return
+          <input
+            id="documentUpload"
+            type="file"
+            accept=".pdf,.doc,.docx,.ppt,.pptx"
+            className="hidden"
+            disabled={isUploading}
+            onChange={async (e) => {
+              const file = e.target.files?.[0]
+              if (!file) return
 
-      // 1) Aseguramos usuario (para armar path por user)
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+              try {
+                setIsUploading(true)
 
-      if (!user) {
-        toast.error("Debes iniciar sesión para subir documentos.")
-        return
-      }
+                const safeName = sanitizeFileName(file.name)
+                const filePath = `public-uploads/${Date.now()}_${safeName}`
 
-      const safeName = sanitizeFileName(file.name)
-      const filePath = `${user.id}/${Date.now()}_${safeName}`
+                const { error: uploadError } = await supabase.storage
+                  .from("adaptia-documents")
+                  .upload(filePath, file)
 
+                if (uploadError) {
+                  console.error("Error al subir archivo:", uploadError)
+                  toast.error("Error al subir archivo")
+                  return
+                }
 
-      // 2) Subir al bucket
-      const { error: uploadError } = await supabase.storage
-        .from("adaptia-documents")
-        .upload(filePath, file)
+                const { data: urlData } = supabase.storage
+                  .from("adaptia-documents")
+                  .getPublicUrl(filePath)
 
-      if (uploadError) {
-        console.error("Error al subir archivo:", uploadError)
-        toast.error("Error al subir archivo")
-        return
-      }
+                const publicUrl = urlData.publicUrl
 
-      // 3) Obtener URL pública (o path)
-      const { data: urlData } = supabase.storage
-        .from("adaptia-documents")
-        .getPublicUrl(filePath)
+                form.setValue("document", publicUrl, {
+                  shouldDirty: true,
+                  shouldTouch: true,
+                  shouldValidate: true,
+                })
 
-      const publicUrl = urlData.publicUrl
+                toast.success("Archivo subido correctamente")
+              } catch (err) {
+                console.error(err)
+                toast.error("Error al subir archivo")
+              } finally {
+                setIsUploading(false)
+                // limpiar input para poder volver a subir el mismo archivo si quieren
+                e.target.value = ""
+              }
+            }}
+          />
 
-      // 4) Guardar en el form (campo document)
-      form.setValue("document", publicUrl, {
-        shouldDirty: true,
-        shouldTouch: true,
-        shouldValidate: true,
-      })
+          {/* Feedback del archivo subido */}
+          {documentUrl && (
+            <div className="mt-3 flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-3 py-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span className="text-xs sm:text-sm font-medium text-green-700">
+                  Archivo subido correctamente
+                </span>
+              </div>
 
-      toast.success("Archivo subido correctamente ✔️")
-    }}
-  />
-
-  {/* Mostrar feedback si ya está seteado el campo document */}
-  {form.watch("document") && (
-    <p className="text-green-600 text-sm mt-2 font-medium">
-      Archivo subido correctamente ✔️
-    </p>
-  )}
-</div>
-      
-
+              <button
+                type="button"
+                onClick={() => form.setValue("document", "", {
+                  shouldDirty: true,
+                  shouldTouch: true,
+                  shouldValidate: true,
+                })}
+                className="inline-flex items-center justify-center rounded-full p-1.5 hover:bg-red-100 transition-colors"
+                title="Eliminar archivo"
+              >
+                <Trash2 className="h-4 w-4 text-red-500" />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
 
       <div className="pt-6 border-t-2 border-gray-200">
         <Button

@@ -63,12 +63,24 @@ type ResumenData = {
   parrafo_1: string
   parrafo_2?: string
 }
+type GriContenido = {
+  estandar_gri: string
+  numero_contenido: string
+  contenido: string
+  requerimiento: string
+}
+
+type GriTema = {
+  tema: string
+  contenidos: GriContenido[]
+}
 
 interface GenerateEsgPdfButtonAllProps {
   analysisData: any[]
   organizationName: string
   portada?: string
   contraportada?: string
+  griData?: GriTema[]  
 }
 
 // ==============================
@@ -126,6 +138,16 @@ function sanitizeText(font: any, raw: string): string {
   }
 
   return result
+}
+function measureWrappedHeight(
+  font: any,
+  text: string,
+  maxWidth: number,
+  fontSize: number,
+  lineHeight: number,
+) {
+  const lines = wrapText(font, text, maxWidth, fontSize)
+  return lines.length * lineHeight
 }
 
 /**
@@ -270,6 +292,7 @@ function drawTableWithWrapping(
   const tableWidth = columnWidths.reduce((sum, w) => sum + w, 0)
 
   const headerHeight = lineHeight + cellPadding * 2
+  const effectiveBottomMargin = BOTTOM_MARGIN - 10 
 
   // Fondo del header
   currentPage.drawRectangle({
@@ -337,7 +360,7 @@ function drawTableWithWrapping(
     const rowHeight = maxLines * lineHeight + cellPadding * 2
 
     // Verificar si necesitamos una nueva página
-    if (y - rowHeight < BOTTOM_MARGIN) {
+    if (y - rowHeight < effectiveBottomMargin) {
       currentPage = addTitledPage(pdfDoc, font, boldFont, `${title} (continuación)`, logo)
       y = TOP_Y - 40
 
@@ -462,11 +485,13 @@ function drawContextoPage(
   logo: any,
   contexto: Partial<ContextoItem> | undefined,
 ) {
-  const page = addTitledPage(pdfDoc, font, boldFont, "Contexto organizacional", logo)
+  let page = addTitledPage(pdfDoc, font, boldFont, "Contexto organizacional", logo)
   if (!contexto) return
 
   let y = TOP_Y - 40
   const maxWidth = PAGE_WIDTH - MARGIN_X * 2
+  const valueFontSize = 10
+  const valueLineHeight = 13
 
   const entries: [string, string][] = [
     ["Nombre de la empresa", contexto.nombre_empresa ?? ""],
@@ -481,8 +506,27 @@ function drawContextoPage(
     ["Stakeholders relevantes", contexto.stakeholders_relevantes ?? ""],
   ]
 
-  entries.forEach(([label, value]) => {
-    if (!value) return
+  for (const [label, value] of entries) {
+    if (!value) continue
+
+    // calcular altura aproximada que va a ocupar este bloque
+    const safeValue = sanitizeText(font, value)
+    const textHeight = measureWrappedHeight(
+      font,
+      safeValue,
+      maxWidth - 10,
+      valueFontSize,
+      valueLineHeight,
+    )
+    const blockHeight = 16 + textHeight + 8 // label + texto + espacio después
+
+    // si no entra, nueva página
+    if (y - blockHeight < BOTTOM_MARGIN) {
+      page = addTitledPage(pdfDoc, font, boldFont, "Contexto organizacional (continuación)", logo)
+      y = TOP_Y - 40
+    }
+
+    // dibujar label
     const safeLabel = sanitizeText(font, `${label}:`)
     page.drawText(safeLabel, {
       x: MARGIN_X,
@@ -492,9 +536,11 @@ function drawContextoPage(
       color: COLOR_SECTION_TITLE,
     })
     y -= 16
-    y = drawWrappedText(page, font, value, MARGIN_X + 10, y, maxWidth - 10, 10, 13)
+
+    // dibujar valor envuelto
+    y = drawWrappedText(page, font, value, MARGIN_X + 10, y, maxWidth - 10, valueFontSize, valueLineHeight)
     y -= 8
-  })
+  }
 }
 
 function buildParteB(analysisData: any[]): ParteBItem[] {
@@ -582,75 +628,123 @@ function drawSasbPage(pdfDoc: PDFDocument, font: any, boldFont: any, logo: any, 
   drawTableWithWrapping(pdfDoc, font, boldFont, logo, "Tabla SASB", headers, rows, columnWidths)
 }
 
-function drawGriPage(pdfDoc: PDFDocument, font: any, boldFont: any, logo: any, temas: string[]) {
-  const title = "Temas prioritarios (GRI / materialidad)"
+function drawGriPage(
+  pdfDoc: PDFDocument,
+  font: any,
+  boldFont: any,
+  logo: any,
+  temasPrioritarios: string[],
+  griData?: { tema: string; contenidos: { estandar_gri: string; numero_contenido: string; contenido: string }[] }[],
+) {
+  // Si NO hay datos GRI, usamos el comportamiento viejo: solo lista de temas
+  if (!griData || griData.length === 0) {
+    const title = "Temas prioritarios (GRI / materialidad)"
 
-  let page = addTitledPage(pdfDoc, font, boldFont, title, logo)
-  let y = TOP_Y - 60
+    let page = addTitledPage(pdfDoc, font, boldFont, title, logo)
+    let y = TOP_Y - 60
 
-  const fontSize = 11
-  const boxPadding = 12
-  const lineHeight = 16
-  const maxWidth = PAGE_WIDTH - MARGIN_X * 2
+    const fontSize = 11
+    const boxPadding = 12
+    const lineHeight = 16
+    const maxWidth = PAGE_WIDTH - MARGIN_X * 2
 
-  page.drawText("Listado de temas:", {
-    x: MARGIN_X,
-    y,
-    size: 12,
-    font: boldFont,
-    color: COLOR_SECTION_TITLE,
-  })
-
-  y -= 18
-
-  temas.forEach((tema, index) => {
-    if (!tema) return
-
-    if (y < 80) {
-      page = addTitledPage(pdfDoc, font, boldFont, `${title} (continuación)`, logo)
-      y = TOP_Y - 60
-
-      page.drawText("Listado de temas:", {
-        x: MARGIN_X,
-        y,
-        size: 12,
-        font: boldFont,
-        color: COLOR_SECTION_TITLE,
-      })
-      y -= 18
-    }
-
-    const boxHeight = lineHeight + boxPadding
-    page.drawRectangle({
+    page.drawText("Listado de temas:", {
       x: MARGIN_X,
-      y: y - boxHeight + 4,
-      width: maxWidth,
-      height: boxHeight,
-      color: index % 2 === 0 ? rgb(0.96, 0.96, 0.96) : rgb(1, 1, 1),
-      borderColor: rgb(0.8, 0.8, 0.8),
-      borderWidth: 0.5,
-    })
-
-    page.drawText("•", {
-      x: MARGIN_X + 10,
-      y: y - 12,
-      size: fontSize + 1,
-      font,
+      y,
+      size: 12,
+      font: boldFont,
       color: COLOR_SECTION_TITLE,
     })
 
-    const safeTema = sanitizeText(font, tema)
-    page.drawText(safeTema, {
-      x: MARGIN_X + 26,
-      y: y - 12,
-      size: fontSize,
-      font,
-      color: COLOR_TEXT_PRIMARY,
+    y -= 18
+
+    temasPrioritarios.forEach((tema, index) => {
+      if (!tema) return
+
+      if (y < 80) {
+        page = addTitledPage(pdfDoc, font, boldFont, `${title} (continuación)`, logo)
+        y = TOP_Y - 60
+
+        page.drawText("Listado de temas:", {
+          x: MARGIN_X,
+          y,
+          size: 12,
+          font: boldFont,
+          color: COLOR_SECTION_TITLE,
+        })
+        y -= 18
+      }
+
+      const boxHeight = lineHeight + boxPadding
+      page.drawRectangle({
+        x: MARGIN_X,
+        y: y - boxHeight + 4,
+        width: maxWidth,
+        height: boxHeight,
+        color: index % 2 === 0 ? rgb(0.96, 0.96, 0.96) : rgb(1, 1, 1),
+        borderColor: rgb(0.8, 0.8, 0.8),
+        borderWidth: 0.5,
+      })
+
+      page.drawText("•", {
+        x: MARGIN_X + 10,
+        y: y - 12,
+        size: fontSize + 1,
+        font,
+        color: COLOR_SECTION_TITLE,
+      })
+
+      const safeTema = sanitizeText(font, tema)
+      page.drawText(safeTema, {
+        x: MARGIN_X + 26,
+        y: y - 12,
+        size: fontSize,
+        font,
+        color: COLOR_TEXT_PRIMARY,
+      })
+
+      y -= boxHeight + 4
     })
 
-    y -= boxHeight + 4
-  })
+    return
+  }
+
+  // ✅ NUEVA LÓGICA: tabla Tema + GRI
+  const headers = ["Tema", "Estándar GRI", "# Contenido", "Contenido"]
+
+  // Priorizar solo los temas materiales (los 10 que ya tenés)
+  const temasSet = new Set(temasPrioritarios.filter(Boolean))
+
+  const rows: (string | number)[][] = []
+
+  griData
+    .filter((t) => temasSet.has(t.tema)) // solo los temas priorizados
+    .forEach((t) => {
+      t.contenidos.forEach((c) => {
+        rows.push([
+          t.tema ?? "",
+          c.estandar_gri ?? "",
+          c.numero_contenido ?? "",
+          c.contenido ?? "",
+        ])
+      })
+    })
+
+  // Ancho total ≈ 515 (595 - 2*40)
+  const columnWidths = [120, 80, 60, 255]
+
+  drawTableWithWrapping(
+    pdfDoc,
+    font,
+    boldFont,
+    logo,
+    "Vinculación con estándares GRI",
+    headers,
+    rows,
+    columnWidths,
+  )
 }
+
 
 function drawOdsPage(pdfDoc: PDFDocument, font: any, boldFont: any, logo: any, parteC: ParteCItem[]) {
   const headers = ["Tema", "ODS", "Meta ODS", "Indicador ODS"]
@@ -699,20 +793,34 @@ function drawResumenPage(
   logo: any,
   resumen: ResumenData,
 ) {
-  const page = addTitledPage(pdfDoc, font, boldFont, "Resumen ejecutivo", logo)
+  let page = addTitledPage(pdfDoc, font, boldFont, "Resumen ejecutivo", logo)
 
   let y = TOP_Y - 40
   const maxWidth = PAGE_WIDTH - MARGIN_X * 2
+  const fontSize = 11
+  const lineHeight = 15
+
+  const ensureSpace = (text: string) => {
+    const safe = sanitizeText(font, text)
+    const textHeight = measureWrappedHeight(font, safe, maxWidth, fontSize, lineHeight)
+    const blockHeight = textHeight + 12
+    if (y - blockHeight < BOTTOM_MARGIN) {
+      page = addTitledPage(pdfDoc, font, boldFont, "Resumen ejecutivo (continuación)", logo)
+      y = TOP_Y - 40
+    }
+  }
 
   if (resumen.parrafo_1) {
+    ensureSpace(resumen.parrafo_1)
     y -= 4
-    y = drawWrappedText(page, font, resumen.parrafo_1, MARGIN_X, y, maxWidth, 11, 15)
+    y = drawWrappedText(page, font, resumen.parrafo_1, MARGIN_X, y, maxWidth, fontSize, lineHeight)
     y -= 16
   }
 
   if (resumen.parrafo_2) {
+    ensureSpace(resumen.parrafo_2)
     y -= 4
-    drawWrappedText(page, font, resumen.parrafo_2, MARGIN_X, y, maxWidth, 11, 15)
+    y = drawWrappedText(page, font, resumen.parrafo_2, MARGIN_X, y, maxWidth, fontSize, lineHeight)
   }
 }
 
@@ -725,6 +833,7 @@ export function GenerateEsgPdfButtonAll({
   organizationName,
   portada,
   contraportada,
+  griData
 }: GenerateEsgPdfButtonAllProps) {
   const handleGenerate = async () => {
     const toastId = toast.loading("Generando reporte PDF...")
@@ -795,7 +904,11 @@ export function GenerateEsgPdfButtonAll({
       const temasPrioritarios =
         analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
       const temas = temasPrioritarios.map((t: any) => t.tema) as string[]
-      drawGriPage(pdfDoc, font, boldFont, logo, temas)
+
+      // 👇 ahora le pasamos también los datos GRI si existen
+      drawGriPage(pdfDoc, font, boldFont, logo, temas, griData)
+
+
 
       // 6) ODS
       const parteC: ParteCItem[] =

@@ -1,9 +1,16 @@
 "use client"
 
+import { useState, useTransition, useEffect } from "react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import PaymentSection from "./payment-section"
 import { Loader2 } from "lucide-react"
 import { Organization } from "@/types/organization.type"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import { supabase } from "@/lib/supabase/client"
+import { addCouponAnalysisAction } from "@/actions/cupones/add-coupon.action"
+import { createPreferenceAction } from "@/actions/payments/create-preference.action"
 
 const PRICE_BY_EMPLOYEE_RANGE: Record<string, number> = {
   "1-9": 200,
@@ -20,9 +27,9 @@ type PaymentDrawerProps = {
   onOpenChange: (open: boolean) => void
   organization: Organization
   payCta?: string
-  checkoutUrl?: string
   onPay?: () => void
   loading?: boolean
+  token: string
 }
 
 export function PaymentDrawer({
@@ -30,26 +37,53 @@ export function PaymentDrawer({
   onOpenChange,
   organization,
   payCta = "Realizar pago ahora",
-  checkoutUrl,
   onPay,
   loading = false,
+  token,
 }: PaymentDrawerProps) {
+  const [currentCheckoutUrl, setCurrentCheckoutUrl] = useState<string | null>(null)
+  const [isLoadingPreference, setIsLoadingPreference] = useState(false)
+
   // 1️⃣ Precio base según rango de empleados
   const basePrice = PRICE_BY_EMPLOYEE_RANGE[organization.employees_number] ?? 0
 
-  // 2️⃣ Buscar el análisis asociado (ideal: el que tiene pago pendiente)
-  const currentAnalysis =
+  // 2️⃣ Análisis PENDING (o el primero) como estado local
+  const findInitialAnalysis = () =>
     organization.analysis?.find((a) => a.payment_status === "PENDING") ??
-    organization.analysis?.[0]
+    organization.analysis?.[0] ??
+    null
 
-  // 3️⃣ Descuento leído directamente del analysis (discount_percentage)
-  const discountPercentage = currentAnalysis?.discount_percentage
-    ? Number(currentAnalysis.discount_percentage)
-    : 0
+  const [currentAnalysis, setCurrentAnalysis] = useState(() => findInitialAnalysis())
+
+  // Si cambia la organización (otra card, otro análisis), reseteamos currentAnalysis
+  useEffect(() => {
+    setCurrentAnalysis(findInitialAnalysis())
+  }, [organization.id, organization.analysis])
+
+  console.log("ANALYSIS", currentAnalysis)
+
+  // 3️⃣ ESTADO LOCAL: descuento y cupón aplicado
+  const [discountPercentage, setDiscountPercentage] = useState<number>(() => {
+    if (!currentAnalysis?.discount_percentage) return 0
+    return Number(currentAnalysis.discount_percentage) || 0
+  })
+
+  const [appliedCouponName, setAppliedCouponName] = useState<string | null>(
+    currentAnalysis?.coupon?.name ?? null,
+  )
+
+  // Cuando cambia el análisis (por props nuevas o porque lo actualizamos en el handle), reseteamos
+  useEffect(() => {
+    const initialDiscount = currentAnalysis?.discount_percentage
+      ? Number(currentAnalysis.discount_percentage)
+      : 0
+    setDiscountPercentage(initialDiscount || 0)
+    setAppliedCouponName(currentAnalysis?.coupon?.name ?? null)
+  }, [currentAnalysis?.id, currentAnalysis?.discount_percentage, currentAnalysis?.coupon?.name])
 
   const hasDiscount = discountPercentage > 0
 
-  // 4️⃣ Calcular precio final y monto de descuento
+  // 4️⃣ Precio final calculado con descuento
   const finalPriceRaw = hasDiscount
     ? basePrice * (1 - discountPercentage / 100)
     : basePrice
@@ -58,6 +92,119 @@ export function PaymentDrawer({
   const discountAmount = hasDiscount
     ? Number((basePrice - finalPrice).toFixed(2))
     : 0
+  // Cupón (input)
+  const [couponName, setCouponName] = useState("")
+  const [isApplyingCoupon, startApplyTransition] = useTransition()
+
+  // 🔥 Generar checkout en base al estado actual en DB
+  const loadPreference = async () => {
+    try {
+      setIsLoadingPreference(true)
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user?.id) {
+        toast.error("Debes iniciar sesión para generar el pago.")
+        return
+      }
+
+      const paymentResponse = await createPreferenceAction({
+        userId: user.id,
+        organizationId: organization.id,
+      })
+
+      if (paymentResponse?.success && paymentResponse.url) {
+        setCurrentCheckoutUrl(paymentResponse.url)
+      } else {
+        console.error("Error al generar preferencia de pago:", paymentResponse?.error)
+        toast.error("No se pudo generar el link de pago.")
+      }
+    } finally {
+      setIsLoadingPreference(false)
+    }
+  }
+
+  // 👉 Cada vez que se abre el drawer para una organización, generamos el checkout
+  useEffect(() => {
+    if (open && organization.id) {
+      loadPreference()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, organization.id])
+
+  // Aplicar cupón
+  const handleApplyCoupon = () => {
+    if (!currentAnalysis) {
+      toast.error("No se encontró análisis para aplicar el cupón.")
+      return
+    }
+
+    const couponTrimmed = couponName.trim()
+    if (!couponTrimmed) {
+      toast.error("Ingresa el código de cupón.")
+      return
+    }
+
+    startApplyTransition(async () => {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+
+        if (!user?.id) {
+          toast.error("Debes iniciar sesión para aplicar un cupón.")
+          return
+        }
+
+        // 1️⃣ Aplicar cupón en el backend
+        const result = await addCouponAnalysisAction(currentAnalysis.id, couponTrimmed, token)
+        console.log("COUPON RESULT", result)
+
+        if (!result || result.error) {
+          toast.error(result?.error || "Error al aplicar el cupón")
+          return
+        }
+
+        toast.success("Cupón aplicado correctamente")
+        setCouponName("")
+
+        // 2️⃣ ACTUALIZAR ESTADO LOCAL CON EL ANALYSIS ACTUALIZADO
+        //    (ajustá las claves según lo que te devuelva exactamente addCouponAnalysisAction)
+        const updatedAnalysis =
+          result.analysis ??
+          result.data?.analysis ??
+          null
+
+        if (updatedAnalysis) {
+          setCurrentAnalysis(updatedAnalysis)
+          const newDiscount = Number(updatedAnalysis.discount_percentage || 0)
+          setDiscountPercentage(newDiscount)
+          setAppliedCouponName(updatedAnalysis.coupon?.name ?? couponTrimmed)
+        } else {
+          // fallback: si viene el porcentaje suelto
+          const possibleDiscount =
+            result.discountPercentage ??
+            result.discount_percentage ??
+            result.data?.discountPercentage ??
+            result.data?.discount_percentage
+
+          if (typeof possibleDiscount !== "undefined") {
+            const newDiscount = Number(possibleDiscount || 0)
+            setDiscountPercentage(newDiscount)
+            setAppliedCouponName(couponTrimmed)
+          }
+        }
+
+        // 3️⃣ Volver a generar la preferencia de pago (link de Mercado Pago con descuento)
+        await loadPreference()
+      } catch (err) {
+        console.error(err)
+        toast.error("Error al aplicar el cupón")
+      }
+    })
+  }
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -69,14 +216,14 @@ export function PaymentDrawer({
           </SheetDescription>
         </SheetHeader>
 
-        {loading ? (
+        {loading || isLoadingPreference ? (
           <div className="flex flex-col items-center justify-center h-[400px] text-muted-foreground gap-4">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
             <p>Generando enlace de pago...</p>
           </div>
         ) : (
           <div className="mt-8 space-y-6">
-            {/* 🧾 Resumen de precios con descuento aplicado desde organization.analysis */}
+            {/* 🧾 Resumen precios */}
             <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 flex flex-col gap-2">
               <p className="text-sm text-slate-600">
                 Análisis ESG para{" "}
@@ -101,7 +248,6 @@ export function PaymentDrawer({
 
                 {hasDiscount && (
                   <>
-                    {/* Descuento */}
                     <div className="flex flex-col">
                       <span className="text-xs text-emerald-600 uppercase tracking-wide">
                         Descuento aplicado
@@ -111,7 +257,6 @@ export function PaymentDrawer({
                       </span>
                     </div>
 
-                    {/* Precio final */}
                     <div className="flex flex-col ml-auto">
                       <span className="text-xs text-[#163F6A] uppercase tracking-wide">
                         Total a pagar
@@ -134,16 +279,50 @@ export function PaymentDrawer({
                   </div>
                 )}
               </div>
-
             </div>
 
-            {/* 💳 Sección de pago – usa el PRECIO FINAL con descuento */}
+            {/* 🎟️ Cupón */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4 flex flex-col gap-3">
+              <span className="text-sm font-medium text-slate-800">
+                ¿Tenés un código de descuento?
+              </span>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Input
+                  value={couponName}
+                  onChange={(e) => setCouponName(e.target.value)}
+                  className="sm:flex-1"
+                />
+                <Button
+                  type="button"
+                  onClick={handleApplyCoupon}
+                  disabled={isApplyingCoupon || !couponName.trim() || !currentAnalysis}
+                  className="sm:w-auto"
+                >
+                  {isApplyingCoupon ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Aplicando...
+                    </>
+                  ) : (
+                    "Aplicar cupón"
+                  )}
+                </Button>
+              </div>
+              {appliedCouponName && (
+                <p className="text-xs text-emerald-700">
+                  Cupón aplicado: <strong>{appliedCouponName}</strong>
+                </p>
+              )}
+            </div>
+
+            {/* 💳 Pago */}
             <PaymentSection
+              key={currentCheckoutUrl ?? "no-url"}
               asEmbedded
               showBack={false}
-              amountUSD={finalPrice}
+              amountUSD={finalPrice} // 👈 ya con descuento
               payCta={payCta}
-              checkoutUrl={checkoutUrl}
+              checkoutUrl={currentCheckoutUrl ?? undefined}
               onPay={onPay}
               organization={{
                 company: organization.company,

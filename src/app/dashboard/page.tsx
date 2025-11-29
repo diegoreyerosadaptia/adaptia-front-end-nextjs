@@ -168,7 +168,7 @@ const stats = {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardPaymentGate openByDefault={hasPendingPayment}>
+        <DashboardPaymentGate openByDefault={hasPendingPayment} token={token || ''}>
           <DashboardStats stats={stats} />
           <Card className="border-slate-200 shadow-sm">
 

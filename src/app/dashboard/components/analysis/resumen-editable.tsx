@@ -10,6 +10,8 @@ import { toast } from "sonner"
 type ResumenData = {
   parrafo_1: string
   parrafo_2?: string
+  parrafo_3?: string
+
 }
 
 export function ResumenEditable({
@@ -117,17 +119,25 @@ export function ResumenEditable({
                   className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 resize-y min-h-[100px]"
                 />
               )}
+              {resumenData.parrafo_3 !== undefined && (
+                <textarea
+                  value={resumenData.parrafo_3 || ""}
+                  onChange={(e) => handleChange("parrafo_2", e.target.value)}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 resize-y min-h-[100px]"
+                />
+              )}
             </>
           ) : (
             <>
               <p className="text-adaptia-gray-dark text-justify leading-relaxed whitespace-pre-line">
                 {resumenData.parrafo_1}
               </p>
-              {resumenData.parrafo_2 && (
                 <p className="text-adaptia-gray-dark text-justify leading-relaxed whitespace-pre-line">
                   {resumenData.parrafo_2}
                 </p>
-              )}
+                <p className="text-adaptia-gray-dark text-justify leading-relaxed whitespace-pre-line">
+                  {resumenData.parrafo_3}
+                </p>
             </>
           )}
         </div>

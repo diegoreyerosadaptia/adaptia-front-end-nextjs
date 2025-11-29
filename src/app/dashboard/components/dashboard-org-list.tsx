@@ -76,12 +76,7 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
 
       window.dispatchEvent(
         new CustomEvent("open-payment-drawer", {
-          detail: {
-            orgId,
-            analysisId,
-            checkoutUrl: paymentResponse.url,
-            org,
-          },
+          detail: { org }, // solo mandamos la organización
         }),
       )
     } catch (err) {

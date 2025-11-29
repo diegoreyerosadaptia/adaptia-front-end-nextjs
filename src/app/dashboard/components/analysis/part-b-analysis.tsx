@@ -98,9 +98,6 @@ export function ParteBEditable({
     toast.info("Cambios descartados")
   }
 
-  const sorted = [...parteBData].sort(
-    (a, b) => Number(b.materialidad_esg) - Number(a.materialidad_esg)
-  )
 
   return (
     <div className="space-y-4">
@@ -147,7 +144,7 @@ export function ParteBEditable({
 
           {/* BODY */}
           <tbody className="divide-y divide-gray-200 bg-white">
-            {sorted.map((row, idx) => (
+            {parteBData.map((row, idx) => (
               <tr key={idx} className="hover:bg-adaptia-gray-light/10">
 
                 {/* Tema */}

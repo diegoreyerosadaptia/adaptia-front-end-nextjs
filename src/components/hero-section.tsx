@@ -40,14 +40,14 @@ export function HeroSection() {
 
           {/* Main headline matching brand typography */}
           <div className="space-y-1">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight text-balance">
-              <span className="text-adaptia-yellow">Sostenibilidad ágil</span>
-            </h1>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl text-adaptia-yellow font-heading font-bold leading-tight text-balance">
+              Sostenibilidad ágil
+            </h2>
 
-            <p className="text-xl md:text-2xl lg:text-3xl text-white max-w-4xl mx-auto leading-relaxed text-pretty font-heading">
+            <h2 className="text-xl md:text-1xl lg:text-2xl text-white max-w-4xl mx-auto leading-relaxed text-pretty font-heading">
               Recibe un análisis de doble materialidad ESG y estrategia de sostenibilidad para tu empresa en{" "}
               <span className="font-bold text-adaptia-yellow">24 horas</span>.
-            </p>
+            </h2>
           </div>
 
           {/* CTA section with brand styling */}

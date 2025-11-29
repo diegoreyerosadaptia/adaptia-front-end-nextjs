@@ -107,7 +107,6 @@ export function CreateCuponDialog() {
                       type="number"
                       min={0}
                       max={99}
-                      step={5}
                       placeholder="Ej: 10"
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}

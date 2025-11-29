@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, FileText, Download } from "lucide-react"
@@ -19,6 +19,7 @@ import { GriTabs } from "./analysis/gri-tabs"
 import Image from "next/image"
 import { GenerateEsgPdfButtonAll } from "@/components/pdf/generate-esg-all-button"
 import { GenerateEsgPdfButton } from "@/components/pdf/generate-esg-button"
+import { getGriByTemas } from "@/services/esg.service"
 
 interface OrganizationAnalysisViewProps {
   organization: Organization
@@ -56,9 +57,39 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
   const analysisData =
     typeof lastAnalysis?.analysisJson === "string" ? JSON.parse(lastAnalysis.analysisJson) : lastAnalysis?.analysisJson
 
+      // 👇 NUEVO: estado para guardar lo que trae getGriByTemas
+  const [griData, setGriData] = useState<any[]>([])
+
+  // 🔁 Cargar GRI cuando tengamos analysisData
+  useEffect(() => {
+    if (!analysisData) return
+
+    // Temas priorizados (Prompt 6)
+    const temasPrioritarios =
+      analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
+
+    const temas = temasPrioritarios.map((t: any) => t.tema).filter(Boolean)
+    if (!temas.length) return
+
+    const load = async () => {
+      try {
+        const res = await getGriByTemas(temas, token)
+        setGriData(res?.gri ?? [])
+      } catch (e) {
+        console.error("Error cargando datos GRI para PDF", e)
+      }
+    }
+
+    load()
+  }, [analysisData, token]) 
+
   if (!analysisData) {
     return <p className="text-muted-foreground">No hay análisis ESG disponible.</p>
   }
+
+  const temasPrioritarios =
+  analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
+
   const href = role === "ADMIN" ? "/admin/dashboard" : "/dashboard"
 
   const renderContent = () => {
@@ -79,27 +110,28 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
         )
 
       case "materialidad": {
-        // ======================
-        // 📦 Solo Parte B
-        // ======================
         const parteB = [...(analysisData[3]?.response_content?.materiality_table || [])]
 
+        // ✅ ORDENAR una sola vez por materialidad_esg DESC
+        const parteBSorted = [...parteB].sort(
+          (a, b) => Number(b.materialidad_esg ?? 0) - Number(a.materialidad_esg ?? 0),
+        )
+      
         // ======================
         // 🧮 Mapear Parte B → datos del gráfico
         // ======================
-        const dataFinal = parteB.map((item) => {
+        const dataFinal = parteBSorted.map((item) => {
           const tema = item.tema
           const materialidad = item.materialidad_financiera || item.materialidad || ""
           const materialidad_esg = Number(item.materialidad_esg ?? 0)
-
-          // === Conversión materialidad financiera → eje X ===
+      
           let x = 0
           const fin = materialidad?.toLowerCase()
-
+      
           if (fin === "baja") x = 1
           if (fin === "media") x = 3
           if (fin === "alta") x = 5
-
+      
           return {
             tema,
             materialidad,
@@ -109,38 +141,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
           }
         })
 
-        // ======================
-        // 🟢 Agrupar “Alta” con mismo materialidad_esg
-        // ======================
-        const altaAgrupada = Object.values(
-          dataFinal
-            .filter((d) => d.materialidad?.toLowerCase() === "alta")
-            .reduce(
-              (acc, item) => {
-                if (!acc[item.materialidad_esg]) acc[item.materialidad_esg] = []
-                acc[item.materialidad_esg].push(item)
-                return acc
-              },
-              {} as Record<number, any[]>,
-            ),
-        ).map((grupo) => {
-          const { materialidad_esg } = grupo[0]
-          const xProm = grupo.reduce((sum, i) => sum + i.x, 0) / grupo.length
-
-          return {
-            temas: grupo.map((g) => g.tema),
-            materialidad: "Alta",
-            materialidad_esg,
-            x: xProm,
-            y: materialidad_esg,
-          }
-        })
-
-        // ======================
-        // 📊 Datos finales para el gráfico
-        // ======================
-        const finalScatterData = [...dataFinal.filter((d) => d.materialidad?.toLowerCase() !== "alta"), ...altaAgrupada]
-
+      
         // ======================
         // 🎨 Render principal
         // ======================
@@ -188,7 +189,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
 
                 <section id="materiality-chart">
                   <div className=" p-8 rounded-lg border-2 border-green-200 shadow-lg">
-                    <MaterialityChart data={finalScatterData} />
+                    <MaterialityChart data={dataFinal} />
                   </div>
                 </section>
               </div>
@@ -212,7 +213,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
             {/* ======================= */}
             {subTab === "evaluacion" && (
               <ParteBEditable
-                parteBOriginal={parteB}
+                parteBOriginal={parteBSorted}
                 lastAnalysisId={lastAnalysis?.id || ""}
                 analysisData={analysisData}
                 accessToken={token}
@@ -238,9 +239,6 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
         )
 
       case "gri": {
-        const temasPrioritarios =
-          analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
-
         return <GriTabs temasPrioritarios={temasPrioritarios} token={token} />
       }
 
@@ -279,6 +277,8 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
 
       case "resumen": {
         const resumenData = analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
+
+        console.log('RESUMEN', resumenData)
 
         return (
           <section id="resumen-section">
@@ -438,6 +438,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                   organizationName={organization.company}
                   portada="/portada_analisis_completo_page-0001.jpg"
                   contraportada="/contraportada_analisis_completo_page-0001.jpg"
+                  griData={griData} 
                 />
               </div>
             </div>

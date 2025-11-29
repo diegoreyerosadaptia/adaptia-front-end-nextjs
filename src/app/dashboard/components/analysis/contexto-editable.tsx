@@ -75,10 +75,6 @@ export function ContextoEditable({
   const labelClass =
     "text-sm font-medium mb-1 text-[#C2DA62]"
 
-  /* 🔥 TODAS las variables usan esta fuente, tamaño y grosor */
-  const valueClass =
-    "text-base leading-relaxed text-[#163F6A] font-medium whitespace-pre-line"
-
   const textareaClass =
     "w-full border border-gray-300 rounded px-2 py-2 text-base focus:ring-1 focus:ring-[#C2DA62] resize-y min-h-[70px] text-[#163F6A] bg-white"
 
@@ -117,7 +113,7 @@ export function ContextoEditable({
             className={textareaClass}
           />
         ) : (
-          <p className='text-lg font-semibold text-[#163F6A]'>
+          <p className='text-[#163F6A]'>
             {contextoData.nombre_empresa} es una empresa líder en {contextoData.industria}, con operaciones en{" "}
             {contextoData.pais_operacion}.
           </p>
@@ -139,7 +135,7 @@ export function ContextoEditable({
               className={textareaClass}
             />
           ) : (
-            <p className="text-lg font-semibold text-[#163F6A]">{contextoData.industria}</p>
+            <p className="text-lg text-[#163F6A]">{contextoData.industria}</p>
           )}
         </div>
 
@@ -153,7 +149,7 @@ export function ContextoEditable({
               className={textareaClass}
             />
           ) : (
-            <p className="text-lg font-semibold text-[#163F6A]">{contextoData.pais_operacion}</p>
+            <p className="text-lg text-[#163F6A]">{contextoData.pais_operacion}</p>
           )}
         </div>
 
@@ -164,10 +160,10 @@ export function ContextoEditable({
             <textarea
               value={contextoData.tamano_empresa}
               onChange={(e) => handleChange("tamano_empresa", e.target.value)}
-              className='text-lg font-semibold text-[#163F6A]'
+              className='text-lg text-[#163F6A]'
             />
           ) : (
-            <p className='text-lg font-semibold text-[#163F6A]'>{contextoData.tamano_empresa}</p>
+            <p className='text-lg text-[#163F6A]'>{contextoData.tamano_empresa}</p>
           )}
         </div>
 
@@ -178,10 +174,10 @@ export function ContextoEditable({
             <textarea
               value={contextoData.ubicacion_geografica}
               onChange={(e) => handleChange("ubicacion_geografica", e.target.value)}
-              className='text-lg font-semibold text-[#163F6A]'
+              className='text-lg text-[#163F6A]'
             />
           ) : (
-            <p className='text-lg font-semibold text-[#163F6A]'>{contextoData.ubicacion_geografica}</p>
+            <p className='text-lg text-[#163F6A]'>{contextoData.ubicacion_geografica}</p>
           )}
         </div>
 
@@ -192,10 +188,10 @@ export function ContextoEditable({
             <textarea
               value={contextoData.modelo_negocio}
               onChange={(e) => handleChange("modelo_negocio", e.target.value)}
-              className='text-lg font-semibold text-[#163F6A]'
+              className='text-lg text-[#163F6A]'
             />
           ) : (
-            <p className='text-lg font-semibold text-[#163F6A]'>{contextoData.modelo_negocio}</p>
+            <p className='text-lg text-[#163F6A]'>{contextoData.modelo_negocio}</p>
           )}
         </div>
 
@@ -206,10 +202,10 @@ export function ContextoEditable({
             <textarea
               value={contextoData.cadena_valor}
               onChange={(e) => handleChange("cadena_valor", e.target.value)}
-              className='text-lg font-semibold text-[#163F6A]'
+              className='text-lg text-[#163F6A]'
             />
           ) : (
-            <p className='text-lg font-semibold text-[#163F6A]'>{contextoData.cadena_valor}</p>
+            <p className='text-lg text-[#163F6A]'>{contextoData.cadena_valor}</p>
           )}
         </div>
       </div>
@@ -224,10 +220,10 @@ export function ContextoEditable({
           <textarea
             value={contextoData.actividades_principales}
             onChange={(e) => handleChange("actividades_principales", e.target.value)}
-            className='text-lg font-semibold text-[#163F6A]'
+            className='text-lg text-[#163F6A]'
           />
         ) : (
-          <p className='text-lg font-semibold text-[#163F6A]'>{contextoData.actividades_principales}</p>
+          <p className='text-lg text-[#163F6A]'>{contextoData.actividades_principales}</p>
         )}
       </div>
 
@@ -241,10 +237,10 @@ export function ContextoEditable({
           <textarea
             value={contextoData.stakeholders_relevantes}
             onChange={(e) => handleChange("stakeholders_relevantes", e.target.value)}
-            className='text-lg font-semibold text-[#163F6A]'
+            className='text-lg text-[#163F6A]'
           />
         ) : (
-          <p className='text-lg font-semibold text-[#163F6A]'>{contextoData.stakeholders_relevantes}</p>
+          <p className='text-lg text-[#163F6A]'>{contextoData.stakeholders_relevantes}</p>
         )}
       </div>
     </div>

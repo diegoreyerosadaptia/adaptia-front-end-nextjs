@@ -197,3 +197,36 @@ export const claimOrg = async (
     return null
   }
 }
+
+
+
+export const applyCoupon = async (
+  idAnalysis: string,
+  couponName: string,
+  authToken?: string,
+) => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/organizations/apply-coupon/${idAnalysis}`,
+      {
+        method: "POST",
+        headers: getJsonHeaders(authToken),
+        body: JSON.stringify({ couponName }),
+      },
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      revalidateTag(getCacheTag("cupones", "all"))
+      return data;
+    } else {
+      console.error("Error en applyCoupon:", data);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error en applyCoupon:", error);
+    return null;
+  }
+};
+

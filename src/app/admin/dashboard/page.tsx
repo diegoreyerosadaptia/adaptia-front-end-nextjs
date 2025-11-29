@@ -1,18 +1,23 @@
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { LogOut } from "lucide-react"
+import Image from "next/image"
+
 import { getOrganizations } from "@/services/organization.service"
 import { getUserById } from "@/services/users.service"
+import { getCoupons } from "@/services/cupon.service"
+
 import DashboardStats from "./components/dashboard-stats"
 import DashboardTable from "./components/dashboard-table"
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
-import Image from "next/image"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { getCoupons } from "@/services/cupon.service"
 import DashboardCouponsList from "./components/cupones/cupon-list"
+import GeneralTable from "./components/general-table"
+
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
+
   if (!supabase) {
     console.error("❌ Supabase no está configurado correctamente")
     redirect("/error")
@@ -37,13 +42,6 @@ export default async function AdminDashboard() {
   const userPostgres = await getUserById(user.id, token)
   const cupones = await getCoupons(token)
 
-  const handleSignOut = async () => {
-    "use server"
-    const supabase = await createClient()
-    await supabase?.auth.signOut()
-    redirect("/auth/login")
-  }
-
   // 🚫 Si es USER → redirect al dashboard normal
   if (userPostgres?.role === "USER") {
     redirect("/dashboard")
@@ -54,40 +52,59 @@ export default async function AdminDashboard() {
     redirect("/auth/login")
   }
 
+  const handleSignOut = async () => {
+    "use server"
+    const supabase = await createClient()
+    await supabase?.auth.signOut()
+    redirect("/auth/login")
+  }
+
   // ===========================
   // Estadísticas
   // ===========================
   const totalOrganizations = organizations?.length || 0
-  const totalAnalysis = organizations?.reduce((acc, org) => acc + (org.analysis?.length || 0), 0) || 0
+  const totalAnalysis =
+    organizations?.reduce((acc, org) => acc + (org.analysis?.length || 0), 0) || 0
+
   const completedAnalysis =
     organizations?.reduce(
-      (acc, org) => acc + (org.analysis?.filter((a) => a.status === "COMPLETED").length || 0),
+      (acc, org) =>
+        acc + (org.analysis?.filter((a) => a.status === "COMPLETED").length || 0),
       0,
     ) || 0
+
   const pendingAnalysis =
     organizations?.reduce(
-      (acc, org) => acc + (org.analysis?.filter((a) => a.status === "PENDING").length || 0),
+      (acc, org) =>
+        acc + (org.analysis?.filter((a) => a.status === "PENDING").length || 0),
       0,
     ) || 0
+
   const failedAnalysis =
     organizations?.reduce(
-      (acc, org) => acc + (org.analysis?.filter((a) => a.status === "FAILED").length || 0),
+      (acc, org) =>
+        acc + (org.analysis?.filter((a) => a.status === "FAILED").length || 0),
       0,
     ) || 0
+
   const incompleteAnalysis =
     organizations?.reduce(
-      (acc, org) => acc + (org.analysis?.filter((a) => a.status === "INCOMPLETE").length || 0),
+      (acc, org) =>
+        acc + (org.analysis?.filter((a) => a.status === "INCOMPLETE").length || 0),
       0,
     ) || 0
 
   const completedPayments =
     organizations?.reduce(
-      (acc, org) => acc + (org.analysis?.filter((a) => a.payment_status === "COMPLETED").length || 0),
+      (acc, org) =>
+        acc + (org.analysis?.filter((a) => a.payment_status === "COMPLETED").length || 0),
       0,
     ) || 0
+
   const pendingPayments =
     organizations?.reduce(
-      (acc, org) => acc + (org.analysis?.filter((a) => a.payment_status === "PENDING").length || 0),
+      (acc, org) =>
+        acc + (org.analysis?.filter((a) => a.payment_status === "PENDING").length || 0),
       0,
     ) || 0
 
@@ -163,7 +180,9 @@ export default async function AdminDashboard() {
 
           {/* Título móvil */}
           <div className="md:hidden mt-4 text-center">
-            <h1 className="text-xl font-heading font-bold text-[#163F6A]">Panel de Administrador</h1>
+            <h1 className="text-xl font-heading font-bold text-[#163F6A]">
+              Panel de Administrador
+            </h1>
           </div>
         </div>
       </header>
@@ -173,11 +192,12 @@ export default async function AdminDashboard() {
         {/* Stats */}
         <DashboardStats stats={stats} />
 
-        {/* Tabs: Organizaciones / Cupones */}
+        {/* Tabs: Organizaciones / Cupones / Registros */}
         <section className="mt-10">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="px-4 pt-4 pb-2 border-b border-gray-100">
               <Tabs defaultValue="organizations" className="w-full">
+                {/* HEADER TABS */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                   <TabsList className="bg-slate-50">
                     <TabsTrigger value="organizations" className="px-4">
@@ -186,15 +206,18 @@ export default async function AdminDashboard() {
                     <TabsTrigger value="coupons" className="px-4">
                       Cupones
                     </TabsTrigger>
+                    <TabsTrigger value="registers" className="px-4">
+                      Registros
+                    </TabsTrigger>
                   </TabsList>
                 </div>
 
-                {/* ORGANIZACIONES */}
+                {/* TAB 1: ORGANIZACIONES (tabla original con estados y pagos) */}
                 <TabsContent value="organizations" className="pt-4">
                   <DashboardTable organizations={organizations || []} token={token || ""} />
                 </TabsContent>
 
-                {/* CUPONES */}
+                {/* TAB 2: CUPONES */}
                 <TabsContent value="coupons" className="pt-4">
                   <div className="flex items-center justify-between mb-4">
                     <div>
@@ -207,7 +230,15 @@ export default async function AdminDashboard() {
                     </div>
                   </div>
 
-                  <DashboardCouponsList coupons={cupones ?? []} organizations={organizations ?? []}/>
+                  <DashboardCouponsList
+                    coupons={cupones ?? []}
+                    organizations={organizations ?? []}
+                  />
+                </TabsContent>
+
+                {/* TAB 3: REGISTROS (tabla general + export Excel/PDF) */}
+                <TabsContent value="registers" className="pt-4">
+                  <GeneralTable organizations={organizations || []} token={token || ""} />
                 </TabsContent>
               </Tabs>
             </div>

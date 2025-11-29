@@ -101,13 +101,14 @@ export function MaterialityChart({ data }: Props) {
       }
     })
 
-    // 3️⃣ Ranking descendente
-    const ranked = [...individualPoints].sort((a, b) => b.originalY - a.originalY)
-
-    // 4️⃣ Asignar índice
-    ranked.forEach((p, i) => (p.realIndex = i + 1))
+    // 3️⃣ Ranking según el ORDEN DE ENTRADA (ya viene ordenado desde Parte B)
+    const ranked = individualPoints.map((p, idx) => ({
+      ...p,
+      realIndex: idx + 1,   // bola 1 = primer tema de Parte B, bola 2 = segundo, etc.
+    }))
 
     setPoints(ranked)
+
   }, [data])
 
   /* ======================================================
