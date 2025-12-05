@@ -67,8 +67,8 @@ function RegisterForm() {
           }
 
           toast({
-            title: "📩 Correo de confirmación enviado",
-            description: "Revisa tu bandeja de entrada para activar tu cuenta.",
+            title: "Correo de confirmación enviado",
+            description: "Confirma tu registro a Adaptia.",
             className: "bg-green-600 text-white border-none",
           })
 
