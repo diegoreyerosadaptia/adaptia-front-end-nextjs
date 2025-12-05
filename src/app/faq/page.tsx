@@ -58,19 +58,20 @@ export default function FaqPage() {
       question: "¿Cuál es la huella ambiental de un análisis de Adaptia?",
       answer: `Cada análisis completo de Adaptia utiliza en promedio 17,500 tokens. Esto se traduce en una huella ambiental muy baja. En términos simples, por cada análisis:
     
-      Huella de CO₂e: aproximadamente 13 gramos
-      - Equivalente a enviar 1–2 correos electrónicos con adjunto.
-      - Similar a tener un refrigerador doméstico encendido por 10–12 minutos.
-      
-      Consumo de energía: alrededor de 0.088 kWh
-      - Equivalente al consumo de una laptop durante 5–7 minutos.
-      - Similar a la energía necesaria para calentar agua para ⅛ de taza de té.
-      
-      Uso de agua: entre 0.42 y 0.64 litros
-      - Equivalente al agua asociada a producir 1–2 hojas impresas tamaño carta.
-      - Aproximadamente medio vaso de agua.
-      
-      Para reducir nuestra huella, seguimos mejorando la eficiencia del pipeline para disminuir la cantidad de tokens necesarios en cada análisis.`
+    Huella de CO₂e: aproximadamente 13 gramos
+    - Equivalente a enviar 1–2 correos electrónicos con adjunto.
+    - Similar a tener un refrigerador doméstico encendido por 10–12 minutos.
+    
+    Consumo de energía: alrededor de 0.088 kWh
+    - Equivalente al consumo de una laptop durante 5–7 minutos.
+    - Similar a la energía necesaria para calentar agua para ⅛ de taza de té.
+    
+    Uso de agua: entre 0.42 y 0.64 litros
+    - Equivalente al agua asociada a producir 1–2 hojas impresas tamaño carta.
+    - Aproximadamente medio vaso de agua.
+    
+    Para reducir nuestra huella, seguimos mejorando la eficiencia del pipeline para disminuir la cantidad de tokens necesarios en cada análisis.`,
+      preserveLines: true,
     },    
     {
       question: "¿Cómo protegen los datos de mi organización?",
@@ -117,7 +118,13 @@ export default function FaqPage() {
                   <AccordionTrigger className="text-left font-semibold text-card-foreground hover:text-primary text-xl">
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground text-pretty text-lg">
+                  <AccordionContent
+                    className={`text-muted-foreground text-pretty text-lg ${
+                      faq.question === "¿Cuál es la huella ambiental de un análisis de Adaptia?"
+                        ? "whitespace-pre-line"
+                        : ""
+                    }`}
+                  >
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>

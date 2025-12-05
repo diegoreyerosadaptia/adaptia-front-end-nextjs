@@ -10,6 +10,8 @@ import { AddOrganizationDialog } from "./components/organization-form-dialog"
 import ClientDashboardStats from "./components/dashboard-stats"
 import DashboardOrgList from "./components/dashboard-org-list"
 import DashboardStats from "./components/dashboard-stats"
+import Image from "next/image"
+import { getUserById } from "@/services/users.service"
 
 function StatCard({ title, icon, value }: { title: string; icon: React.ReactNode; value: number }) {
   return (
@@ -46,6 +48,8 @@ export default async function ClientDashboard() {
   } = await supabase.auth.getSession()
 
   const token = session?.access_token
+
+  const userPostgres = await getUserById(user.id, token)
 
   const organizations = await getOrganizations(token)
 
@@ -108,38 +112,36 @@ const stats = {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#163F6A]/5 to-[#163F6A]/10">
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-slate-200/50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            {/* Left: Logo/Brand */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#163F6A] to-[#163F6A]/80 flex items-center justify-center shadow-md">
-                <Building2 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-[#163F6A] to-[#163F6A]/80 bg-clip-text text-transparent">
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/30 sticky top-0 z-50">
+        <div className="w-full px-6 lg:px-12 py-6">
+          <div className="flex items-center justify-between">
+            {/* IZQUIERDA: Logo */}
+            <div className="flex items-center gap-4">
+              <Image
+                src="/adaptia-logo.png"
+                alt="Adaptia Logo"
+                width={150}
+                height={45}
+                className="object-contain"
+              />
+            </div>
+
+            {/* CENTRO: Título y descripción */}
+            <div className="hidden md:flex flex-col items-center text-center">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-[#163F6A] to-[#163F6A]/80 bg-clip-text text-transparent">
                   Mi Dashboard
                 </h1>
                 <p className="text-sm text-slate-500">Panel de control personal</p>
-              </div>
             </div>
 
-            {/* Right: User info and actions */}
+            {/* DERECHA: Info user + logout */}
             <div className="flex items-center gap-4">
-              {/* User info */}
-              <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#163F6A] to-[#163F6A]/80 flex items-center justify-center">
-                  <User className="w-4 h-4 text-white" />
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-slate-700">
-                    {firstOrg?.name} {firstOrg?.lastName}
-                  </p>
-                  <p className="text-xs text-slate-500">{user?.email}</p>
-                </div>
+              <div className="hidden lg:flex flex-col items-end">
+                <p className="text-sm font-medium text-[#163F6A]">
+                  {userPostgres?.name} {userPostgres?.surname}
+                </p>
+                <p className="text-xs text-gray-600/70">{userPostgres?.email}</p>
               </div>
-
-              {/* Sign out button */}
               <form action={handleSignOut}>
                 <Button
                   variant="outline"
@@ -162,6 +164,13 @@ const stats = {
                 </Button>
               </form>
             </div>
+          </div>
+
+          {/* Título móvil */}
+          <div className="md:hidden mt-4 text-center">
+            <h1 className="text-xl font-heading font-bold text-[#163F6A]">
+              Panel de Administrador
+            </h1>
           </div>
         </div>
       </header>

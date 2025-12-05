@@ -13,56 +13,49 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
-import { loginSchema, type LoginSchemaType } from "@/schemas/auth/login.schema"
-import { loginUser } from "@/services/auth.service"
-import { supabase } from "@/lib/supabase/client"
+import {
+  newPasswordSchema,
+  type NewPasswordSchemaType,
+} from "@/schemas/auth/new-password.schema"
+import { newPasswordAction } from "@/actions/auth/new-passoword.action"
 
-export default function LoginPage() {
+export function NewPasswordForm() {
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
 
-  const form = useForm<LoginSchemaType>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<NewPasswordSchemaType>({
+    resolver: zodResolver(newPasswordSchema),
     defaultValues: {
-      email: "",
       password: "",
+      confirmPassword: "",
     },
   })
 
-  const onSubmit = (values: LoginSchemaType) => {
+  const onSubmit = (values: NewPasswordSchemaType) => {
     setError(null)
-    startTransition(async () => {
-      const result = await loginUser(values)
+    setSuccess(null)
 
-      if (!result) {
-        setError("Credenciales incorrectas")
+    startTransition(async () => {
+      const result = await newPasswordAction(values)
+
+      if (result?.error) {
+        setError(result.error.message ?? "No se pudo actualizar la contraseña")
         return
       }
 
-      if (result?.session) {
-        const { access_token, refresh_token } = result.session
+      setSuccess(result?.success ?? "✅ Contraseña actualizada correctamente")
 
-        const { error } = await supabase.auth.setSession({
-          access_token,
-          refresh_token,
-        })
+      // opcional: reset visual del form
+      form.reset()
 
-        if (error) {
-          console.error("Error al setear sesión:", error)
-          setError("Error al iniciar sesión. Intenta nuevamente.")
-          return
-        }
-
-        const role = result.user?.role
-
-        if (role === "ADMIN") {
-          router.push("/admin/dashboard")
-        } else {
-          router.push("/dashboard")
-        }
-      }
+      // opcional: redirigir al login
+      setTimeout(() => {
+        router.push("/auth/login")
+      }, 600)
     })
   }
 
@@ -92,44 +85,27 @@ export default function LoginPage() {
           <Card className="border-adaptia-gray-light/20">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-heading text-adaptia-blue-primary">
-                Iniciar Sesión
+                Nueva contraseña
               </CardTitle>
               <CardDescription className="text-base">
-                Ingresa tus credenciales para acceder a tu cuenta
+                Ingresa y confirma tu nueva contraseña para recuperar tu cuenta
               </CardDescription>
             </CardHeader>
 
             <CardContent>
               <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                {/* Email */}
-                <div className="grid gap-2">
-                  <Label htmlFor="email" className="text-adaptia-blue-primary">
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    {...form.register("email")}
-                    className="border-adaptia-gray-light/30 focus:border-adaptia-green-primary"
-                  />
-                  {form.formState.errors.email && (
-                    <p className="text-sm text-red-500">
-                      {form.formState.errors.email.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Contraseña con icono de ojo */}
+                {/* Nueva contraseña */}
                 <div className="grid gap-2">
                   <Label htmlFor="password" className="text-adaptia-blue-primary">
-                    Contraseña
+                    Nueva contraseña
                   </Label>
+
                   <div className="relative">
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="********"
+                      disabled={isPending}
                       {...form.register("password")}
                       className="border-adaptia-gray-light/30 focus:border-adaptia-green-primary pr-10"
                     />
@@ -146,6 +122,7 @@ export default function LoginPage() {
                       )}
                     </button>
                   </div>
+
                   {form.formState.errors.password && (
                     <p className="text-sm text-red-500">
                       {form.formState.errors.password.message}
@@ -153,9 +130,52 @@ export default function LoginPage() {
                   )}
                 </div>
 
+                {/* Confirmar contraseña */}
+                <div className="grid gap-2">
+                  <Label htmlFor="confirmPassword" className="text-adaptia-blue-primary">
+                    Repetir nueva contraseña
+                  </Label>
+
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="********"
+                      disabled={isPending}
+                      {...form.register("confirmPassword")}
+                      className="border-adaptia-gray-light/30 focus:border-adaptia-green-primary pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                      aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+
+                  {form.formState.errors.confirmPassword && (
+                    <p className="text-sm text-red-500">
+                      {form.formState.errors.confirmPassword.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Mensajes */}
                 {error && (
                   <p className="text-sm text-red-500 bg-red-50 p-3 rounded-md">
                     {error}
+                  </p>
+                )}
+
+                {success && (
+                  <p className="text-sm text-green-600 bg-green-50 p-3 rounded-md">
+                    {success}
                   </p>
                 )}
 
@@ -164,28 +184,18 @@ export default function LoginPage() {
                   className="w-full bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 text-white"
                   disabled={isPending}
                 >
-                  {isPending ? "Iniciando sesión..." : "Iniciar Sesión"}
+                  {isPending ? "Actualizando..." : "Actualizar contraseña"}
                 </Button>
 
-                <div className="mt-1 text-sm text-center">
-                  <Link
-                    href="/auth/reset"
-                    className="text-adaptia-blue-primary hover:underline"
-                  >
-                    ¿Olvidaste tu contraseña?
-                  </Link>
-                </div>
-
                 <div className="mt-2 text-sm text-center">
-                  ¿No tienes una cuenta?{" "}
+                  ¿Ya recordaste tu contraseña?{" "}
                   <Link
-                    href="/auth/register"
+                    href="/auth/login"
                     className="text-adaptia-blue-primary hover:underline"
                   >
-                    Registrarse
+                    Iniciar sesión
                   </Link>
                 </div>
-
               </form>
             </CardContent>
           </Card>

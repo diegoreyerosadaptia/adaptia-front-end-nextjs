@@ -46,7 +46,9 @@ export function HeroSection() {
 
             <h2 className="text-xl md:text-1xl lg:text-2xl text-white max-w-4xl mx-auto leading-relaxed text-pretty font-heading">
               Recibe un análisis de doble materialidad ESG y estrategia de sostenibilidad para tu empresa en{" "}
-              <span className="font-bold text-adaptia-yellow">24 horas</span>.
+            </h2>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl text-adaptia-yellow font-heading font-bold leading-tight text-balance">
+              24 horas
             </h2>
           </div>
 

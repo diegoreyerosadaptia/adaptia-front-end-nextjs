@@ -11,7 +11,9 @@ export const publicRoutes = [
   '/formulario',             
   '/auth/login',
   '/auth/register',
-
+  '/auth/new-password',
+  '/auth/reset',
+  "/auth/callback",
 ]
 
 /**
@@ -21,6 +23,9 @@ export const authRoutes = [
   '/auth/login',
   '/auth/register',
   '/auth/error',
+  '/auth/new-password',
+  '/auth/reset',
+  "/auth/callback",
 ]
 
 /**

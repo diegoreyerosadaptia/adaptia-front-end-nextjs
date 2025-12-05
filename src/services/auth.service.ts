@@ -3,7 +3,7 @@ import { getCacheTag } from "./cache-tags"
 import type { User } from "@/types/user.type"
 import { RegisterSchemaType } from "@/schemas/auth/register.schema"
 import { LoginSchemaType } from "@/schemas/auth/login.schema"
-import { UserSchemaType } from "@/schemas/user.schema"
+import { UpdateProfilePasswordType, UserSchemaType } from "@/schemas/user.schema"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -62,3 +62,32 @@ export const loginUser = async (values: LoginSchemaType) => {
     return null
   }
 }
+
+
+export const updatePassword = async (
+  id: string,
+  values: UpdateProfilePasswordType,
+  authToken?: string,
+) => {
+  try {
+    const response = await fetch(`${BASE_URL}/users/${id}/password`, {
+      method: 'PATCH',
+      headers: getJsonHeaders(),
+      body: JSON.stringify(values),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      console.error(data);
+      return {
+        error: {
+          code: data.code || 'UNKNOWN_ERROR',
+          message: data.message || 'Error desconocido',
+        },
+      };
+    }
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
