@@ -5,8 +5,12 @@ export async function GET(request: Request) {
   const url = new URL(request.url)
   const token_hash = url.searchParams.get("token_hash")
   const type = url.searchParams.get("type") as "recovery" | null
-  const next = url.searchParams.get("next") ?? "/auth/new-password"
   const origin = url.origin
+
+  let next = url.searchParams.get("next") ?? "/auth/new-password"
+
+  // ✅ permitir solo rutas internas
+  if (!next.startsWith("/")) next = "/auth/new-password"
 
   if (!token_hash || !type) {
     return NextResponse.redirect(`${origin}/auth/login`)
