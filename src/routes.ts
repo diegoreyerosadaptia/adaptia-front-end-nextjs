@@ -14,6 +14,7 @@ export const publicRoutes = [
   '/auth/new-password',
   '/auth/reset',
   "/auth/callback",
+  "/auth/confirm",
 ]
 
 /**
@@ -26,6 +27,7 @@ export const authRoutes = [
   '/auth/new-password',
   '/auth/reset',
   "/auth/callback",
+  "/auth/confirm",
 ]
 
 /**

@@ -40,12 +40,11 @@ export async function resetPasswordAction(values: ResetPasswordSchemaType) {
 
     // ✅ 2) Envío email Supabase
     const redirectTo =
-    `${process.env.NEXT_PUBLIC_HOST_URL}/auth/callback?next=/auth/new-password`
-    
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo,
-    })
-
+    "https://adaptia-front-end-nextjs.vercel.app/auth/new-password"
+  
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  })
     if (error) {
       console.error("Supabase resetPasswordForEmail error:", error);
       return { error: "Error al enviar el email de recuperación" };
