@@ -194,6 +194,24 @@ const SORTED_INDUSTRIES = [...INDUSTRIES].sort((a, b) =>
 )
 
 
+const hasDocument = !!documentUrl
+
+function normalizeWebsite(input?: string) {
+  const raw = (input ?? "").trim()
+  if (!raw) return ""
+
+  // Si ya tiene protocolo, no tocamos nada
+  if (/^https?:\/\//i.test(raw)) return raw
+
+  // Si puso "www." o dominio pelado → agregamos https://
+  if (/^www\./i.test(raw)) return `https://${raw}`
+
+  // Si puso algo tipo "empresa.com"
+  return `https://www.${raw}`
+}
+
+
+
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 max-w-4xl mx-auto">
@@ -361,10 +379,20 @@ const SORTED_INDUSTRIES = [...INDUSTRIES].sort((a, b) =>
           </Label>
           <Input
             id="website"
-            {...form.register("website")}
+            {...form.register("website", {
+              onBlur: (e) => {
+                const normalized = normalizeWebsite(e.target.value)
+                form.setValue("website", normalized, {
+                  shouldDirty: true,
+                  shouldTouch: true,
+                  shouldValidate: true,
+                })
+              },
+            })}
             className="h-12 w-full text-base border-2 focus:border-adaptia-blue-primary transition-colors"
             placeholder="https://www.ejemplo.com"
           />
+
         </div>
         </div>
       </div>
@@ -373,7 +401,7 @@ const SORTED_INDUSTRIES = [...INDUSTRIES].sort((a, b) =>
       <div className="space-y-6">
         <div className="flex items-center gap-3 pb-3 border-b-2 border-adaptia-blue-primary/20">
           <FileText className="h-6 w-6 text-adaptia-blue-primary" />
-          <h3 className="text-xl font-semibold text-gray-900">Información Adicional</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Información Adicional (opcional)</h3>
         </div>
 
         <div className="space-y-2">
@@ -392,13 +420,20 @@ const SORTED_INDUSTRIES = [...INDUSTRIES].sort((a, b) =>
               flex items-center gap-3 justify-center
               w-full h-14 px-4
               border-2 border-dashed border-adaptia-blue-primary/40
-              rounded-lg cursor-pointer
-              bg-white hover:bg-adaptia-blue-primary/5
-              transition-all duration-200
+              rounded-lg
+              bg-white transition-all duration-200
               ${isUploading ? "opacity-60 cursor-wait" : ""}
+              ${hasDocument ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-adaptia-blue-primary/5"}
             `}
           >
-            {isUploading ? (
+            {hasDocument ? (
+              <>
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                <span className="font-medium text-green-700">
+                  Documento adjunto
+                </span>
+              </>
+            ) : isUploading ? (
               <>
                 <Loader2 className="h-5 w-5 text-adaptia-blue-primary animate-spin" />
                 <span className="font-medium text-adaptia-blue-primary">
@@ -415,55 +450,63 @@ const SORTED_INDUSTRIES = [...INDUSTRIES].sort((a, b) =>
             )}
           </label>
 
+
           <input
-            id="documentUpload"
-            type="file"
-            accept=".pdf,.doc,.docx,.ppt,.pptx"
-            className="hidden"
-            disabled={isUploading}
-            onChange={async (e) => {
-              const file = e.target.files?.[0]
-              if (!file) return
+          id="documentUpload"
+          type="file"
+          accept=".pdf,.doc,.docx,.ppt,.pptx"
+          className="hidden"
+          disabled={isUploading || hasDocument}
+          onChange={async (e) => {
+            const file = e.target.files?.[0]
+            if (!file) return
 
-              try {
-                setIsUploading(true)
+            // ✅ Bloqueo duro si ya hay un documento
+            if (hasDocument) {
+              toast.error("Ya adjuntaste un documento. Elimínalo para subir otro.")
+              e.target.value = ""
+              return
+            }
 
-                const safeName = sanitizeFileName(file.name)
-                const filePath = `public-uploads/${Date.now()}_${safeName}`
+            try {
+              setIsUploading(true)
 
-                const { error: uploadError } = await supabase.storage
-                  .from("adaptia-documents")
-                  .upload(filePath, file)
+              const safeName = sanitizeFileName(file.name)
+              const filePath = `public-uploads/${Date.now()}_${safeName}`
 
-                if (uploadError) {
-                  console.error("Error al subir archivo:", uploadError)
-                  toast.error("Error al subir archivo")
-                  return
-                }
+              const { error: uploadError } = await supabase.storage
+                .from("adaptia-documents")
+                .upload(filePath, file)
 
-                const { data: urlData } = supabase.storage
-                  .from("adaptia-documents")
-                  .getPublicUrl(filePath)
-
-                const publicUrl = urlData.publicUrl
-
-                form.setValue("document", publicUrl, {
-                  shouldDirty: true,
-                  shouldTouch: true,
-                  shouldValidate: true,
-                })
-
-                toast.success("Archivo subido correctamente")
-              } catch (err) {
-                console.error(err)
+              if (uploadError) {
+                console.error("Error al subir archivo:", uploadError)
                 toast.error("Error al subir archivo")
-              } finally {
-                setIsUploading(false)
-                // limpiar input para poder volver a subir el mismo archivo si quieren
-                e.target.value = ""
+                return
               }
-            }}
-          />
+
+              const { data: urlData } = supabase.storage
+                .from("adaptia-documents")
+                .getPublicUrl(filePath)
+
+              const publicUrl = urlData.publicUrl
+
+              form.setValue("document", publicUrl, {
+                shouldDirty: true,
+                shouldTouch: true,
+                shouldValidate: true,
+              })
+
+              toast.success("Archivo subido correctamente")
+            } catch (err) {
+              console.error(err)
+              toast.error("Error al subir archivo")
+            } finally {
+              setIsUploading(false)
+              e.target.value = ""
+            }
+          }}
+        />
+
 
           {/* Feedback del archivo subido */}
           {documentUrl && (

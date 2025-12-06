@@ -52,7 +52,7 @@ export default function EquipoPage() {
           {/* Team members */}
           <div className="mb-16">
             <div className="mb-12">
-              <h2 className="text-3xl font-bold text-center text-primary mb-8">Fundador</h2>
+              <h2 className="text-3xl font-bold text-center text-primary mb-8">Equipo</h2>
               <Card className="bg-card border-gray-200 hover:shadow-lg transition-shadow duration-300 max-w-2xl mx-auto">
                 <CardHeader className="text-center">
                   <div className="w-32 h-32 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -267,12 +267,6 @@ export default function EquipoPage() {
             </div>
           </div>
 
-          {/* CTA */}
-          <div className="text-center mt-16">
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
-              <Link href="/formulario">Solicitar análisis</Link>
-            </Button>
-          </div>
         </div>
       </div>
 

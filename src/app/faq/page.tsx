@@ -164,12 +164,6 @@ export default function FaqPage() {
             </p>
           </div>
 
-          {/* Final CTA */}
-          <div className="text-center mt-16">
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
-              <Link href="/formulario">Solicitar análisis</Link>
-            </Button>
-          </div>
         </div>
       </div>
     </main>

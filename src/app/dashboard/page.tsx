@@ -111,7 +111,7 @@ const stats = {
   const firstOrg = organizations?.[0]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#163F6A]/5 to-[#163F6A]/10">
+    <div className="min-h-screen bg-gradient-to-br from-[#163F6A]/5 to-green-50">
       <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/30 sticky top-0 z-50">
         <div className="w-full px-6 lg:px-12 py-6">
           <div className="flex items-center justify-between">
@@ -128,10 +128,9 @@ const stats = {
 
             {/* CENTRO: Título y descripción */}
             <div className="hidden md:flex flex-col items-center text-center">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-[#163F6A] to-[#163F6A]/80 bg-clip-text text-transparent">
-                  Mi Dashboard
-                </h1>
-                <p className="text-sm text-slate-500">Panel de control personal</p>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#163F6A] to-[#163F6A]/80 bg-clip-text text-transparent">
+                    Panel de Control
+              </h1>
             </div>
 
             {/* DERECHA: Info user + logout */}
@@ -188,7 +187,7 @@ const stats = {
                     Mis Organizaciones
                   </CardTitle>
                   <CardDescription className="text-slate-600 mt-1">
-                    Gestiona tus organizaciones y análisis de sostenibilidad
+                  Gestiona tus organizaciones y análisis de doble materialidad ESG.
                   </CardDescription>
                 </div>
                 <AddOrganizationDialog />

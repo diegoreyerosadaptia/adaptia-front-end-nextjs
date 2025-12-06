@@ -28,6 +28,8 @@ import ActionsMenu from "./actions-menu"
 import PaymentStatusSelect from "./analysis-status-select"
 import { useEffect, useState } from "react"
 import { getAnalysisSocket } from "@/lib/analysis-socket"
+import { EditOrganizationDialog } from "./update-organization-dialog"
+import { DeleteOrganizationDialog } from "@/app/dashboard/components/delete-organzation-dialog"
 
 type FilterType =
   | "all"
@@ -334,6 +336,9 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                     <th className="px-6 py-4 text-center font-semibold text-[#163F6A] whitespace-nowrap">
                       Pago & Descuento
                     </th>
+                    <th className="px-6 py-4 text-center font-semibold text-[#163F6A] whitespace-nowrap">
+                      Acciones
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -564,6 +569,20 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                             ) : (
                               <span className="text-xs text-gray-400">—</span>
                             )}
+                          </td>
+                          {/* ACCIONES */}
+                          <td className="px-6 py-5">
+                            <div className="flex items-center justify-center gap-2">
+                              <EditOrganizationDialog
+                                organization={org}
+                                triggerLabel="Editar"
+                              />
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                              <DeleteOrganizationDialog
+                                organization={org}
+                              />
+                            </div>
                           </td>
                         </tr>
                       )

@@ -105,8 +105,8 @@ export function AddOrganizationDialog() {
           open={openDrawer}
           onOpenChange={setOpenDrawer}
           organization={createdOrg}
-          checkoutUrl={createdOrg.checkoutUrl}
           payCta="Completar pago"
+          token=""
         />
       )}
     </>

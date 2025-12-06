@@ -427,6 +427,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                   contraportada="/Contra-Portada-Resumen-Ejecutivo-Adaptia.png"
                   filename={organization.company}
                   dataMaterialidad={finalScatterData}
+                  orgName={organization.company}
 
                 />
               </div>
@@ -439,6 +440,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                   portada="/portada_analisis_completo_page-0001.jpg"
                   contraportada="/contraportada_analisis_completo_page-0001.jpg"
                   griData={griData} 
+                  orgName={organization.company}
                 />
               </div>
             </div>

@@ -60,7 +60,6 @@ export function PaymentDrawer({
     setCurrentAnalysis(findInitialAnalysis())
   }, [organization.id, organization.analysis])
 
-  console.log("ANALYSIS", currentAnalysis)
 
   // 3️⃣ ESTADO LOCAL: descuento y cupón aplicado
   const [discountPercentage, setDiscountPercentage] = useState<number>(() => {
@@ -160,8 +159,6 @@ export function PaymentDrawer({
 
         // 1️⃣ Aplicar cupón en el backend
         const result = await addCouponAnalysisAction(currentAnalysis.id, couponTrimmed, token)
-        console.log("COUPON RESULT", result)
-
         if (!result || result.error) {
           toast.error(result?.error || "Error al aplicar el cupón")
           return

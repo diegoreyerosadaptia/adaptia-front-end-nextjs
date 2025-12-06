@@ -82,6 +82,7 @@ interface GenerateEsgPdfButtonAllProps {
   portada?: string
   contraportada?: string
   griData?: GriTema[]  
+  orgName?: string
 }
 
 // ==============================
@@ -212,30 +213,73 @@ function addTitledPage(
 }
 
 function wrapText(font: any, text: string, maxWidth: number, fontSize: number): string[] {
-  // 🧼 limpiamos antes de medir
   const safeText = sanitizeText(font, String(text || ""))
   const words = safeText.split(" ")
   const lines: string[] = []
   let currentLine = ""
 
+  const pushLine = (line: string) => {
+    if (line != null && line !== "") lines.push(line)
+  }
+
+  // ✅ rompe palabras demasiado largas en pedazos que entren
+  const breakLongWord = (word: string) => {
+    const chunks: string[] = []
+    let chunk = ""
+
+    for (const ch of word) {
+      const test = chunk + ch
+      const w = font.widthOfTextAtSize(test, fontSize)
+
+      if (w > maxWidth && chunk) {
+        chunks.push(chunk)
+        chunk = ch
+      } else {
+        chunk = test
+      }
+    }
+
+    if (chunk) chunks.push(chunk)
+    return chunks
+  }
+
   for (const word of words) {
+    if (!word) continue
+
+    // 👇 si la palabra sola ya excede el ancho, la partimos
+    const wordWidth = font.widthOfTextAtSize(word, fontSize)
+    if (wordWidth > maxWidth) {
+      // cerramos línea actual antes de insertar la palabra partida
+      if (currentLine) {
+        pushLine(currentLine)
+        currentLine = ""
+      }
+
+      const chunks = breakLongWord(word)
+      chunks.forEach((c, i) => {
+        // cada chunk se comporta como una línea independiente
+        if (i < chunks.length - 1) pushLine(c)
+        else currentLine = c
+      })
+      continue
+    }
+
     const testLine = currentLine ? `${currentLine} ${word}` : word
     const width = font.widthOfTextAtSize(testLine, fontSize)
 
     if (width > maxWidth && currentLine) {
-      lines.push(currentLine)
+      pushLine(currentLine)
       currentLine = word
     } else {
       currentLine = testLine
     }
   }
 
-  if (currentLine) {
-    lines.push(currentLine)
-  }
+  if (currentLine) pushLine(currentLine)
 
-  return lines.length > 0 ? lines : [""]
+  return lines.length ? lines : [""]
 }
+
 
 function drawWrappedText(
   page: any,
@@ -484,6 +528,7 @@ function drawContextoPage(
   font: any,
   boldFont: any,
   logo: any,
+  orgName: string,
   contexto: Partial<ContextoItem> | undefined,
 ) {
   let page = addTitledPage(pdfDoc, font, boldFont, "Contexto organizacional", logo)
@@ -495,7 +540,7 @@ function drawContextoPage(
   const valueLineHeight = 13
 
   const entries: [string, string][] = [
-    ["Nombre de la empresa", contexto.nombre_empresa ?? ""],
+    [orgName, contexto.nombre_empresa ?? ""],
     ["Pais de operacion", contexto.pais_operacion ?? ""],
     ["Industria", contexto.industria ?? ""],
     ["Tamano de empresa", contexto.tamano_empresa ?? ""],
@@ -840,7 +885,8 @@ export function GenerateEsgPdfButtonAll({
   organizationName,
   portada,
   contraportada,
-  griData
+  griData,
+  orgName
 }: GenerateEsgPdfButtonAllProps) {
   const handleGenerate = async () => {
     const toastId = toast.loading("Generando reporte PDF...")
@@ -896,7 +942,7 @@ export function GenerateEsgPdfButtonAll({
 
       // 2) Contexto
       const contexto: Partial<ContextoItem> | undefined = analysisData[0]?.response_content
-      drawContextoPage(pdfDoc, font, boldFont, logo, contexto)
+      drawContextoPage(pdfDoc, font, boldFont, logo, orgName || "", contexto)
 
       // 3) Parte B
       const parteB = buildParteB(analysisData)

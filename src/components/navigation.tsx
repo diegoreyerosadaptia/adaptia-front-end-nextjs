@@ -16,9 +16,9 @@ export function Navigation() {
 
   const navLinks = [
     { href: "/", label: "Inicio" },
-    { href: "#como-funciona", label: "¿Cómo funciona?" },
-    { href: "#que-incluye", label: "¿Qué incluye?" },
-    { href: "#por-que-adaptia", label: "¿Por qué Adaptia?" },
+    { href: "/#como-funciona", label: "¿Cómo funciona?" },
+    { href: "/#que-incluye", label: "¿Qué incluye?" },
+    { href: "/#por-que-adaptia", label: "¿Por qué Adaptia?" },
     { href: "/equipo", label: "Equipo" },
     { href: "/faq", label: "FAQ" },
   ]

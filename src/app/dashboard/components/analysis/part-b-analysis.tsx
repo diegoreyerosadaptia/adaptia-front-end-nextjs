@@ -98,10 +98,17 @@ export function ParteBEditable({
     toast.info("Cambios descartados")
   }
 
+  // ✅ clases reutilizables para mantener simetría total
+  const thBase =
+    "w-1/12 px-3 py-3 text-center align-middle font-semibold border border-white/30"
+  const tdBase =
+    "w-1/12 px-3 py-3 text-center align-middle border border-gray-200"
+
+  const textareaBase =
+    "w-full min-h-[44px] resize-none rounded-md border border-gray-200 bg-white px-2 py-1 text-xs leading-snug focus:outline-none focus:ring-1 focus:ring-[#619F44] text-center"
 
   return (
     <div className="space-y-4">
-
       {/* Header */}
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-lg font-semibold" style={{ color: "#619F44" }}>
@@ -118,173 +125,210 @@ export function ParteBEditable({
           />
         )}
       </div>
-      <p>Esta tabla resume los temas materiales de tu organización y muestra la evaluación realizada para cada uno. Esta evaluación sirve como base para determinar los 10 temas prioritarios para tu empresa, también conocidos como “temas materiales”.</p>
+
+      <p>
+        Esta tabla resume los temas materiales de tu organización y muestra la evaluación
+        realizada para cada uno. Esta evaluación sirve como base para determinar los 10 temas
+        prioritarios para tu empresa, también conocidos como “temas materiales”.
+      </p>
 
       {/* Tabla compacta sin scroll */}
-      <div className="rounded-lg border border-adaptia-gray-light/40 shadow-sm">
-        <table className="w-full border-collapse text-sm table-compact">
-
+      <div className="rounded-lg border border-adaptia-gray-light/40 shadow-sm overflow-hidden">
+        <table className="w-full border-collapse text-sm table-fixed">
           {/* HEADER */}
           <thead style={{ backgroundColor: "#619F44", color: "white" }}>
             <tr>
-              <th className="col-sm">Tema</th>
-              <th className="col-sm">Materialidad<br/>Financiera</th>
-              <th className="col-sm">Tipo</th>
-              <th className="col-sm">Potencialidad</th>
-              <th className="col-sm">Horizonte</th>
-              <th className="col-sm">Intencionalidad</th>
-              <th className="col-sm">Penetración</th>
-              <th className="col-sm">Implicación</th>
-              <th className="col-xs text-center">Grav.</th>
-              <th className="col-xs text-center">Prob.</th>
-              <th className="col-xs text-center">Alc.</th>
-              <th className="col-xs text-center">ESG</th>
+              <th className={thBase}>Tema</th>
+              <th className={thBase}>
+                Materialidad<br />Financiera
+              </th>
+              <th className={thBase}>Tipo</th>
+              <th className={thBase}>Potencialidad</th>
+              <th className={thBase}>Horizonte</th>
+              <th className={thBase}>Intencionalid.</th>
+              <th className={thBase}>Penetración</th>
+              <th className={thBase}>Implicación</th>
+              <th className={thBase}>Grav.</th>
+              <th className={thBase}>Prob.</th>
+              <th className={thBase}>Alc.</th>
+              <th className={thBase}>ESG</th>
             </tr>
           </thead>
 
           {/* BODY */}
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="bg-white">
             {parteBData.map((row, idx) => (
               <tr key={idx} className="hover:bg-adaptia-gray-light/10">
-
                 {/* Tema */}
-                <td className="col-sm">
+                <td className={tdBase}>
                   {isEditing ? (
                     <textarea
                       value={row.tema}
                       onChange={(e) => handleEditCell(idx, "tema", e.target.value)}
-                      className="textarea-adaptia"
+                      className={textareaBase}
                     />
-                  ) : row.tema}
+                  ) : (
+                    row.tema
+                  )}
                 </td>
 
                 {/* Materialidad financiera */}
-                <td className="col-sm">
+                <td className={tdBase}>
                   {isEditing ? (
                     <textarea
                       value={row.materialidad_financiera}
                       onChange={(e) =>
                         handleEditCell(idx, "materialidad_financiera", e.target.value)
                       }
-                      className="textarea-adaptia"
+                      className={textareaBase}
                     />
-                  ) : row.materialidad_financiera}
+                  ) : (
+                    row.materialidad_financiera
+                  )}
                 </td>
 
                 {/* Tipo */}
-                <td className="col-sm">
+                <td className={tdBase}>
                   {isEditing ? (
                     <textarea
                       value={row.tipo_impacto}
                       onChange={(e) => handleEditCell(idx, "tipo_impacto", e.target.value)}
-                      className="textarea-adaptia"
+                      className={textareaBase}
                     />
-                  ) : row.tipo_impacto}
+                  ) : (
+                    row.tipo_impacto
+                  )}
                 </td>
 
                 {/* Potencialidad */}
-                <td className="col-sm">
+                <td className={tdBase}>
                   {isEditing ? (
                     <textarea
                       value={row.potencialidad_impacto}
-                      onChange={(e) => handleEditCell(idx, "potencialidad_impacto", e.target.value)}
-                      className="textarea-adaptia"
+                      onChange={(e) =>
+                        handleEditCell(idx, "potencialidad_impacto", e.target.value)
+                      }
+                      className={textareaBase}
                     />
-                  ) : row.potencialidad_impacto}
+                  ) : (
+                    row.potencialidad_impacto
+                  )}
                 </td>
 
                 {/* Horizonte */}
-                <td className="col-sm">
+                <td className={tdBase}>
                   {isEditing ? (
                     <textarea
                       value={row.horizonte_impacto}
                       onChange={(e) => handleEditCell(idx, "horizonte_impacto", e.target.value)}
-                      className="textarea-adaptia"
+                      className={textareaBase}
                     />
-                  ) : row.horizonte_impacto}
+                  ) : (
+                    row.horizonte_impacto
+                  )}
                 </td>
 
                 {/* Intencionalidad */}
-                <td className="col-sm">
+                <td className={tdBase}>
                   {isEditing ? (
                     <textarea
                       value={row.intencionalidad_impacto}
-                      onChange={(e) => handleEditCell(idx, "intencionalidad_impacto", e.target.value)}
-                      className="textarea-adaptia"
+                      onChange={(e) =>
+                        handleEditCell(idx, "intencionalidad_impacto", e.target.value)
+                      }
+                      className={textareaBase}
                     />
-                  ) : row.intencionalidad_impacto}
+                  ) : (
+                    row.intencionalidad_impacto
+                  )}
                 </td>
 
                 {/* Penetración */}
-                <td className="col-sm">
+                <td className={tdBase}>
                   {isEditing ? (
                     <textarea
                       value={row.penetracion_impacto}
-                      onChange={(e) => handleEditCell(idx, "penetracion_impacto", e.target.value)}
-                      className="textarea-adaptia"
+                      onChange={(e) =>
+                        handleEditCell(idx, "penetracion_impacto", e.target.value)
+                      }
+                      className={textareaBase}
                     />
-                  ) : row.penetracion_impacto}
+                  ) : (
+                    row.penetracion_impacto
+                  )}
                 </td>
 
                 {/* Implicación */}
-                <td className="col-sm">
+                <td className={tdBase}>
                   {isEditing ? (
                     <textarea
                       value={row.grado_implicacion}
-                      onChange={(e) => handleEditCell(idx, "grado_implicacion", e.target.value)}
-                      className="textarea-adaptia"
+                      onChange={(e) =>
+                        handleEditCell(idx, "grado_implicacion", e.target.value)
+                      }
+                      className={textareaBase}
                     />
-                  ) : row.grado_implicacion}
+                  ) : (
+                    row.grado_implicacion
+                  )}
                 </td>
 
                 {/* Gravedad */}
-                <td className="col-xs text-center">
+                <td className={tdBase}>
                   {isEditing ? (
                     <textarea
                       value={row.gravedad}
                       onChange={(e) => handleEditCell(idx, "gravedad", e.target.value)}
-                      className="textarea-adaptia text-center"
+                      className={textareaBase}
                     />
-                  ) : row.gravedad}
+                  ) : (
+                    row.gravedad
+                  )}
                 </td>
 
                 {/* Probabilidad */}
-                <td className="col-xs text-center">
+                <td className={tdBase}>
                   {isEditing ? (
                     <textarea
                       value={row.probabilidad}
                       onChange={(e) => handleEditCell(idx, "probabilidad", e.target.value)}
-                      className="textarea-adaptia text-center"
+                      className={textareaBase}
                     />
-                  ) : row.probabilidad}
+                  ) : (
+                    row.probabilidad
+                  )}
                 </td>
 
                 {/* Alcance */}
-                <td className="col-xs text-center">
+                <td className={tdBase}>
                   {isEditing ? (
                     <textarea
                       value={row.alcance}
                       onChange={(e) => handleEditCell(idx, "alcance", e.target.value)}
-                      className="textarea-adaptia text-center"
+                      className={textareaBase}
                     />
-                  ) : row.alcance}
+                  ) : (
+                    row.alcance
+                  )}
                 </td>
 
                 {/* ESG */}
-                <td className="col-xs text-center font-semibold text-green-700">
+                <td className={`${tdBase} font-semibold text-green-700`}>
                   {isEditing ? (
                     <textarea
                       value={row.materialidad_esg}
-                      onChange={(e) => handleEditCell(idx, "materialidad_esg", e.target.value)}
-                      className="textarea-adaptia text-center"
+                      onChange={(e) =>
+                        handleEditCell(idx, "materialidad_esg", e.target.value)
+                      }
+                      className={textareaBase}
                     />
-                  ) : row.materialidad_esg}
+                  ) : (
+                    row.materialidad_esg
+                  )}
                 </td>
-
               </tr>
             ))}
           </tbody>
-
         </table>
       </div>
     </div>

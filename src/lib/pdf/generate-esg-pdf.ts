@@ -9,6 +9,7 @@ export async function generateEsgPdf({
   portada,
   contraportada,
   chartImg,
+  orgName
 }: {
   contexto: {
     nombre_empresa: string
@@ -26,6 +27,8 @@ export async function generateEsgPdf({
   portada?: string
   contraportada?: string
   chartImg?: string
+  orgName?:string
+
 }) {
   const pdfDoc = await PDFDocument.create()
   const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica)
@@ -193,7 +196,7 @@ const addPage = (title?: string, skipBranding = false) => {
   }
 
   /* Recuadros de contexto */
-  drawFieldBox("Nombre de la Empresa", contexto.nombre_empresa)
+  drawFieldBox(orgName || "", contexto.nombre_empresa)
   drawFieldBox("País de Operación", contexto.pais_operacion)
   drawFieldBox("Industria", contexto.industria)
   drawFieldBox("Tamaño de la Empresa", contexto.tamano_empresa)
@@ -336,16 +339,22 @@ const addPage = (title?: string, skipBranding = false) => {
   const addParagraph = (text: string) => {
     const fontSize = 12
     const lineHeight = 16
+  
     const maxWidth = contentWidth
-    const lines = wrapTextByWidth(text, fontRegular, fontSize, maxWidth)
-
-    const boxHeight = lines.length * lineHeight + 20
-
+    const innerPaddingX = 12
+    const paddingTop = 14
+    const paddingBottom = 14
+  
+    const innerMaxWidth = maxWidth - innerPaddingX * 2
+  
+    const lines = wrapTextByWidth(text, fontRegular, fontSize, innerMaxWidth)
+    const boxHeight = paddingTop + paddingBottom + lines.length * lineHeight
+  
     if (y - boxHeight < 60) {
       resumenPage = addPage("Resumen Ejecutivo")
       y = pageHeight - 130
     }
-
+  
     resumenPage.drawRectangle({
       x: leftMargin,
       y: y - boxHeight,
@@ -355,11 +364,11 @@ const addPage = (title?: string, skipBranding = false) => {
       borderColor: boxTitleColor,
       borderWidth: 1,
     })
-
-    let textY = y - 15
+  
+    let textY = y - paddingTop
     lines.forEach((line) => {
       resumenPage.drawText(line, {
-        x: leftMargin + 12,
+        x: leftMargin + innerPaddingX,
         y: textY,
         size: fontSize,
         font: fontRegular,
@@ -367,9 +376,10 @@ const addPage = (title?: string, skipBranding = false) => {
       })
       textY -= lineHeight
     })
-
+  
     y -= boxHeight + 20
   }
+  
 
   addParagraph(resumen.parrafo_1)
   if (resumen.parrafo_2) addParagraph(resumen.parrafo_2)
@@ -405,21 +415,74 @@ function wrapText(text: string, maxChars: number) {
   return lines
 }
 
-function wrapTextByWidth(text: string, font: any, size: number, maxWidth: number) {
-  const words = text.split(" ")
+function wrapTextByWidth(
+  text: string,
+  font: any,
+  size: number,
+  maxWidth: number,
+) {
+  const safeText = String(text || "")
+  const words = safeText.split(" ")
   const lines: string[] = []
   let current = ""
 
-  for (const w of words) {
-    const test = current + w + " "
-    const width = font.widthOfTextAtSize(test, size)
-
-    if (width > maxWidth) {
-      lines.push(current.trim())
-      current = w + " "
-    } else current += w + " "
+  const pushLine = (line: string) => {
+    if (line && line.trim()) lines.push(line.trim())
   }
 
-  if (current.trim()) lines.push(current.trim())
-  return lines
+  const breakLongWord = (word: string) => {
+    const chunks: string[] = []
+    let chunk = ""
+
+    for (const ch of word) {
+      const test = chunk + ch
+      const w = font.widthOfTextAtSize(test, size)
+
+      if (w > maxWidth && chunk) {
+        chunks.push(chunk)
+        chunk = ch
+      } else {
+        chunk = test
+      }
+    }
+
+    if (chunk) chunks.push(chunk)
+    return chunks
+  }
+
+  for (const word of words) {
+    if (!word) continue
+
+    const wordWidth = font.widthOfTextAtSize(word, size)
+
+    // ✅ si una palabra sola no entra, la partimos
+    if (wordWidth > maxWidth) {
+      if (current) {
+        pushLine(current)
+        current = ""
+      }
+
+      const chunks = breakLongWord(word)
+      chunks.forEach((c, i) => {
+        if (i < chunks.length - 1) pushLine(c)
+        else current = c
+      })
+      continue
+    }
+
+    const test = current ? `${current} ${word}` : word
+    const width = font.widthOfTextAtSize(test, size)
+
+    if (width > maxWidth && current) {
+      pushLine(current)
+      current = word
+    } else {
+      current = test
+    }
+  }
+
+  if (current) pushLine(current)
+
+  return lines.length ? lines : [""]
 }
+
