@@ -9,7 +9,6 @@ interface OrgPageProps {
 }
 
 export default async function OrganizationPage({ params }: OrgPageProps) {
-  // ⛔ IMPORTANTE: Next.js 15 pasa `params` como Promise
   const { id } = await params
 
   const supabase = await createClient()
@@ -19,38 +18,41 @@ export default async function OrganizationPage({ params }: OrgPageProps) {
     redirect("/error")
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // ✅ Paralelo: user + session
+  const [
+    {
+      data: { user },
+    },
+    {
+      data: { session },
+    },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.auth.getSession(),
+  ])
 
   if (!user) {
     redirect("/auth/login")
   }
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-  
+
   const token = session?.access_token
 
-  const { data: userProfile, error } = await supabase
-  .from("users")
-  .select("role")
-  .eq("id", user.id)
-  .single()
-
-if (error) {
-  console.error("Error al obtener el rol:", error)
-}
-
-const userPostgres = await getUserById(user.id, token)
-
-  const organization = await getOrganizationById(id, token)
+  // ✅ Paralelo: user en tu BD + organización
+  const [userPostgres, organization] = await Promise.all([
+    getUserById(user.id, token),
+    getOrganizationById(id, token),
+  ])
 
   if (!organization) {
     console.error("Organización no encontrada:", id)
     notFound()
   }
 
-
-  return <OrganizationAnalysisView organization={organization} token={token || ''} role={userPostgres?.role || 'USER'} />
+  return (
+    <OrganizationAnalysisView
+      organization={organization}
+      token={token || ""}
+      role={userPostgres?.role || "USER"}
+    />
+  )
 }

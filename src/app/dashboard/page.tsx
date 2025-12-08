@@ -1,18 +1,17 @@
-import type React from "react"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { LogOut, Building2, User } from "lucide-react"
-import { getOrganizations } from "@/services/organization.service"
-import DashboardPaymentGate from "@/components/form-org/dashboard-payment-gate"
-import { AddOrganizationDialog } from "./components/organization-form-dialog"
-import ClientDashboardStats from "./components/dashboard-stats"
-import DashboardOrgList from "./components/dashboard-org-list"
-import DashboardStats from "./components/dashboard-stats"
+import { LogOut } from "lucide-react"
 import Image from "next/image"
+
+import { getOrganizations } from "@/services/organization.service"
 import { getUserById } from "@/services/users.service"
 
+import DashboardPaymentGate from "@/components/form-org/dashboard-payment-gate"
+import { AddOrganizationDialog } from "./components/organization-form-dialog"
+import DashboardOrgList from "./components/dashboard-org-list"
+import DashboardStats from "./components/dashboard-stats"
 
 export default async function ClientDashboard() {
   const supabase = await createClient()
@@ -22,26 +21,37 @@ export default async function ClientDashboard() {
     redirect("/error")
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // ✅ Paralelo: user + session
+  const [
+    {
+      data: { user },
+    },
+    {
+      data: { session },
+    },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.auth.getSession(),
+  ])
 
   if (!user) redirect("/auth/login")
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
   const token = session?.access_token
 
-  const userPostgres = await getUserById(user.id, token)
+  // ✅ Paralelo: BD propia + organizaciones
+  const [userPostgres, organizations] = await Promise.all([
+    getUserById(user.id, token),
+    getOrganizations(token),
+  ])
 
-  const organizations = await getOrganizations(token)
-
-  const { data: userData } = await supabase.from("users").select("role, name, surname").eq("id", user?.id).single()
-
-  if (userData?.role === "admin") {
+  // ✅ Si es ADMIN → redirigir
+  if (userPostgres?.role === "ADMIN") {
     redirect("/admin/dashboard")
+  }
+
+  // ✅ Si no existe el usuario en tu BD
+  if (!userPostgres) {
+    redirect("/auth/login")
   }
 
   const handleSignOut = async () => {
@@ -52,48 +62,71 @@ export default async function ClientDashboard() {
   }
 
   const hasPendingPayment =
-    organizations?.some((org) => org.analysis?.some((a) => a.payment_status === "PENDING")) ?? false
+    organizations?.some((org) =>
+      org.analysis?.some((a) => a.payment_status === "PENDING")
+    ) ?? false
 
-// Calculate comprehensive statistics
-const totalOrganizations = organizations?.length || 0
-const totalAnalysis = organizations?.reduce((acc, org) => acc + (org.analysis?.length || 0), 0) || 0
-const completedAnalysis =
-  organizations?.reduce((acc, org) => acc + (org.analysis?.filter((a) => a.status === "COMPLETED").length || 0), 0) ||
-  0
-const pendingAnalysis =
-  organizations?.reduce((acc, org) => acc + (org.analysis?.filter((a) => a.status === "PENDING").length || 0), 0) || 0
-const failedAnalysis =
-  organizations?.reduce((acc, org) => acc + (org.analysis?.filter((a) => a.status === "FAILED").length || 0), 0) || 0
-const incompleteAnalysis =
-  organizations?.reduce(
-    (acc, org) => acc + (org.analysis?.filter((a) => a.status === "INCOMPLETE").length || 0),
-    0,
-  ) || 0
+  // ===========================
+  // Estadísticas
+  // ===========================
+  const totalOrganizations = organizations?.length || 0
+  const totalAnalysis =
+    organizations?.reduce((acc, org) => acc + (org.analysis?.length || 0), 0) || 0
 
-// Payment statistics
-const completedPayments =
-  organizations?.reduce(
-    (acc, org) => acc + (org.analysis?.filter((a) => a.payment_status === "COMPLETED").length || 0),
-    0,
-  ) || 0
-const pendingPayments =
-  organizations?.reduce(
-    (acc, org) => acc + (org.analysis?.filter((a) => a.payment_status === "PENDING").length || 0),
-    0,
-  ) || 0
+  const completedAnalysis =
+    organizations?.reduce(
+      (acc, org) =>
+        acc + (org.analysis?.filter((a) => a.status === "COMPLETED").length || 0),
+      0
+    ) || 0
 
-const stats = {
-  totalOrganizations,
-  totalAnalysis,
-  completedAnalysis,
-  pendingAnalysis,
-  failedAnalysis,
-  incompleteAnalysis,
-  completedPayments,
-  pendingPayments,
-}
+  const pendingAnalysis =
+    organizations?.reduce(
+      (acc, org) =>
+        acc + (org.analysis?.filter((a) => a.status === "PENDING").length || 0),
+      0
+    ) || 0
 
-  const firstOrg = organizations?.[0]
+  const failedAnalysis =
+    organizations?.reduce(
+      (acc, org) =>
+        acc + (org.analysis?.filter((a) => a.status === "FAILED").length || 0),
+      0
+    ) || 0
+
+  const incompleteAnalysis =
+    organizations?.reduce(
+      (acc, org) =>
+        acc + (org.analysis?.filter((a) => a.status === "INCOMPLETE").length || 0),
+      0
+    ) || 0
+
+  const completedPayments =
+    organizations?.reduce(
+      (acc, org) =>
+        acc +
+        (org.analysis?.filter((a) => a.payment_status === "COMPLETED").length || 0),
+      0
+    ) || 0
+
+  const pendingPayments =
+    organizations?.reduce(
+      (acc, org) =>
+        acc +
+        (org.analysis?.filter((a) => a.payment_status === "PENDING").length || 0),
+      0
+    ) || 0
+
+  const stats = {
+    totalOrganizations,
+    totalAnalysis,
+    completedAnalysis,
+    pendingAnalysis,
+    failedAnalysis,
+    incompleteAnalysis,
+    completedPayments,
+    pendingPayments,
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#163F6A]/5 to-green-50">
@@ -111,14 +144,14 @@ const stats = {
               />
             </div>
 
-            {/* CENTRO: Título y descripción */}
+            {/* CENTRO */}
             <div className="hidden md:flex flex-col items-center text-center">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-[#163F6A] to-[#163F6A]/80 bg-clip-text text-transparent">
-                    Panel de Control
+                Panel de Control
               </h1>
             </div>
 
-            {/* DERECHA: Info user + logout */}
+            {/* DERECHA */}
             <div className="flex items-center gap-4">
               <div className="hidden lg:flex flex-col items-end">
                 <p className="text-sm font-medium text-[#163F6A]">
@@ -126,6 +159,7 @@ const stats = {
                 </p>
                 <p className="text-xs text-gray-600/70">{userPostgres?.email}</p>
               </div>
+
               <form action={handleSignOut}>
                 <Button
                   variant="outline"
@@ -153,7 +187,7 @@ const stats = {
           {/* Título móvil */}
           <div className="md:hidden mt-4 text-center">
             <h1 className="text-xl font-heading font-bold text-[#163F6A]">
-              Panel de Administrador
+              Panel de Control
             </h1>
           </div>
         </div>
@@ -161,10 +195,10 @@ const stats = {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardPaymentGate openByDefault={hasPendingPayment} token={token || ''}>
+        <DashboardPaymentGate openByDefault={hasPendingPayment} token={token || ""}>
           <DashboardStats stats={stats} />
-          <Card className="border-slate-200 shadow-sm">
 
+          <Card className="border-slate-200 shadow-sm">
             <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-[#163F6A]/5">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -172,13 +206,12 @@ const stats = {
                     Mis Organizaciones
                   </CardTitle>
                   <CardDescription className="text-slate-600 mt-1">
-                  Gestiona tus organizaciones y análisis de doble materialidad ESG.
+                    Gestiona tus organizaciones y análisis de doble materialidad ESG.
                   </CardDescription>
                 </div>
                 <AddOrganizationDialog />
               </div>
             </CardHeader>
-
 
             <CardContent className="pt-6">
               <DashboardOrgList organizations={organizations ?? []} />
