@@ -23,27 +23,38 @@ export default async function AdminDashboard() {
     redirect("/error")
   }
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  // ✅ Pedimos user verificado + session en paralelo
+  const [
+    { data: { user } },
+    { data: { session } },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.auth.getSession(),
+  ])
 
-  const user = session?.user
   const token = session?.access_token
 
+  // ✅ Validación fuerte
   if (!user || !token) {
     redirect("/auth/login")
   }
 
+  // ✅ Tu BD propia (rol)
   const userPostgres = await getUserById(user.id, token)
 
-  if (userPostgres?.role === "USER") {
-    redirect("/dashboard")
-  }
-
-  if (userPostgres?.role !== "ADMIN") {
+  if (!userPostgres) {
     redirect("/auth/login")
   }
 
+  if (userPostgres.role === "USER") {
+    redirect("/dashboard")
+  }
+
+  if (userPostgres.role !== "ADMIN") {
+    redirect("/auth/login")
+  }
+
+  // ✅ Paralelo: datos dashboard
   const [organizations, cupones] = await Promise.all([
     getOrganizations(token),
     getCoupons(token),
