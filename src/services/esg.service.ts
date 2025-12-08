@@ -77,3 +77,29 @@ export const getGriByTemas = async (temas: string[], authToken?: string) => {
     return null;
   }
 };
+
+export const getSasb = async (
+  industria: string,
+  esgAnalysisId: string,
+  authToken?: string
+) => {
+  try {
+    const response = await fetch(`${BASE_URL}/esg-analysis/sasb`, {
+      method: "POST",
+      headers: getJsonHeaders(authToken),
+      body: JSON.stringify({ industria, esgAnalysisId }),
+    })
+
+    const result = await response.json()
+
+    if (response.ok) return result
+
+    console.error("Error del backend:", result)
+    return null
+  } catch (error) {
+    console.error("Error obteniendo sasb:", error)
+    return null
+  }
+}
+
+

@@ -13,21 +13,6 @@ import DashboardStats from "./components/dashboard-stats"
 import Image from "next/image"
 import { getUserById } from "@/services/users.service"
 
-function StatCard({ title, icon, value }: { title: string; icon: React.ReactNode; value: number }) {
-  return (
-    <Card className="border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-slate-600">{title}</CardTitle>
-        <div className="p-2 rounded-lg bg-gradient-to-br from-[#163F6A]/10 to-[#163F6A]/20">{icon}</div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-3xl font-bold bg-gradient-to-r from-[#163F6A] to-[#163F6A]/80 bg-clip-text text-transparent">
-          {value}
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
 
 export default async function ClientDashboard() {
   const supabase = await createClient()

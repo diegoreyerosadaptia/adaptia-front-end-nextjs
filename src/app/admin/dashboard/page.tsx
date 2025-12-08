@@ -24,33 +24,30 @@ export default async function AdminDashboard() {
   }
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect("/auth/login")
-  }
-
-  const {
     data: { session },
   } = await supabase.auth.getSession()
 
+  const user = session?.user
   const token = session?.access_token
 
-  // Datos principales
-  const organizations = await getOrganizations(token)
-  const userPostgres = await getUserById(user.id, token)
-  const cupones = await getCoupons(token)
+  if (!user || !token) {
+    redirect("/auth/login")
+  }
 
-  // 🚫 Si es USER → redirect al dashboard normal
+  const userPostgres = await getUserById(user.id, token)
+
   if (userPostgres?.role === "USER") {
     redirect("/dashboard")
   }
 
-  // 🚫 Si el rol NO ES ADMIN → redirigir por seguridad
   if (userPostgres?.role !== "ADMIN") {
     redirect("/auth/login")
   }
+
+  const [organizations, cupones] = await Promise.all([
+    getOrganizations(token),
+    getCoupons(token),
+  ])
 
   const handleSignOut = async () => {
     "use server"
@@ -63,6 +60,7 @@ export default async function AdminDashboard() {
   // Estadísticas
   // ===========================
   const totalOrganizations = organizations?.length || 0
+
   const totalAnalysis =
     organizations?.reduce((acc, org) => acc + (org.analysis?.length || 0), 0) || 0
 
@@ -189,15 +187,12 @@ export default async function AdminDashboard() {
 
       {/* Main Content */}
       <main className="w-full px-6 lg:px-12 py-10">
-        {/* Stats */}
         <DashboardStats stats={stats} />
 
-        {/* Tabs: Organizaciones / Cupones / Registros */}
         <section className="mt-10">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <div className="px-4 pt-4 pb-2 border-b border-gray-100">
               <Tabs defaultValue="organizations" className="w-full">
-                {/* HEADER TABS */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                   <TabsList className="bg-slate-50">
                     <TabsTrigger value="organizations" className="px-4">
@@ -212,12 +207,10 @@ export default async function AdminDashboard() {
                   </TabsList>
                 </div>
 
-                {/* TAB 1: ORGANIZACIONES (tabla original con estados y pagos) */}
                 <TabsContent value="organizations" className="pt-4">
-                  <DashboardTable organizations={organizations || []} token={token || ""} />
+                  <DashboardTable organizations={organizations || []} token={token} />
                 </TabsContent>
 
-                {/* TAB 2: CUPONES */}
                 <TabsContent value="coupons" className="pt-4">
                   <div className="flex items-center justify-between mb-4">
                     <div>
@@ -236,9 +229,8 @@ export default async function AdminDashboard() {
                   />
                 </TabsContent>
 
-                {/* TAB 3: REGISTROS (tabla general + export Excel/PDF) */}
                 <TabsContent value="registers" className="pt-4">
-                  <GeneralTable organizations={organizations || []} token={token || ""} />
+                  <GeneralTable organizations={organizations || []} token={token} />
                 </TabsContent>
               </Tabs>
             </div>

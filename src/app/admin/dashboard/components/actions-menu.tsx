@@ -78,6 +78,8 @@ export default function ActionsMenu({ org, authToken }: ActionsMenuProps) {
             <DropdownMenuItem asChild className="mt-1">
               <Link
                 href={`/dashboard/organization/${org.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors cursor-pointer"
               >
                 <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-100">
@@ -87,6 +89,7 @@ export default function ActionsMenu({ org, authToken }: ActionsMenuProps) {
               </Link>
             </DropdownMenuItem>
           )}
+
 
           {showSendAnalysis && (
             <SendAnalysisButton id={lastAnalysis.id} accessToken={authToken || ""} shippingStatus={lastAnalysis.shipping_status} />
