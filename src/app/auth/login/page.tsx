@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Eye, EyeOff } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
@@ -34,38 +34,75 @@ export default function LoginPage() {
   const onSubmit = (values: LoginSchemaType) => {
     setError(null)
     startTransition(async () => {
-      const result = await loginUser(values)
+      try {
+        const result = await loginUser(values)
 
-      if (!result) {
-        setError("Credenciales incorrectas")
-        return
-      }
-
-      if (result?.session) {
-        const { access_token, refresh_token } = result.session
-
-        const { error } = await supabase.auth.setSession({
-          access_token,
-          refresh_token,
-        })
-
-        if (error) {
-          console.error("Error al setear sesión:", error)
-          setError("Error al iniciar sesión. Intenta nuevamente.")
+        if (!result) {
+          setError("Credenciales incorrectas")
           return
         }
 
-        const role = result.user?.role
+        if (result?.session) {
+          const { access_token, refresh_token } = result.session
 
-        if (role === "ADMIN") {
-          router.push("/admin/dashboard")
-        } else {
-          router.push("/dashboard")
+          const { error } = await supabase.auth.setSession({
+            access_token,
+            refresh_token,
+          })
+
+          if (error) {
+            console.error("Error al setear sesión:", error)
+            setError("Error al iniciar sesión. Intenta nuevamente.")
+            return
+          }
+
+          const role = result.user?.role
+
+          if (role === "ADMIN") {
+            router.push("/admin/dashboard")
+          } else {
+            router.push("/dashboard")
+          }
         }
+      } catch (e) {
+        console.error("Error en loginUser:", e)
+        setError("Error de conexión. Intenta nuevamente.")
       }
+      // cuando termina, isPending vuelve a false automáticamente
     })
   }
 
+  // 🟣 PANTALLA COMPLETA DE CARGA
+  if (isPending) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-adaptia-blue-primary/10 via-white to-adaptia-green-primary/10">
+        <div className="flex flex-col items-center gap-6 px-4 text-center">
+          <Image
+            src="/adaptia-logo.png"
+            alt="Adaptia"
+            width={260}
+            height={80}
+            className="w-64 h-auto animate-pulse"
+            priority
+          />
+
+          <div className="flex items-center gap-3">
+            <Loader2 className="h-10 w-10 animate-spin text-adaptia-blue-primary" />
+            <span className="text-xl font-semibold text-adaptia-blue-primary">
+              Cargando tus datos...
+            </span>
+          </div>
+
+          <p className="max-w-md text-sm text-adaptia-blue-primary/80">
+            Estamos validando tus credenciales y preparando tu panel de Adaptia.
+            Esto puede tomar solo unos segundos.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // 🟢 VISTA NORMAL DE LOGIN (se muestra solo cuando NO está cargando)
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-br from-adaptia-blue-primary/5 to-adaptia-green-primary/5">
       <div className="w-full max-w-md">
@@ -120,7 +157,7 @@ export default function LoginPage() {
                   )}
                 </div>
 
-                {/* Contraseña con icono de ojo */}
+                {/* Contraseña */}
                 <div className="grid gap-2">
                   <Label htmlFor="password" className="text-adaptia-blue-primary">
                     Contraseña
@@ -162,9 +199,8 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   className="w-full bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 text-white"
-                  disabled={isPending}
                 >
-                  {isPending ? "Iniciando sesión..." : "Iniciar Sesión"}
+                  Iniciar Sesión
                 </Button>
 
                 <div className="mt-1 text-sm text-center">
@@ -185,7 +221,6 @@ export default function LoginPage() {
                     Registrarse
                   </Link>
                 </div>
-
               </form>
             </CardContent>
           </Card>
