@@ -408,10 +408,9 @@ function normalizeWebsite(input?: string) {
           <Label className="text-sm font-semibold text-gray-700">
             Documento de Apoyo
           </Label>
-
           <p className="text-sm text-gray-500 leading-relaxed">
-            Sube un PDF, PowerPoint o Word. El archivo se guardará de forma segura.
-          </p>
+          Si quieres subir un documento complementario para tu análisis, sube un PDF, PowerPoint o Word. Este elemento NO es requerido para que realicemos tu análisis de forma confiable."
+            </p>
 
           {/* Botón visual para subir archivo */}
           <label

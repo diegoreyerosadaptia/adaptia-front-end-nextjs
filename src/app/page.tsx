@@ -7,15 +7,15 @@ import { WhyAdaptiaSection } from "@/components/why-adaptia-section"
 import { ComparisonSection } from "@/components/comparison-section"
 import { TargetAudienceSection } from "@/components/target-audience-section"
 import { SupportersSection } from "@/components/supporters-section"
-import { FinalCtaSection } from "@/components/final-cta-section"
 import { Footer } from "@/components/footer"
 import { FinalCtaWithDrawer } from "@/components/final-cta-with-drawer"
+import { HeroSectionDrawer } from "@/components/hero-section-with-drawer"
 
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white">
       <Navigation />
-      <HeroSection />
+      <HeroSectionDrawer />
       <HowItWorksWithDrawer />
       <AnalysisSection />
       <div className="bg-combo-blue-gray-light relative">

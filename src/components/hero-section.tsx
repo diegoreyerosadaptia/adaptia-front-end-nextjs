@@ -4,7 +4,12 @@ import Link from "next/link"
 import { ChevronDown } from "lucide-react"
 import Image from "next/image"
 
-export function HeroSection() {
+
+type Props = {
+  onOpenDrawer?: () => void
+}
+
+export function HeroSection({ onOpenDrawer }: Props) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-combo-blue-green">
       {/* Background pattern matching brand guidelines */}
@@ -54,12 +59,12 @@ export function HeroSection() {
 
           {/* CTA section with brand styling */}
           <div className="pt-6 space-y-6">
-            <Button
-              asChild
+          <Button
               size="lg"
+              onClick={onOpenDrawer}
               className="btn-primary-brand text-lg px-10 py-6 rounded-xl transition-all duration-300"
             >
-              <Link href="/formulario">Solicita tu análisis en segundos</Link>
+              Solicita tu análisis en segundos
             </Button>
           </div>
         </div>
