@@ -147,7 +147,7 @@ export default async function ClientDashboard() {
             {/* CENTRO */}
             <div className="hidden md:flex flex-col items-center text-center">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-[#163F6A] to-[#163F6A]/80 bg-clip-text text-transparent">
-              Mi dashboard - Panel de control personal
+                Panel de Control
               </h1>
             </div>
 
