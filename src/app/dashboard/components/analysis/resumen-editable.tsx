@@ -75,7 +75,7 @@ export function ResumenEditable({
       {/* ========================= */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
-        Estrategia de Sostenibilidad
+        Ruta de Sostenibilidad
         </h2>
 
         <div className="flex items-center gap-3">
@@ -93,7 +93,7 @@ export function ResumenEditable({
       </div>
 
       <p>
-      Aquí podrás encontrar un resumen explicativo de las acciones que tu empresa podría tomar en tres niveles: inicial, moderado y estructural. Estas acciones pueden servirte como base para construir una estrategia de sostenibilidad completa que ayude a mitigar los riesgos asociados con tus 10 temas materiales y a potencializar las oportunidades vinculadas con ellos.
+      Aquí podrás encontrar un resumen explicativo de las acciones que tu empresa podría tomar en tres niveles: inicial, moderado y estructural. Estas acciones pueden servirte como base para construir una ruta de sostenibilidad completa que ayude a mitigar los riesgos asociados con tus 10 temas materiales y a potencializar las oportunidades vinculadas con ellos.
       </p>
 
       {/* ========================= */}
@@ -148,7 +148,7 @@ export function ResumenEditable({
           </p>
         </div>
       )}
-      <p>Nota: Recuerda que, para construir una estrategia de sostenibilidad completa, debes involucrar a los diferentes grupos de interés de tu empresa. La estrategia que este análisis te entrega es una base sobre la cual podrás construir el plan de sostenibilidad corporativa de tu organización.</p>
+      <p>Nota: Recuerda que, para construir una ruta de sostenibilidad completa, debes involucrar a los diferentes grupos de interés de tu empresa. La ruta que este análisis te entrega es una base sobre la cual podrás construir el plan de sostenibilidad corporativa de tu organización.</p>
     </div>
   )
 }

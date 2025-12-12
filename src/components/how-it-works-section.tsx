@@ -25,7 +25,7 @@ export function HowItWorksSection({ onOpenDrawer }: HowItWorksSectionProps) {
     {
       number: "3",
       icon: <BarChart3 className="w-8 h-8" />,
-      title: "En 24 horas hábiles recibes tu análisis y estrategia",
+      title: "En 24 horas hábiles recibes tu análisis y ruta",
       description: "Accede a tu dashboard interactivo con resultados completos y accionables.",
     },
   ]

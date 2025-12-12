@@ -16,7 +16,7 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "Adaptia - Sostenibilidad sin fricción",
   description:
-    "Recibe un análisis de doble materialidad ESG y estrategia de sostenibilidad para tu empresa en 24 horas.",
+    "Recibe un análisis de doble materialidad ESG y ruta de sostenibilidad para tu empresa en 24 horas.",
   icons: {
     icon: "/favicon.png",
   },

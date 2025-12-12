@@ -7,13 +7,13 @@ export function TargetAudienceSection() {
       icon: <Building className="w-8 h-8" />,
       title: "Empresas grandes",
       description:
-        "Que quieren acelerar sus estrategias ESG o aplicarlas también a proveedores de su cadena de valor.",
+        "Que quieren acelerar sus rutas ESG o aplicarlas también a proveedores de su cadena de valor.",
     },
     {
       icon: <Rocket className="w-8 h-8" />,
       title: "Startups y scaleups",
       description:
-        "Que necesitan mostrar una estrategia de sostenibilidad clara para levantar inversión.",
+        "Que necesitan mostrar una ruta de sostenibilidad clara para levantar inversión.",
     },
     {
       icon: <Users className="w-8 h-8" />,

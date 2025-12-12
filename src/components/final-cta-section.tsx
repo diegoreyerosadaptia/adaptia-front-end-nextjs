@@ -27,7 +27,7 @@ export function FinalCtaSection({ onOpenDrawer }: Props) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
         <div className="space-y-8">
           <h2 className="text-2xl md:text-3xl lg:text-4xl text-adaptia-yellow font-heading font-bold leading-tight text-balance">
-            Comienza hoy tu estrategia de sostenibilidad
+            Comienza hoy tu ruta de sostenibilidad
           </h2>
 
           <h2 className="text-xl md:text-1xl lg:text-2xl text-white max-w-4xl mx-auto leading-relaxed text-pretty font-heading">

@@ -326,7 +326,7 @@ const addPage = (title?: string, skipBranding = false) => {
   let resumenPage = addPage("Resumen Ejecutivo")
   y = pageHeight - 130
 
-  resumenPage.drawText("Estrategia de Sostenibilidad Recomendada", {
+  resumenPage.drawText("Ruta de Sostenibilidad Recomendada", {
     x: leftMargin,
     y,
     size: 14,

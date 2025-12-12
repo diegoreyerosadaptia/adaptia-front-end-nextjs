@@ -45,7 +45,7 @@ export default function PaymentSection({
   features = [
     "Matriz de doble materialidad (financiera y ESG)",
     "Recomendaciones basadas en marcos internacionales (GRI, SASB, GAIL, S&P, ODS)",
-    "Estrategia de sostenibilidad personalizada",
+    "Ruta de sostenibilidad personalizada",
     "Dashboard interactivo para revisar resultados",
   ],
   asEmbedded = false,

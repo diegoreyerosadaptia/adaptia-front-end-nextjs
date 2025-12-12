@@ -42,7 +42,7 @@ export default function EquipoPage() {
               <p className="text-lg text-muted-foreground text-pretty leading-relaxed">
                 Usamos inteligencia artificial para analizar los datos proporcionados por cada organización, cruzándolos
                 con estándares internacionales como GRI, SASB, GAIL, S&P y los ODS. A partir de esta base, identificamos
-                impactos relevantes, priorizamos temas materiales y sugerimos una estrategia práctica y adaptada a la
+                impactos relevantes, priorizamos temas materiales y sugerimos una ruta práctica y adaptada a la
                 realidad de cada empresa. Nuestro objetivo es facilitar un primer paso claro, riguroso y accionable en
                 sostenibilidad, sin procesos largos ni complejos.
               </p>

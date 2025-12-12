@@ -110,6 +110,7 @@ export function MaterialidadCEditable({
           <table className="w-full border-collapse text-sm">
             <thead style={{ backgroundColor: "#EAFC53", color: "white" }}>
               <tr>
+                <th className="px-4 py-3 text-[#163F6A]">Tema</th>
                 <th className="px-4 py-3 text-[#163F6A]">ODS</th>
                 <th className="px-4 py-3 text-[#163F6A]">Meta ODS</th>
                 <th className="px-4 py-3 text-[#163F6A]">Indicador ODS</th>
@@ -122,6 +123,18 @@ export function MaterialidadCEditable({
                   key={idx}
                   className="hover:bg-adaptia-gray-light/10 align-top transition-colors"
                 >
+
+                  <td className="px-4 py-3 text-adaptia-gray-dark leading-relaxed">
+                    {isEditing ? (
+                      <textarea
+                        value={row.tema}
+                        onChange={(e) => handleEditCell(idx, "tema", e.target.value)}
+                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-green-500 resize-y min-h-[50px]"
+                      />
+                    ) : (
+                      <p>{row.tema}</p>
+                    )}
+                  </td>
 
                   {/* ODS */}
                   <td className="px-4 py-3 text-adaptia-gray-dark leading-relaxed">

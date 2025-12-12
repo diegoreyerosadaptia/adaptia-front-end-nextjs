@@ -18,7 +18,7 @@ export default function FaqPage() {
     {
       question: "¿Qué incluye el análisis de Adaptia?",
       answer:
-        "Incluye contexto organizacional, matriz de doble materialidad, métricas clave (alineadas a GRI, S&P, GAIL, SASB, ODS), riesgos y oportunidades y una estrategia de sostenibilidad.",
+        "Incluye contexto organizacional, matriz de doble materialidad, métricas clave (alineadas a GRI, S&P, GAIL, SASB, ODS), riesgos y oportunidades y una ruta de sostenibilidad.",
     },
     {
       question: "¿Cuánto tarda el proceso?",
@@ -37,7 +37,7 @@ export default function FaqPage() {
     {
       question: "¿Qué pasa después de recibir el análisis?",
       answer:
-        "Te podremos dar recomendaciones de como implementar tu estrategia de sostenibilidad de la mano de nuestros aliados de impacto.",
+        "Te podremos dar recomendaciones de como implementar tu ruta de sostenibilidad de la mano de nuestros aliados de impacto.",
     },
     {
       question: "¿Qué tan válidas son las métricas y referencias?",
@@ -101,7 +101,7 @@ export default function FaqPage() {
           <div className="text-center mt-10 mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6 text-balance">Preguntas frecuentes</h1>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto text-pretty">
-              Sabemos que dar el primer paso hacia una estrategia de sostenibilidad puede generar dudas. 
+              Sabemos que dar el primer paso hacia una ruta de sostenibilidad puede generar dudas. 
               Si no encuentras la respuesta que buscas, siempre puedes escribirnos por WhatsApp.
             </p>
           </div>

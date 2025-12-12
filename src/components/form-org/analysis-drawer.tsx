@@ -29,7 +29,7 @@ export function AnalysisDrawer({ open, onOpenChange }: AnalysisDrawerProps) {
           <SheetTitle className="text-3xl font-bold text-primary">Solicitar análisis</SheetTitle>
           <SheetDescription className="text-base text-muted-foreground">
             Completa el formulario en menos de 5 minutos y activa tu análisis personalizado. 
-            El proceso comienza una vez realizado el pago. En 24 horas hábiles tendrás tu estrategia lista.
+            El proceso comienza una vez realizado el pago. En 24 horas hábiles tendrás tu ruta lista.
           </SheetDescription>
         </SheetHeader>
 

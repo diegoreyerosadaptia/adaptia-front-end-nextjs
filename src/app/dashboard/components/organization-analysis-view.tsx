@@ -43,7 +43,7 @@ type TabType =
     { id: "gri" as TabType,            label: "Métricas GRI",              color: "#CBDCDB", textColor: "#163F6A" },
     { id: "materialidad_c" as TabType, label: "ODS",                       color: "#EAFC53", textColor: "#163F6A" },
     { id: "regulaciones" as TabType,   label: "Regulaciones nacionales",   color: "#59B5CA", textColor: "#163F6A" },
-    { id: "resumen" as TabType,        label: "Estrategia",                color: "#C2DA62", textColor: "#163F6A" },
+    { id: "resumen" as TabType,        label: "Ruta",                color: "#C2DA62", textColor: "#163F6A" },
   ]
   
   

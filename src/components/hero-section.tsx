@@ -50,7 +50,7 @@ export function HeroSection({ onOpenDrawer }: Props) {
             </h2>
 
             <h2 className="text-xl md:text-1xl lg:text-2xl text-white max-w-4xl mx-auto leading-relaxed text-pretty font-heading">
-              Recibe un análisis de doble materialidad ESG y estrategia de sostenibilidad para tu empresa en{" "}
+              Recibe un análisis de doble materialidad ESG y ruta de sostenibilidad para tu empresa en{" "}
             </h2>
               <h2 className="text-2xl md:text-3xl lg:text-4xl text-adaptia-yellow font-heading font-bold leading-tight text-balance">
               24 horas
