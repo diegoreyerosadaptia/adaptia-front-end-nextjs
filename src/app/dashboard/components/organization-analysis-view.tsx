@@ -96,7 +96,6 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
     switch (activeTab) {
       case "contexto":
         const contexto = analysisData[0]?.response_content
-
         return (
           <section id="contexto-section">
             <ContextoEditable
