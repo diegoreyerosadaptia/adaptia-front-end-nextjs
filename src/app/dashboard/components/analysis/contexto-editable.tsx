@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { AnalysisActionsMenu } from "./analysis-actions-menu"
 import { updateAnalysisJsonAction } from "@/actions/analysis/update-analysis-json.action"
 import { toast } from "sonner"
@@ -35,9 +35,27 @@ export function ContextoEditable({
   const [isSaving, setIsSaving] = useState(false)
   const [contextoData, setContextoData] = useState<ContextoItem>(contextoOriginal)
 
-  // ✅ Resumen editable (se guarda dentro del JSON como "resumen")
-  const computedResumen = `${contextoOriginal.nombre_empresa} es una empresa líder en ${contextoOriginal.industria}, con operaciones en ${contextoOriginal.pais_operacion}.`
-  const [resumen, setResumen] = useState<string>((contextoOriginal as any)?.resumen ?? computedResumen)
+  // ✅ resumen default basado en el estado actual (no en el original)
+  const computedResumen = useMemo(() => {
+    const nombre = contextoData?.nombre_empresa?.trim() || "La empresa"
+    const industria = contextoData?.industria?.trim() || "su industria"
+    const pais = contextoData?.pais_operacion?.trim() || "su país de operación"
+    return `${nombre} es una empresa líder en ${industria}, con operaciones en ${pais}.`
+  }, [contextoData.nombre_empresa, contextoData.industria, contextoData.pais_operacion])
+
+  // si ya venía un resumen guardado, lo usamos; si no, usamos el computed
+  const initialResumen = (contextoOriginal as any)?.resumen ?? computedResumen
+  const [resumen, setResumen] = useState<string>(initialResumen)
+
+  // ✅ detecta si el usuario editó manualmente el resumen
+  const [isResumenCustom, setIsResumenCustom] = useState<boolean>(
+    Boolean((contextoOriginal as any)?.resumen)
+  )
+
+  // ✅ si NO es custom, el resumen se va actualizando solo cuando cambian datos
+  useEffect(() => {
+    if (!isResumenCustom) setResumen(computedResumen)
+  }, [computedResumen, isResumenCustom])
 
   const handleChange = (field: keyof ContextoItem, value: string) => {
     setContextoData((prev) => ({ ...prev, [field]: value }))
@@ -48,7 +66,6 @@ export function ContextoEditable({
       setIsSaving(true)
       const newJson = [...analysisData]
 
-      // ✅ guardamos el resumen junto al resto del contexto
       newJson[0].response_content = {
         ...contextoData,
         resumen,
@@ -71,28 +88,25 @@ export function ContextoEditable({
 
   const handleCancel = () => {
     setContextoData(contextoOriginal)
-    setResumen((contextoOriginal as any)?.resumen ?? computedResumen)
+
+    const originalResumen = (contextoOriginal as any)?.resumen
+    setIsResumenCustom(Boolean(originalResumen))
+    setResumen(originalResumen ?? `${contextoOriginal.nombre_empresa} es una empresa líder en ${contextoOriginal.industria}, con operaciones en ${contextoOriginal.pais_operacion}.`)
+
     setIsEditing(false)
     toast.info("Cambios descartados")
   }
-
-  /* ====================================================== */
-  /* 🎨 Estilo */
-  /* ====================================================== */
 
   const boxClass = "p-4 rounded-lg border border-[#163F6A]/20 bg-white shadow-sm"
   const labelClass = "text-sm font-medium mb-1 text-[#C2DA62]"
   const textareaClass =
     "w-full border border-gray-300 rounded px-2 py-2 text-base focus:ring-1 focus:ring-[#C2DA62] resize-y min-h-[70px] text-[#163F6A] bg-white"
-
-  // ✅ para que NO se achique cuando no edita (mismo alto mínimo)
   const valueClass = "text-base text-[#163F6A] whitespace-pre-line min-h-[70px]"
 
-  // ✅ Definís acá qué props querés mostrar y con qué título
+  // ✅ SIN nombre_empresa acá (porque lo mostramos arriba)
   const fields = useMemo(
     () =>
       [
-        { key: "nombre_empresa", label: "Nombre de la empresa" },
         { key: "industria", label: "Industria" },
         { key: "pais_operacion", label: "País de operación" },
         { key: "tamano_empresa", label: "Tamaño de la empresa" },
@@ -108,7 +122,6 @@ export function ContextoEditable({
 
   return (
     <div className="space-y-6 text-[#163F6A]">
-      {/* 🧭 TÍTULO */}
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-heading font-bold">Contexto de organización</h2>
 
@@ -123,14 +136,32 @@ export function ContextoEditable({
         )}
       </div>
 
-      {/* 📝 RESUMEN (EDITABLE + MISMO TAMAÑO) */}
+      {/* ✅ 1) NOMBRE DE LA EMPRESA PRIMERO */}
+      <div className={boxClass}>
+        <p className={labelClass}>Nombre de la empresa</p>
+
+        {isEditing ? (
+          <textarea
+            value={contextoData.nombre_empresa ?? ""}
+            onChange={(e) => handleChange("nombre_empresa", e.target.value)}
+            className={textareaClass}
+          />
+        ) : (
+          <p className={valueClass}>{contextoData.nombre_empresa || "-"}</p>
+        )}
+      </div>
+
+      {/* ✅ 2) RESUMEN DESPUÉS */}
       <div className={boxClass}>
         <p className={labelClass}>Resumen</p>
 
         {isEditing ? (
           <textarea
             value={resumen}
-            onChange={(e) => setResumen(e.target.value)}
+            onChange={(e) => {
+              setResumen(e.target.value)
+              setIsResumenCustom(true)
+            }}
             className={textareaClass}
           />
         ) : (
@@ -138,7 +169,7 @@ export function ContextoEditable({
         )}
       </div>
 
-      {/* ✅ CADA PROPIEDAD EN SU PÁRRAFO + TÍTULO */}
+      {/* ✅ 3) RESTO */}
       <div className="space-y-4">
         {fields.map(({ key, label }) => (
           <div key={key} className={boxClass}>

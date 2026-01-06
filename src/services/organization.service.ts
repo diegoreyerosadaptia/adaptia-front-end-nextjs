@@ -86,25 +86,21 @@ export const getOrganizationsAll = async (
 
 
 
-
 export const getOrganizationById = async (organizationId: string, authToken?: string) => {
   try {
     const response = await fetch(`${BASE_URL}/organizations/${organizationId}`, {
       headers: getJsonHeaders(authToken),
+      cache: "no-store", // ✅ evita cache
     })
-    const data = await response.json()
 
-    if (response.ok) {
-      return data as Organization
-    } else {
-      console.error(data)
-      return null
-    }
+    const data = await response.json()
+    return response.ok ? (data as Organization) : null
   } catch (error) {
     console.error(error)
     return null
   }
 }
+
 
 export const createOrganization = async (values: OrganizationSchemaType, authToken?: string) => {
   try {
