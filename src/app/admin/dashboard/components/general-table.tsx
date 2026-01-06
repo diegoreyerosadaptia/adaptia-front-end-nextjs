@@ -23,13 +23,15 @@ import {
   User,
   Users,
   Briefcase,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
-import ActionsMenu from "./actions-menu"
 import PaymentStatusSelect from "./analysis-status-select"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { getAnalysisSocket } from "@/lib/analysis-socket"
 import { EditOrganizationDialog } from "./update-organization-dialog"
 import { DeleteOrganizationDialog } from "@/app/dashboard/components/delete-organzation-dialog"
+import { useRouter, useSearchParams } from "next/navigation"
 
 type FilterType =
   | "all"
@@ -64,14 +66,11 @@ const isUrl = (value: string | undefined) => {
 }
 
 // 🔹 helper para construir la fila de export (Excel / CSV)
-//   - sin ID
-//   - fecha sin hora
-//   - corrige caso website+document pegados (https://xxxhttps://yyy)
 const buildExportRow = (org: any) => {
   let website: string = org.website ?? ""
   let document: string = org.document ?? ""
 
-  // Si no tenemos document y en website vienen 2 URLs pegadas, las separamos:
+  // website + document pegados (https://xxxhttps://yyy)
   if (!document && typeof website === "string") {
     const firstIndex = website.indexOf("http")
     const secondIndex = website.indexOf("http", firstIndex + 4)
@@ -84,9 +83,7 @@ const buildExportRow = (org: any) => {
   }
 
   const createdAt =
-    org.createdAt
-      ? new Date(org.createdAt).toLocaleDateString("es-AR") // 👈 solo fecha
-      : ""
+    org.createdAt ? new Date(org.createdAt).toLocaleDateString("es-AR") : ""
 
   return {
     Nombre: org.name ?? "",
@@ -105,6 +102,9 @@ const buildExportRow = (org: any) => {
 }
 
 export default function GeneralTable({ organizations = [], token }: DashboardTableProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
   const [filteredOrgs, setFilteredOrgs] = useState(organizations)
   const [searchTerm, setSearchTerm] = useState("")
   const [activeFilter, setActiveFilter] = useState<FilterType>("all")
@@ -154,13 +154,14 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
     }
 
     if (search) {
+      const s = search.toLowerCase()
       filtered = filtered.filter(
         (org) =>
-          org.company?.toLowerCase().includes(search.toLowerCase()) ||
-          org.name?.toLowerCase().includes(search.toLowerCase()) ||
-          org.lastName?.toLowerCase().includes(search.toLowerCase()) ||
-          org.email?.toLowerCase().includes(search.toLowerCase()) ||
-          org.industry?.toLowerCase().includes(search.toLowerCase()),
+          org.company?.toLowerCase().includes(s) ||
+          org.name?.toLowerCase().includes(s) ||
+          org.lastName?.toLowerCase().includes(s) ||
+          org.email?.toLowerCase().includes(s) ||
+          org.industry?.toLowerCase().includes(s),
       )
     }
 
@@ -171,6 +172,45 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
     setSearchTerm(value)
     applyFilters(value, activeFilter)
   }
+
+  // =========================
+  // PAGINACIÓN (según limit en URL)
+  // =========================
+  const pageParam = Number(searchParams.get("page") ?? "1")
+  const limitParam = Number(searchParams.get("limit") ?? "15")
+
+  const pageSize = Number.isFinite(limitParam) && limitParam > 0 ? limitParam : 15
+  const currentPageRaw = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1
+
+  const totalFiltered = filteredOrgs.length
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize))
+  const currentPage = Math.min(currentPageRaw, totalPages)
+
+  const rangeFrom = totalFiltered === 0 ? 0 : (currentPage - 1) * pageSize + 1
+  const rangeTo = totalFiltered === 0 ? 0 : Math.min(currentPage * pageSize, totalFiltered)
+
+  const pagedOrgs = useMemo(() => {
+    if (totalFiltered === 0) return []
+    const start = (currentPage - 1) * pageSize
+    const end = start + pageSize
+    return filteredOrgs.slice(start, end)
+  }, [filteredOrgs, currentPage, pageSize, totalFiltered])
+
+  const goToPage = (p: number) => {
+    const sp = new URLSearchParams(searchParams.toString())
+    sp.set("page", String(p))
+    sp.set("limit", String(pageSize))
+    router.push(`?${sp.toString()}`)
+  }
+
+  // Opcional: cuando cambiás filtros/búsqueda, volver a página 1
+  useEffect(() => {
+    const hasFilters = activeFilter !== "all" || searchTerm.trim().length > 0
+    if (hasFilters && currentPage !== 1) {
+      goToPage(1)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFilter, searchTerm])
 
   // =========================
   // SOCKETS ANALYSIS STATUS
@@ -221,27 +261,22 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
   }, [])
 
   // =========================
-  // EXPORTAR A EXCEL (XLSX)
+  // EXPORTAR
   // =========================
   const handleExportExcel = async () => {
     const XLSX = await import("xlsx")
-
-    const rows = filteredOrgs.map(buildExportRow)
-
+    const rows = filteredOrgs.map(buildExportRow) // exporta TODO lo filtrado, no solo la página
     const wb = XLSX.utils.book_new()
     const ws = XLSX.utils.json_to_sheet(rows)
     XLSX.utils.book_append_sheet(wb, ws, "Organizaciones")
     XLSX.writeFile(wb, "organizaciones_adaptia.xlsx")
   }
 
-  // =========================
-  // EXPORTAR A CSV
-  // =========================
   const handleExportCsv = () => {
     const rows = filteredOrgs.map(buildExportRow)
     if (rows.length === 0) return
 
-    const separator = ";" // para Excel en es-AR
+    const separator = ";"
     const headers = Object.keys(rows[0])
 
     const escapeField = (value: unknown) => {
@@ -256,9 +291,7 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
       headers.join(separator) +
       "\n" +
       rows
-        .map((row) =>
-          headers.map((h) => escapeField((row as Record<string, unknown>)[h])).join(separator),
-        )
+        .map((row) => headers.map((h) => escapeField((row as Record<string, unknown>)[h])).join(separator))
         .join("\n")
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
@@ -270,9 +303,12 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
     URL.revokeObjectURL(url)
   }
 
+  const hasAnyFilter = activeFilter !== "all" || searchTerm.trim().length > 0
+
   return (
     <>
       <style>{style}</style>
+
       <Card className="border-gray-200/20 shadow-lg">
         <CardHeader className="border-b border-gray-200/20 bg-white">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -280,14 +316,11 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
               <CardTitle className="text-2xl font-heading text-[#163F6A]">
                 Organizaciones y Análisis
               </CardTitle>
+
               <CardDescription className="text-base mt-1">
-                {activeFilter !== "all" ? (
-                  <span className="font-medium text-[#163F6A]">
-                    Mostrando {filteredOrgs.length} de {organizations.length} organizaciones
-                  </span>
-                ) : (
-                  `Vista detallada de todas las organizaciones y sus métricas`
-                )}
+                <span className="font-medium text-[#163F6A]">
+                  Vista detallada de todas las organizaciones y sus métricas
+                </span>
               </CardDescription>
             </div>
 
@@ -301,6 +334,7 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                   onChange={(e) => handleSearch(e.target.value)}
                 />
               </div>
+
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" size="sm" onClick={handleExportExcel}>
                   <Download className="w-4 h-4 mr-1" />
@@ -341,9 +375,10 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                     </th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  {filteredOrgs.length > 0 ? (
-                    filteredOrgs.map((org) => {
+                  {pagedOrgs.length > 0 ? (
+                    pagedOrgs.map((org) => {
                       const completedCount =
                         org.analysis?.filter((a: any) => a.status === "COMPLETED").length || 0
                       const pendingCount =
@@ -353,9 +388,7 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                       const processCount =
                         org.analysis?.filter((a: any) => a.status === "PROCESSING").length || 0
 
-                      const shouldAnimate = org.analysis?.some(
-                        (a: any) => a.id === highlightedRow,
-                      )
+                      const shouldAnimate = org.analysis?.some((a: any) => a.id === highlightedRow)
 
                       const createdAtLabel = org.createdAt
                         ? new Date(org.createdAt).toLocaleDateString("es-AR")
@@ -452,14 +485,13 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                                     </a>
                                   </div>
                                 )}
+
                                 {org.document && (
                                   <HoverCard>
                                     <HoverCardTrigger asChild>
                                       <button className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700">
                                         <FileText className="h-3 w-3" />
-                                        <span className="underline decoration-dashed">
-                                          Ver documento
-                                        </span>
+                                        <span className="underline decoration-dashed">Ver documento</span>
                                       </button>
                                     </HoverCardTrigger>
                                     <HoverCardContent className="w-80">
@@ -475,17 +507,14 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                                             {org.document}
                                           </a>
                                         ) : (
-                                          <p className="text-xs text-gray-600 break-all">
-                                            {org.document}
-                                          </p>
+                                          <p className="text-xs text-gray-600 break-all">{org.document}</p>
                                         )}
                                       </div>
                                     </HoverCardContent>
                                   </HoverCard>
                                 )}
-                                <div className="text-gray-400 mt-1">
-                                  Creado: {createdAtLabel}
-                                </div>
+
+                                <div className="text-gray-400 mt-1">Creado: {createdAtLabel}</div>
                               </div>
                             </div>
                           </td>
@@ -534,9 +563,7 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                             {org.analysis && org.analysis.length > 0 ? (
                               <div className="flex flex-col items-center gap-3">
                                 {org.analysis.map((a: any) => {
-                                  const discount = a.discount_percentage
-                                    ? Number(a.discount_percentage)
-                                    : 0
+                                  const discount = a.discount_percentage ? Number(a.discount_percentage) : 0
                                   return (
                                     <div key={a.id} className="space-y-2">
                                       <div
@@ -555,11 +582,10 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                                           "Sin descuento"
                                         )}
                                       </div>
+
                                       <PaymentStatusSelect
                                         id={a.id}
-                                        initialStatus={
-                                          a.payment_status as "PENDING" | "COMPLETED"
-                                        }
+                                        initialStatus={a.payment_status as "PENDING" | "COMPLETED"}
                                         accessToken={token}
                                       />
                                     </div>
@@ -570,18 +596,12 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                               <span className="text-xs text-gray-400">—</span>
                             )}
                           </td>
+
                           {/* ACCIONES */}
                           <td className="px-6 py-5">
-                            <div className="flex items-center justify-center gap-2">
-                              <EditOrganizationDialog
-                                organization={org}
-                                triggerLabel="Editar"
-                              />
-                            </div>
-                            <div className="flex items-center justify-center gap-2">
-                              <DeleteOrganizationDialog
-                                organization={org}
-                              />
+                            <div className="flex flex-col items-center justify-center gap-2">
+                              <EditOrganizationDialog organization={org} triggerLabel="Editar" />
+                              <DeleteOrganizationDialog organization={org} />
                             </div>
                           </td>
                         </tr>
@@ -604,6 +624,36 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                 </tbody>
               </table>
             </TooltipProvider>
+          </div>
+
+          {/* ✅ Footer paginación (según limit) */}
+          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200/20 bg-white">
+            <div className="text-xs text-gray-500">
+              Página <span className="font-medium text-[#163F6A]">{currentPage}</span> de{" "}
+              <span className="font-medium text-[#163F6A]">{totalPages}</span> · Mostrando{" "}
+              <span className="font-medium text-[#163F6A]">{rangeFrom}-{rangeTo}</span> de{" "}
+              <span className="font-medium text-[#163F6A]">{totalFiltered}</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                disabled={currentPage <= 1}
+                onClick={() => goToPage(currentPage - 1)}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Anterior
+              </button>
+
+              <button
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                disabled={currentPage >= totalPages}
+                onClick={() => goToPage(currentPage + 1)}
+              >
+                Siguiente
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </CardContent>
       </Card>

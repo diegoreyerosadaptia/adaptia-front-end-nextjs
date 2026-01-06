@@ -8,7 +8,8 @@ export type ServiceName =
 // Define the cache tags structure
 export const CACHE_TAGS = {
   organizations: {
-    all: 'organizations',
+    all: "organizations:all",
+    page: (page: string, limit: string) => `organizations:page:${page}:limit:${limit}`,
   },
   analysis: {
     all: 'analysis',
