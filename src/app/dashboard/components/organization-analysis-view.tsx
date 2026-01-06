@@ -20,6 +20,7 @@ import Image from "next/image"
 import { GenerateEsgPdfButtonAll } from "@/components/pdf/generate-esg-all-button"
 import { GenerateEsgPdfButton } from "@/components/pdf/generate-esg-button"
 import { getGriByTemas } from "@/services/esg.service"
+import { buildMaterialityChartData } from "@/lib/materiality/build-materiality-chart-data"
 
 interface OrganizationAnalysisViewProps {
   organization: Organization
@@ -119,27 +120,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
         // ======================
         // 🧮 Mapear Parte B → datos del gráfico
         // ======================
-        const dataFinal = parteBSorted.map((item) => {
-          const tema = item.tema
-          const materialidad = item.materialidad_financiera || item.materialidad || ""
-          const materialidad_esg = Number(item.materialidad_esg ?? 0)
-      
-          let x = 0
-          const fin = materialidad?.toLowerCase()
-      
-          if (fin === "baja") x = 1
-          if (fin === "media") x = 3
-          if (fin === "alta") x = 5
-      
-          return {
-            tema,
-            materialidad,
-            materialidad_esg,
-            x,
-            y: materialidad_esg,
-          }
-        })
-
+          const dataFinal = buildMaterialityChartData(parteBSorted)
       
         // ======================
         // 🎨 Render principal

@@ -1,11 +1,12 @@
 "use client"
 
-import { useRef } from "react"
+import { useMemo, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { generateEsgPdf } from "@/lib/pdf/generate-esg-pdf"
 import { FileText } from "lucide-react"
 import { MaterialityChart } from "@/app/dashboard/components/materiality-chart"
+import { buildMaterialityChartData } from "@/lib/materiality/build-materiality-chart-data" // ✅ NUEVO
 
 type ContextoType = {
   nombre_empresa: string
@@ -27,6 +28,7 @@ interface MaterialityInput {
   materialidad_esg?: number
   x?: number
   y?: number
+  materialidad_financiera?: string // ✅ por si te llega así desde la tabla
 }
 
 type ResumenType = {
@@ -56,9 +58,15 @@ export function GenerateEsgPdfButton({
   filename = "Reporte_ESG.pdf",
   className,
   dashboard = false,
-  orgName
+  orgName,
 }: GenerateEsgPdfButtonProps) {
   const chartRef = useRef<HTMLDivElement>(null)
+
+  // ✅ IMPORTANTÍSIMO: normalizar + ordenar EXACTO como en el análisis
+  const chartData = useMemo(
+    () => buildMaterialityChartData(dataMaterialidad as any),
+    [dataMaterialidad],
+  )
 
   const handleGeneratePdf = async () => {
     try {
@@ -70,8 +78,8 @@ export function GenerateEsgPdfButton({
       let chartImg: string | undefined
 
       if (el) {
-        // 💡 pequeño delay para asegurarnos que Recharts terminó de pintar
-        await new Promise((res) => setTimeout(res, 300))
+        // 💡 delay para asegurar que Recharts termine de pintar
+        await new Promise((res) => setTimeout(res, 500))
 
         chartImg = await domtoimage.toPng(el, {
           quality: 1,
@@ -94,7 +102,7 @@ export function GenerateEsgPdfButton({
         portada,
         contraportada,
         chartImg,
-        orgName
+        orgName,
       })
 
       const blob = new Blob([pdfBytes], { type: "application/pdf" })
@@ -119,16 +127,14 @@ export function GenerateEsgPdfButton({
     <>
       {/* 🔘 Botón visible */}
       <Button
-          onClick={handleGeneratePdf}
-          variant="default"
-          className="cursor-pointer bg-[#619F44] !important"
-        >
-
+        onClick={handleGeneratePdf}
+        variant="default"
+        className="cursor-pointer bg-[#619F44] !important"
+      >
         <FileText className="mr-2 h-4 w-4" />
         {!dashboard && <span>Resumen Ejecutivo (PDF)</span>}
       </Button>
 
-      {/* 📊 Gráfico oculto para captura */}
       {/* 📊 Gráfico oculto para captura */}
       <div
         ref={chartRef}
@@ -139,13 +145,13 @@ export function GenerateEsgPdfButton({
           width: 1200,
           height: 900,
           backgroundColor: "#ffffff",
-          opacity: 1,          // 👈 que no esté a 0 por las dudas
+          opacity: 1,
           pointerEvents: "none",
         }}
       >
-        <MaterialityChart data={dataMaterialidad} />
+        {/* ✅ usar chartData (normalizado/ordenado), NO dataMaterialidad crudo */}
+        <MaterialityChart data={chartData} />
       </div>
-
     </>
   )
 }
