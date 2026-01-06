@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation"
+import Image from "next/image"
+import { LogOut } from "lucide-react"
+
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { LogOut } from "lucide-react"
-import Image from "next/image"
 
-import { getOrganizations } from "@/services/organization.service"
+import { getOrganizationsAll } from "@/services/organization.get" // ✅ GET SAFE (sin revalidateTag)
 import { getUserById } from "@/services/users.service"
 
 import DashboardPaymentGate from "@/components/form-org/dashboard-payment-gate"
@@ -21,38 +22,26 @@ export default async function ClientDashboard() {
     redirect("/error")
   }
 
-  // ✅ Paralelo: user + session
   const [
-    {
-      data: { user },
-    },
-    {
-      data: { session },
-    },
-  ] = await Promise.all([
-    supabase.auth.getUser(),
-    supabase.auth.getSession(),
-  ])
+    { data: { user } },
+    { data: { session } },
+  ] = await Promise.all([supabase.auth.getUser(), supabase.auth.getSession()])
 
   if (!user) redirect("/auth/login")
 
   const token = session?.access_token
 
-  // ✅ Paralelo: BD propia + organizaciones
+  // ✅ Traemos BD propia + organizaciones en paralelo
   const [userPostgres, organizations] = await Promise.all([
     getUserById(user.id, token),
-    getOrganizations(token),
+    getOrganizationsAll(token),
   ])
 
-  // ✅ Si es ADMIN → redirigir
-  if (userPostgres?.role === "ADMIN") {
-    redirect("/admin/dashboard")
-  }
-
   // ✅ Si no existe el usuario en tu BD
-  if (!userPostgres) {
-    redirect("/auth/login")
-  }
+  if (!userPostgres) redirect("/auth/login")
+
+  // ✅ Si es ADMIN → redirigir
+  if (userPostgres.role === "ADMIN") redirect("/admin/dashboard")
 
   const handleSignOut = async () => {
     "use server"
@@ -62,59 +51,51 @@ export default async function ClientDashboard() {
   }
 
   const hasPendingPayment =
-    organizations?.some((org) =>
-      org.analysis?.some((a) => a.payment_status === "PENDING")
-    ) ?? false
+    organizations?.some((org) => org.analysis?.some((a) => a.payment_status === "PENDING")) ?? false
 
   // ===========================
   // Estadísticas
   // ===========================
   const totalOrganizations = organizations?.length || 0
+
   const totalAnalysis =
     organizations?.reduce((acc, org) => acc + (org.analysis?.length || 0), 0) || 0
 
   const completedAnalysis =
     organizations?.reduce(
-      (acc, org) =>
-        acc + (org.analysis?.filter((a) => a.status === "COMPLETED").length || 0),
-      0
+      (acc, org) => acc + (org.analysis?.filter((a) => a.status === "COMPLETED").length || 0),
+      0,
     ) || 0
 
   const pendingAnalysis =
     organizations?.reduce(
-      (acc, org) =>
-        acc + (org.analysis?.filter((a) => a.status === "PENDING").length || 0),
-      0
+      (acc, org) => acc + (org.analysis?.filter((a) => a.status === "PENDING").length || 0),
+      0,
     ) || 0
 
   const failedAnalysis =
     organizations?.reduce(
-      (acc, org) =>
-        acc + (org.analysis?.filter((a) => a.status === "FAILED").length || 0),
-      0
+      (acc, org) => acc + (org.analysis?.filter((a) => a.status === "FAILED").length || 0),
+      0,
     ) || 0
 
   const incompleteAnalysis =
     organizations?.reduce(
-      (acc, org) =>
-        acc + (org.analysis?.filter((a) => a.status === "INCOMPLETE").length || 0),
-      0
+      (acc, org) => acc + (org.analysis?.filter((a) => a.status === "INCOMPLETE").length || 0),
+      0,
     ) || 0
 
   const completedPayments =
     organizations?.reduce(
       (acc, org) =>
-        acc +
-        (org.analysis?.filter((a) => a.payment_status === "COMPLETED").length || 0),
-      0
+        acc + (org.analysis?.filter((a) => a.payment_status === "COMPLETED").length || 0),
+      0,
     ) || 0
 
   const pendingPayments =
     organizations?.reduce(
-      (acc, org) =>
-        acc +
-        (org.analysis?.filter((a) => a.payment_status === "PENDING").length || 0),
-      0
+      (acc, org) => acc + (org.analysis?.filter((a) => a.payment_status === "PENDING").length || 0),
+      0,
     ) || 0
 
   const stats = {
@@ -155,9 +136,9 @@ export default async function ClientDashboard() {
             <div className="flex items-center gap-4">
               <div className="hidden lg:flex flex-col items-end">
                 <p className="text-sm font-medium text-[#163F6A]">
-                  {userPostgres?.name} {userPostgres?.surname}
+                  {userPostgres.name} {userPostgres.surname}
                 </p>
-                <p className="text-xs text-gray-600/70">{userPostgres?.email}</p>
+                <p className="text-xs text-gray-600/70">{userPostgres.email}</p>
               </div>
 
               <form action={handleSignOut}>
@@ -168,7 +149,7 @@ export default async function ClientDashboard() {
                     border-[#163F6A]/30
                     text-[#163F6A]
                     hover:bg-[#163F6A]
-                    hover:text-white 
+                    hover:text-white
                     hover:border-[#163F6A]
                     bg-white/50
                     backdrop-blur-sm
@@ -186,9 +167,7 @@ export default async function ClientDashboard() {
 
           {/* Título móvil */}
           <div className="md:hidden mt-4 text-center">
-            <h1 className="text-xl font-heading font-bold text-[#163F6A]">
-              Panel de Control
-            </h1>
+            <h1 className="text-xl font-heading font-bold text-[#163F6A]">Panel de Control</h1>
           </div>
         </div>
       </header>
@@ -209,6 +188,7 @@ export default async function ClientDashboard() {
                     Gestiona tus organizaciones y análisis de doble materialidad ESG.
                   </CardDescription>
                 </div>
+
                 <AddOrganizationDialog />
               </div>
             </CardHeader>
