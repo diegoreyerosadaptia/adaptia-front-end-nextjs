@@ -34,7 +34,6 @@ import { useState } from "react"
     "República Dominicana",
     "Uruguay",
     "Venezuela",
-    "Otro",
   ]
   
   export function CountrySelect({ form }: any) {
