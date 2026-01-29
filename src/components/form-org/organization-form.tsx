@@ -155,7 +155,7 @@ const onSubmit = (values: OrganizationSchemaType) => {
   })
 }
 const INDUSTRIES = [
-  "Aeroespacial y Defensa",
+  "Aeroespacial y defensa",
   "Aerolíneas",
   "Agroindustria",
   "Autos",
@@ -178,7 +178,7 @@ const INDUSTRIES = [
   "Químicos",
   "Seguros",
   "Servicios de atención médica",
-  "Servicios Empresariales",
+  "Servicios empresariales",
   "Servicios públicos",
   "Software y servicios tecnológicos",
   "Tecnología Hardware y Semiconductores",

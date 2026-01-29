@@ -103,90 +103,117 @@ export function ContextoEditable({
     "w-full border border-gray-300 rounded px-2 py-2 text-base focus:ring-1 focus:ring-[#C2DA62] resize-y min-h-[70px] text-[#163F6A] bg-white"
   const valueClass = "text-base text-[#163F6A] whitespace-pre-line min-h-[70px]"
 
-  // ✅ SIN nombre_empresa acá (porque lo mostramos arriba)
-  const fields = useMemo(
-    () =>
-      [
-        { key: "industria", label: "Industria" },
-        { key: "pais_operacion", label: "País de operación" },
-        { key: "tamano_empresa", label: "Tamaño de la empresa" },
-        { key: "ubicacion_geografica", label: "Ubicación geográfica" },
-        { key: "modelo_negocio", label: "Modelo de negocio" },
-        { key: "cadena_valor", label: "Cadena de valor" },
-        { key: "actividades_principales", label: "Actividades principales" },
-        { key: "madurez_esg", label: "Madurez ESG" },
-        { key: "stakeholders_relevantes", label: "Stakeholders relevantes" },
-      ] as Array<{ key: keyof ContextoItem; label: string }>,
-    []
-  )
+// ✅ SIN nombre_empresa, pais_operacion, tamano_empresa (los mostramos arriba)
+const fields = useMemo(
+  () =>
+    [
+      { key: "industria", label: "Industria" },
+      { key: "pais_operacion", label: "País de operación" },
+      { key: "modelo_negocio", label: "Modelo de negocio" },
+      { key: "cadena_valor", label: "Cadena de valor" },
+      { key: "actividades_principales", label: "Actividades principales" },
+      { key: "madurez_esg", label: "Madurez ESG" },
+      { key: "stakeholders_relevantes", label: "Grupos de interés" },
+    ] as Array<{ key: keyof ContextoItem; label: string }>,
+  []
+)
 
-  return (
-    <div className="space-y-6 text-[#163F6A]">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-heading font-bold">Contexto de organización</h2>
+return (
+  <div className="space-y-6 text-[#163F6A]">
+    <div className="flex justify-between items-center">
+      <h2 className="text-3xl font-heading font-bold">Contexto de organización</h2>
 
-        {userRole === "ADMIN" && (
-          <AnalysisActionsMenu
-            isEditing={isEditing}
-            isSaving={isSaving}
-            onEditToggle={() => setIsEditing((p) => !p)}
-            onSave={handleSaveChanges}
-            onCancel={handleCancel}
-          />
-        )}
-      </div>
-
-      {/* ✅ 1) NOMBRE DE LA EMPRESA PRIMERO */}
-      <div className={boxClass}>
-        <p className={labelClass}>Nombre de la empresa</p>
-
-        {isEditing ? (
-          <textarea
-            value={contextoData.nombre_empresa ?? ""}
-            onChange={(e) => handleChange("nombre_empresa", e.target.value)}
-            className={textareaClass}
-          />
-        ) : (
-          <p className={valueClass}>{contextoData.nombre_empresa || "-"}</p>
-        )}
-      </div>
-
-      {/* ✅ 2) RESUMEN DESPUÉS */}
-      <div className={boxClass}>
-        <p className={labelClass}>Resumen</p>
-
-        {isEditing ? (
-          <textarea
-            value={resumen}
-            onChange={(e) => {
-              setResumen(e.target.value)
-              setIsResumenCustom(true)
-            }}
-            className={textareaClass}
-          />
-        ) : (
-          <p className={valueClass}>{resumen || "-"}</p>
-        )}
-      </div>
-
-      {/* ✅ 3) RESTO */}
-      <div className="space-y-4">
-        {fields.map(({ key, label }) => (
-          <div key={key} className={boxClass}>
-            <p className={labelClass}>{label}</p>
-
-            {isEditing ? (
-              <textarea
-                value={contextoData[key] ?? ""}
-                onChange={(e) => handleChange(key, e.target.value)}
-                className={textareaClass}
-              />
-            ) : (
-              <p className={valueClass}>{contextoData[key] || "-"}</p>
-            )}
-          </div>
-        ))}
-      </div>
+      {userRole === "ADMIN" && (
+        <AnalysisActionsMenu
+          isEditing={isEditing}
+          isSaving={isSaving}
+          onEditToggle={() => setIsEditing((p) => !p)}
+          onSave={handleSaveChanges}
+          onCancel={handleCancel}
+        />
+      )}
     </div>
-  )
+
+    {/* ✅ 1) NOMBRE */}
+    <div className={boxClass}>
+      <p className={labelClass}>Nombre de la empresa</p>
+
+      {isEditing ? (
+        <textarea
+          value={contextoData.nombre_empresa ?? ""}
+          onChange={(e) => handleChange("nombre_empresa", e.target.value)}
+          className={textareaClass}
+        />
+      ) : (
+        <p className={valueClass}>{contextoData.nombre_empresa || "-"}</p>
+      )}
+    </div>
+
+    <div className={boxClass}>
+      <p className={labelClass}>Ubicación geográfica</p>
+
+      {isEditing ? (
+        <textarea
+          value={contextoData.ubicacion_geografica ?? ""}
+          onChange={(e) => handleChange("ubicacion_geografica", e.target.value)}
+          className={textareaClass}
+        />
+      ) : (
+        <p className={valueClass}>{contextoData.ubicacion_geografica || "-"}</p>
+      )}
+    </div>
+
+    {/* ✅ 3) TAMAÑO */}
+    <div className={boxClass}>
+      <p className={labelClass}>Tamaño de la empresa</p>
+
+      {isEditing ? (
+        <textarea
+          value={contextoData.tamano_empresa ?? ""}
+          onChange={(e) => handleChange("tamano_empresa", e.target.value)}
+          className={textareaClass}
+        />
+      ) : (
+        <p className={valueClass}>{contextoData.tamano_empresa || "-"}</p>
+      )}
+    </div>
+
+    {/* ✅ 4) RESUMEN */}
+    <div className={boxClass}>
+      <p className={labelClass}>Resumen</p>
+
+      {isEditing ? (
+        <textarea
+          value={resumen}
+          onChange={(e) => {
+            setResumen(e.target.value)
+            setIsResumenCustom(true)
+          }}
+          className={textareaClass}
+        />
+      ) : (
+        <p className={valueClass}>{resumen || "-"}</p>
+      )}
+    </div>
+
+    {/* ✅ 5) RESTO */}
+    <div className="space-y-4">
+      {fields.map(({ key, label }) => (
+        <div key={key} className={boxClass}>
+          <p className={labelClass}>{label}</p>
+
+          {isEditing ? (
+            <textarea
+              value={contextoData[key] ?? ""}
+              onChange={(e) => handleChange(key, e.target.value)}
+              className={textareaClass}
+            />
+          ) : (
+            <p className={valueClass}>{contextoData[key] || "-"}</p>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+)
 }

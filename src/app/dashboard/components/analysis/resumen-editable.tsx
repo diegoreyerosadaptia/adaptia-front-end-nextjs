@@ -57,11 +57,14 @@ export function ResumenEditable({
   // textarea único
   const [resumenText, setResumenText] = useState<string>(() => joinResumen(resumenOriginal))
 
-  // si cambia el prop desde afuera, sincronizamos (y si no está editando también refrescamos textarea)
   useEffect(() => {
     setResumenPersisted(resumenOriginal)
-    if (!isEditing) setResumenText(joinResumen(resumenOriginal))
-  }, [resumenOriginal, isEditing])
+    // Solo si NO estás editando, refrescá el textarea con lo que viene de afuera
+    if (!isEditing) {
+      setResumenText(joinResumen(resumenOriginal))
+    }
+  }, [resumenOriginal])
+
 
   const handleSaveChanges = async () => {
     try {
