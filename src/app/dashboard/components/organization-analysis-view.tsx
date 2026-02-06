@@ -96,7 +96,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
   const renderContent = () => {
     switch (activeTab) {
       case "contexto":
-        const contexto = analysisData[1]?.response_content
+        const contexto = analysisData[0]?.response_content
         return (
           <section id="contexto-section">
             <ContextoEditable
@@ -110,7 +110,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
         )
 
       case "materialidad": {
-        const parteB = [...(analysisData[4]?.response_content?.materiality_table || [])]
+        const parteB = [...(analysisData[3]?.response_content?.materiality_table || [])]
 
         // ✅ ORDENAR una sola vez por materialidad_esg DESC
         const parteBSorted = [...parteB].sort(
@@ -180,7 +180,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
             {/* ======================= */}
             {subTab === "acciones" && (
               <ParteAEditable
-                parteAOriginal={analysisData[4]?.response_content?.materiality_table || []}
+                parteAOriginal={analysisData[3]?.response_content?.materiality_table || []}
                 lastAnalysisId={lastAnalysis?.id || ""}
                 analysisData={analysisData}
                 accessToken={token}
@@ -282,7 +282,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
   const resumenData = analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
   const contextoData = analysisData?.find((a: any) => a?.response_content?.nombre_empresa)?.response_content || {}
 
-  const parteB = [...(analysisData[4]?.response_content?.materiality_table || [])]
+  const parteB = [...(analysisData[3]?.response_content?.materiality_table || [])]
 
   // ======================
   // 🧮 Mapear Parte B → datos del gráfico

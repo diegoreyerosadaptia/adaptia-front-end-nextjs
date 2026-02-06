@@ -698,7 +698,7 @@ type ParteAItemPdf = {
 }
 
 function buildParteAForPdf(analysisData: any[], temasOrdenados: string[]): ParteAItemPdf[] {
-  const parteA = (analysisData?.[2]?.response_content?.materiality_table || []) as any[]
+  const parteA = (analysisData?.[1]?.response_content?.materiality_table || []) as any[]
 
   const mapped: ParteAItemPdf[] = parteA.map((r) => ({
     sector: r.sector ?? "",
@@ -823,8 +823,8 @@ function drawContextoPage(
 }
 
 function buildParteB(analysisData: any[]): ParteBItem[] {
-  const parte2 = analysisData[2]?.response_content?.materiality_table || []
-  const parte4 = analysisData[4]?.response_content?.materiality_table || []
+  const parte2 = analysisData[1]?.response_content?.materiality_table || []
+  const parte4 = analysisData[3]?.response_content?.materiality_table || []
 
   const parteB: ParteBItem[] = parte4.map((row4: any) => {
     const match = parte2.find((r: any) => r.tema === row4.tema)
@@ -1176,7 +1176,7 @@ export function GenerateEsgPdfButtonAll({
 
   // ✅ data de chart igual que dashboard: Parte B ordenada por ESG desc
   const chartData = useMemo(() => {
-    const parteBraw = [...(analysisData?.[4]?.response_content?.materiality_table || [])]
+    const parteBraw = [...(analysisData?.[3]?.response_content?.materiality_table || [])]
     const parteBsorted = parteBraw.sort(
       (a, b) => Number(b.materialidad_esg ?? 0) - Number(a.materialidad_esg ?? 0),
     )
@@ -1234,7 +1234,7 @@ export function GenerateEsgPdfButtonAll({
       }
 
       // 2) Contexto
-      const contexto: Partial<ContextoItem> | undefined = analysisData[1]?.response_content
+      const contexto: Partial<ContextoItem> | undefined = analysisData[0]?.response_content
       drawContextoPage(pdfDoc, font, boldFont, logo, orgName || "", contexto)
 
       // ✅ 3) Matriz de materialidad: Gráfico ANTES de tablas
