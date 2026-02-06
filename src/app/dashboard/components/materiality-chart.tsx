@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   ResponsiveContainer,
   ScatterChart,
@@ -37,8 +37,31 @@ interface Props {
   data: MaterialityInput[]
 }
 
+type ChartSize = { width: number; height: number }
+
 export function MaterialityChart({ data }: Props) {
   const [points, setPoints] = useState<IndividualPoint[]>([])
+  const [chartSize, setChartSize] = useState<ChartSize | null>(null)
+
+  const wrapperRef = useRef<HTMLDivElement | null>(null)
+
+  // Medir tamaño real del contenedor del chart
+  useEffect(() => {
+    if (!wrapperRef.current) return
+
+    const el = wrapperRef.current
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (!entry) return
+      const cr = entry.contentRect
+      const w = Math.max(0, Math.floor(cr.width))
+      const h = Math.max(0, Math.floor(cr.height))
+      if (w && h) setChartSize({ width: w, height: h })
+    })
+
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   useEffect(() => {
     if (!data || data.length === 0) {
@@ -47,7 +70,6 @@ export function MaterialityChart({ data }: Props) {
     }
 
     const zone = { baja: 1, media: 3, alta: 5 }
-
     const individualPoints: IndividualPoint[] = []
 
     // 1️⃣ Construir puntos individuales
@@ -85,36 +107,146 @@ export function MaterialityChart({ data }: Props) {
       return
     }
 
-    // 2️⃣ Separar puntos repetidos
-    const offsetMap = new Map<string, number>()
-
-    individualPoints.forEach((point) => {
-      const key = `${point.x}-${point.y}`
-      const count = offsetMap.get(key) || 0
-      offsetMap.set(key, count + 1)
-
-      if (count > 0) {
-        const angle = (count * 4 * Math.PI) / 25
-        const radius = 0.6 + count * 0.5
-        point.x = point.originalX + Math.cos(angle) * radius
-        point.y = point.originalY + Math.sin(angle) * radius * 0.9
-      }
-    })
-
-    // 3️⃣ Ranking según el ORDEN DE ENTRADA (ya viene ordenado desde Parte B)
+    // 2️⃣ Ranking según el ORDEN DE ENTRADA (ya viene ordenado desde Parte B)
     const ranked = individualPoints.map((p, idx) => ({
       ...p,
-      realIndex: idx + 1,   // bola 1 = primer tema de Parte B, bola 2 = segundo, etc.
+      realIndex: idx + 1, // bola 1 = primer tema de Parte B, bola 2 = segundo, etc.
     }))
 
-    setPoints(ranked)
+    // 3️⃣ Separación SIN superposición (en pixeles, usando el tamaño real del chart)
+    //    Si aún no tenemos tamaño (primer render), caemos a un offset simple.
+    const separatePointsNoOverlap = (pts: IndividualPoint[]) => {
+      const margin = { top: 30, right: 30, bottom: 30, left: 70 }
+      const xMin = 0
+      const xMax = 6
 
-  }, [data])
+      const maxY = pts.length ? Math.max(...pts.map((p) => p.originalY), 10) : 10
+      const yMin = 0
+      const yMax = maxY + 1
+
+      // Radio real del punto (tienes r={13})
+      const rPx = 13
+      const paddingPx = 4
+      const minDistPx = 2 * rPx + paddingPx // distancia mínima centro-centro
+
+      // Fallback si no tenemos size todavía
+      if (!chartSize || chartSize.width < 200 || chartSize.height < 200) {
+        const offsetMap = new Map<string, number>()
+        pts.forEach((p) => {
+          const key = `${p.originalX}-${p.originalY}`
+          const count = offsetMap.get(key) || 0
+          offsetMap.set(key, count + 1)
+          if (count > 0) {
+            const angle = (count * 4 * Math.PI) / 25
+            const radius = 0.6 + count * 0.55
+            p.x = p.originalX + Math.cos(angle) * radius
+            p.y = p.originalY + Math.sin(angle) * radius * 0.95
+          } else {
+            p.x = p.originalX
+            p.y = p.originalY
+          }
+        })
+        return pts
+      }
+
+      const innerW = Math.max(1, chartSize.width - margin.left - margin.right)
+      const innerH = Math.max(1, chartSize.height - margin.top - margin.bottom)
+
+      const xScale = innerW / (xMax - xMin)
+      const yScale = innerH / (yMax - yMin)
+
+      const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v))
+
+      const toPx = (x: number, y: number) => {
+        const px = margin.left + (x - xMin) * xScale
+        const py = margin.top + innerH - (y - yMin) * yScale
+        return { px, py }
+      }
+
+      const toData = (px: number, py: number) => {
+        const x = xMin + (px - margin.left) / xScale
+        const y = yMin + (innerH - (py - margin.top)) / yScale
+        return { x, y }
+      }
+
+      const withinBounds = (px: number, py: number) => {
+        const minX = margin.left + rPx
+        const maxXb = margin.left + innerW - rPx
+        const minYb = margin.top + rPx
+        const maxYb = margin.top + innerH - rPx
+        return px >= minX && px <= maxXb && py >= minYb && py <= maxYb
+      }
+
+      const placed: { px: number; py: number }[] = []
+
+      // Colocamos en orden (realIndex) y buscamos hueco libre en espiral
+      pts.forEach((p) => {
+        const origin = toPx(p.originalX, p.originalY)
+
+        // Intento 0: el original
+        let chosen = { px: origin.px, py: origin.py }
+
+        const isFree = (cand: { px: number; py: number }) => {
+          for (const q of placed) {
+            const dx = cand.px - q.px
+            const dy = cand.py - q.py
+            const dist = Math.sqrt(dx * dx + dy * dy)
+            if (dist < minDistPx) return false
+          }
+          return true
+        }
+
+        if (!withinBounds(chosen.px, chosen.py) || !isFree(chosen)) {
+          // Espiral: incrementa radio gradualmente
+          const maxTries = 2000
+          const step = minDistPx * 0.5
+
+          let found = false
+          for (let i = 1; i <= maxTries; i++) {
+            const angle = i * 0.45
+            const radius = step * Math.sqrt(i)
+
+            const cand = {
+              px: origin.px + Math.cos(angle) * radius,
+              py: origin.py + Math.sin(angle) * radius,
+            }
+
+            // Mantener dentro del área útil
+            if (!withinBounds(cand.px, cand.py)) continue
+            if (!isFree(cand)) continue
+
+            chosen = cand
+            found = true
+            break
+          }
+
+          // Si por algún motivo extremo no encontró, clamp al área (igual evita salirse)
+          if (!found) {
+            chosen = {
+              px: clamp(origin.px, margin.left + rPx, margin.left + innerW - rPx),
+              py: clamp(origin.py, margin.top + rPx, margin.top + innerH - rPx),
+            }
+          }
+        }
+
+        placed.push(chosen)
+
+        const back = toData(chosen.px, chosen.py)
+        p.x = back.x
+        p.y = back.y
+      })
+
+      return pts
+    }
+
+    const separated = separatePointsNoOverlap([...ranked])
+    setPoints(separated)
+  }, [data, chartSize])
 
   /* ======================================================
      🔥 TOP 10 — determinar cuáles son los primeros 10
   ====================================================== */
-  const top10 = new Set(points.slice(0, 10).map((p) => p.realIndex))
+  const top10 = useMemo(() => new Set(points.slice(0, 10).map((p) => p.realIndex)), [points])
 
   /* ======================================================
      🎨 COLOR FINAL (TOP 10 vs resto)
@@ -178,6 +310,7 @@ export function MaterialityChart({ data }: Props) {
     >
       {/* 📌 Área del gráfico */}
       <div
+        ref={wrapperRef}
         style={{
           width: "100%",
           height: 400,
@@ -194,9 +327,7 @@ export function MaterialityChart({ data }: Props) {
               dataKey="x"
               domain={[0, 6]}
               ticks={[1, 3, 5]}
-              tickFormatter={(v) =>
-                v === 1 ? "Baja" : v === 3 ? "Media" : "Alta"
-              }
+              tickFormatter={(v) => (v === 1 ? "Baja" : v === 3 ? "Media" : "Alta")}
               tick={{ fill: "#374151", fontSize: 13, fontWeight: 600 }}
               label={{
                 value: "Materialidad Financiera",
@@ -242,13 +373,7 @@ export function MaterialityChart({ data }: Props) {
                       boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
                     }}
                   >
-                    <div
-                      style={{
-                        fontWeight: 700,
-                        marginBottom: 8,
-                        color,
-                      }}
-                    >
+                    <div style={{ fontWeight: 700, marginBottom: 8, color }}>
                       #{d.realIndex} — {d.tema}
                     </div>
 
@@ -263,8 +388,7 @@ export function MaterialityChart({ data }: Props) {
                         Materialidad ESG: <strong>{d.originalY}</strong>
                       </div>
                       <div>
-                        Nivel Financiero:{" "}
-                        <strong>{d.materialidad ?? "N/A"}</strong>
+                        Nivel Financiero: <strong>{d.materialidad ?? "N/A"}</strong>
                       </div>
                     </div>
                   </div>

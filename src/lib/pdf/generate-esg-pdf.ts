@@ -267,7 +267,7 @@ const addPage = (title?: string, skipBranding = false) => {
         color: boxTitleBg,
       })
 
-      contextoPage.drawText("Stakeholders Relevantes", {
+      contextoPage.drawText("Grupos de interés", {
         x: leftMargin + 14,
         y: y - 18,
         size: 13,
@@ -320,41 +320,214 @@ const addPage = (title?: string, skipBranding = false) => {
     })
   }
 
-  /* =======================
-     📘 RESUMEN EJECUTIVO
-  ======================= */
-  let resumenPage = addPage("Resumen Ejecutivo")
-  y = pageHeight - 130
+/* =======================
+   📘 RESUMEN EJECUTIVO
+======================= */
+let resumenPage = addPage("Ruta de Sostenibilidad")
+y = pageHeight - 130
 
-  resumenPage.drawText("Ruta de Sostenibilidad Recomendada", {
-    x: leftMargin,
-    y,
-    size: 14,
-    font: fontBold,
-    color: sectionTitle,
+
+y -= 25
+
+// ✅ Formatea subtítulos para que el contenido vaya ABAJO del ":"
+function formatResumenForPdf(text: string) {
+  const safe = String(text ?? "")
+
+  const subtitles = [
+    "1. Análisis crítico breve:",
+    "2. Ruta de sostenibilidad ajustada:",
+    "2.1 Marco general de la ruta de sostenibilidad:",
+    "2.2 Lógica estratégica transversal:",
+    "3. Ruta de sostenibilidad por niveles de acción:",
+    "3.1 Acciones iniciales:",
+    "3.2 Acciones moderadas:",
+    "3.3 Acciones estructurales:",
+    "4. Uso práctico de la ruta de sostenibilidad:",
+  ]
+
+  let out = safe.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+
+  for (const s of subtitles) {
+    // garantiza que el subtítulo arranque en nueva línea con aire arriba
+    out = out.replaceAll(s, `\n\n${s}`)
+
+    // si venía "TITULO: texto", lo convierte en "TITULO:\ntexto"
+    const escaped = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    out = out.replace(new RegExp(`${escaped}\\s+`, "g"), `${s}\n`)
+  }
+
+  // limpia múltiples saltos
+  out = out.replace(/^\n+/, "").replace(/\n{3,}/g, "\n\n").trim()
+  return out
+}
+
+// ✅ Normaliza para PDF, pero SIN eliminar \n (los preservamos)
+function normalizePdfTextPreserveNewlines(input: string) {
+  let s = String(input ?? "")
+  s = s.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+  s = s.replace(/\u00A0/g, " ")                 // NBSP
+  // elimina caracteres de control EXCEPTO \n
+  s = s.replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, " ")
+  // colapsa espacios (pero no toca saltos)
+  s = s.replace(/[ \t]+/g, " ")
+  // limpia espacios alrededor de saltos
+  s = s.replace(/[ \t]*\n[ \t]*/g, "\n")
+  return s.trim()
+}
+
+// ✅ Wrap por ancho, pero respetando saltos de línea
+function wrapTextByWidthPreserveNewlines(
+  text: string,
+  font: any,
+  size: number,
+  maxWidth: number
+) {
+  const safe = normalizePdfTextPreserveNewlines(text)
+  const paragraphs = safe.split("\n") // cada línea es un "párrafo lógico"
+
+  const lines: string[] = []
+
+  const pushLine = (line: string) => {
+    const v = line?.trim()
+    if (v) lines.push(v)
+  }
+
+  const breakLongWord = (word: string) => {
+    const chunks: string[] = []
+    let chunk = ""
+
+    for (const ch of word) {
+      const test = chunk + ch
+      const w = font.widthOfTextAtSize(test, size)
+      if (w > maxWidth && chunk) {
+        chunks.push(chunk)
+        chunk = ch
+      } else {
+        chunk = test
+      }
+    }
+
+    if (chunk) chunks.push(chunk)
+    return chunks
+  }
+
+  const wrapOneParagraph = (p: string) => {
+    const words = p.split(" ").filter(Boolean)
+    let current = ""
+
+    for (const word of words) {
+      const wordWidth = font.widthOfTextAtSize(word, size)
+
+      if (wordWidth > maxWidth) {
+        if (current) {
+          pushLine(current)
+          current = ""
+        }
+        const chunks = breakLongWord(word)
+        chunks.forEach((c, i) => {
+          if (i < chunks.length - 1) pushLine(c)
+          else current = c
+        })
+        continue
+      }
+
+      const test = current ? `${current} ${word}` : word
+      const width = font.widthOfTextAtSize(test, size)
+
+      if (width > maxWidth && current) {
+        pushLine(current)
+        current = word
+      } else {
+        current = test
+      }
+    }
+
+    if (current) pushLine(current)
+  }
+
+  paragraphs.forEach((p, idx) => {
+    const trimmed = p.trim()
+
+    // línea vacía => separador (lo representamos con "" para mantener salto)
+    if (!trimmed) {
+      lines.push("")
+      return
+    }
+
+    wrapOneParagraph(trimmed)
+
+    // si no es el último párrafo, mantenemos separación
+    if (idx < paragraphs.length - 1) lines.push("")
   })
 
-  y -= 25
+  // si quedó todo vacío
+  return lines.length ? lines : [""]
+}
 
-  const addParagraph = (text: string) => {
-    const fontSize = 12
-    const lineHeight = 16
-  
-    const maxWidth = contentWidth
-    const innerPaddingX = 12
-    const paddingTop = 14
-    const paddingBottom = 14
-  
-    const innerMaxWidth = maxWidth - innerPaddingX * 2
-  
-    const lines = wrapTextByWidth(text, fontRegular, fontSize, innerMaxWidth)
-    const boxHeight = paddingTop + paddingBottom + lines.length * lineHeight
-  
-    if (y - boxHeight < 60) {
+const addParagraph = (text: string) => {
+  const fontSize = 12
+  const lineHeight = 16
+
+  const maxWidth = contentWidth
+  const innerPaddingX = 12
+  const paddingTop = 14
+  const paddingBottom = 14
+
+  const innerMaxWidth = maxWidth - innerPaddingX * 2
+
+  // ✅ Formateo: subtítulos "1. ...:" pasan a "1. ...:\ncontenido"
+  const formatted = formatResumenForPdf(text)
+
+  // ✅ Wrap respetando saltos
+  const allLines = wrapTextByWidthPreserveNewlines(
+    formatted,
+    fontRegular,
+    fontSize,
+    innerMaxWidth
+  )
+
+  // helper: asegura que haya una página con espacio mínimo
+  const ensureSpace = () => {
+    // espacio mínimo usable antes del footer
+    const minBottom = 60
+    if (y < minBottom + 50) {
       resumenPage = addPage("Resumen Ejecutivo")
       y = pageHeight - 130
     }
-  
+  }
+
+  let idx = 0
+  while (idx < allLines.length) {
+    ensureSpace()
+
+    const minBottom = 60
+    const available = y - minBottom
+
+    // cuántas líneas caben en este recuadro dentro del espacio disponible
+    let maxLines = Math.floor(
+      (available - (paddingTop + paddingBottom)) / lineHeight
+    )
+
+    // si no cabe ni una línea, nueva página
+    if (maxLines <= 0) {
+      resumenPage = addPage("Resumen Ejecutivo")
+      y = pageHeight - 130
+      continue
+    }
+
+    const chunk = allLines.slice(idx, idx + maxLines)
+
+    // altura real del recuadro para este chunk
+    const boxHeight = paddingTop + paddingBottom + chunk.length * lineHeight
+
+    // si por alguna razón igual no entra (borde), forzamos salto
+    if (y - boxHeight < minBottom) {
+      resumenPage = addPage("Resumen Ejecutivo")
+      y = pageHeight - 130
+      continue
+    }
+
+    // dibujar recuadro
     resumenPage.drawRectangle({
       x: leftMargin,
       y: y - boxHeight,
@@ -364,9 +537,16 @@ const addPage = (title?: string, skipBranding = false) => {
       borderColor: boxTitleColor,
       borderWidth: 1,
     })
-  
+
+    // dibujar texto línea por línea
     let textY = y - paddingTop
-    lines.forEach((line) => {
+    chunk.forEach((line) => {
+      // línea vacía => aire visual
+      if (!line.trim()) {
+        textY -= lineHeight
+        return
+      }
+
       resumenPage.drawText(line, {
         x: leftMargin + innerPaddingX,
         y: textY,
@@ -376,14 +556,22 @@ const addPage = (title?: string, skipBranding = false) => {
       })
       textY -= lineHeight
     })
-  
-    y -= boxHeight + 20
-  }
-  
 
-  addParagraph(resumen.parrafo_1)
-  if (resumen.parrafo_2) addParagraph(resumen.parrafo_2)
-  if (resumen.parrafo_3) addParagraph(resumen.parrafo_3)
+    // avanzar
+    y -= boxHeight + 20
+    idx += chunk.length
+
+    // si todavía quedan líneas del mismo párrafo, no dejar que el siguiente recuadro arranque pegado al borde
+    if (idx < allLines.length && y < minBottom + 40) {
+      resumenPage = addPage("Resumen Ejecutivo")
+      y = pageHeight - 130
+    }
+  }
+}
+
+addParagraph(resumen.parrafo_1)
+if (resumen.parrafo_2) addParagraph(resumen.parrafo_2)
+if (resumen.parrafo_3) addParagraph(resumen.parrafo_3)
 
 
   /* =======================
@@ -401,33 +589,64 @@ const addPage = (title?: string, skipBranding = false) => {
 }
 
 /* WRAPPERS */
+/* WRAPPERS */
 function wrapText(text: string, maxChars: number) {
-  const words = text.split(" ")
+  const safe = normalizePdfText(text)
+  const words = safe.split(" ")
   const lines: string[] = []
   let current = ""
+
   for (const w of words) {
+    if (!w) continue
     if ((current + w).length > maxChars) {
-      lines.push(current.trim())
+      if (current.trim()) lines.push(current.trim())
       current = w + " "
     } else current += w + " "
   }
+
   if (current.trim()) lines.push(current.trim())
   return lines
+}
+
+function normalizePdfText(input: string) {
+  // 1) asegurar string
+  let s = String(input ?? "")
+
+  // 2) normalizar saltos de línea
+  s = s.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+
+  // 3) convertir saltos de línea a espacio (para que NUNCA lleguen a widthOfTextAtSize)
+  //    (si quisieras respetar saltos, más abajo te dejo alternativa)
+  s = s.replace(/\n+/g, " ")
+
+  // 4) espacios raros comunes (NBSP) -> espacio normal
+  s = s.replace(/\u00A0/g, " ")
+
+  // 5) remover otros caracteres de control (excepto tab si quisieras)
+  //    Esto elimina cualquier 0x00-0x1F y 0x7F que pueda romper WinAnsi
+  s = s.replace(/[\u0000-\u001F\u007F]/g, " ")
+
+  // 6) colapsar espacios
+  s = s.replace(/\s+/g, " ").trim()
+
+  return s
 }
 
 function wrapTextByWidth(
   text: string,
   font: any,
   size: number,
-  maxWidth: number,
+  maxWidth: number
 ) {
-  const safeText = String(text || "")
+  const safeText = normalizePdfText(text)
+
   const words = safeText.split(" ")
   const lines: string[] = []
   let current = ""
 
   const pushLine = (line: string) => {
-    if (line && line.trim()) lines.push(line.trim())
+    const v = line?.trim()
+    if (v) lines.push(v)
   }
 
   const breakLongWord = (word: string) => {
@@ -482,7 +701,6 @@ function wrapTextByWidth(
   }
 
   if (current) pushLine(current)
-
   return lines.length ? lines : [""]
 }
 

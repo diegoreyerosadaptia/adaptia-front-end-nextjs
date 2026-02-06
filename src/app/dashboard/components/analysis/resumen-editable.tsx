@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { AnalysisActionsMenu } from "./analysis-actions-menu"
 import { updateAnalysisJsonAction } from "@/actions/analysis/update-analysis-json.action"
 import { toast } from "sonner"
@@ -11,8 +11,48 @@ type ResumenData = {
   parrafo_3?: string
 }
 
+function formatSubtitles(text: string) {
+  if (!text) return text
+
+  const subtitles = [
+    "1. Análisis crítico breve:",
+    "2.1 Marco general de la ruta de sostenibilidad:",
+    "2.2 Lógica estratégica transversal:",
+    "3. Ruta de sostenibilidad por niveles de acción:",
+    "3.1 Acciones iniciales:",
+    "3.2 Acciones moderadas:",
+    "3.3 Acciones estructurales:",
+    "4. Uso práctico de la ruta de sostenibilidad:",
+  ]
+
+  let out = text.trim()
+
+  for (const s of subtitles) {
+    // 1) asegura que el subtítulo arranque en nueva línea (con espacio arriba)
+    out = out.replaceAll(s, `\n\n${s}`)
+
+    // 2) asegura que DESPUÉS del ":" venga un salto de línea (si venía texto pegado)
+    //    Ej: "1. ...: texto" => "1. ...:\ntexto"
+    const escaped = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    out = out.replace(new RegExp(`${escaped}\\s+`, "g"), `${s}\n`)
+  }
+
+  // limpia saltos al inicio
+  out = out.replace(/^\n+/, "").trim()
+
+  // colapsa muchos saltos a máximo 2
+  out = out.replace(/\n{3,}/g, "\n\n")
+
+  return out
+}
+
 function joinResumen(resumen: ResumenData) {
-  return [resumen.parrafo_1, resumen.parrafo_2, resumen.parrafo_3]
+  // ✅ Formateamos solo para mostrar/textarea, NO cambia el JSON estructural
+  const p1 = formatSubtitles(resumen.parrafo_1)
+  const p2 = resumen.parrafo_2 ? formatSubtitles(resumen.parrafo_2) : ""
+  const p3 = resumen.parrafo_3 ? formatSubtitles(resumen.parrafo_3) : ""
+
+  return [p1, p2, p3]
     .filter((v) => typeof v === "string" && v.trim().length > 0)
     .join("\n\n")
 }
@@ -59,17 +99,18 @@ export function ResumenEditable({
 
   useEffect(() => {
     setResumenPersisted(resumenOriginal)
+
     // Solo si NO estás editando, refrescá el textarea con lo que viene de afuera
     if (!isEditing) {
       setResumenText(joinResumen(resumenOriginal))
     }
-  }, [resumenOriginal])
-
+  }, [resumenOriginal, isEditing])
 
   const handleSaveChanges = async () => {
     try {
       setIsSaving(true)
 
+      // ✅ Guardamos lo que el user editó, separado por doble salto
       const resumenDataToSave = splitResumen(resumenText)
 
       const newJson = Array.isArray(analysisData) ? [...analysisData] : []
@@ -91,6 +132,8 @@ export function ResumenEditable({
 
       // ✅ ACTUALIZA UI SIN REFRESH
       setResumenPersisted(resumenDataToSave)
+
+      // ✅ En UI siempre lo mostramos formateado con saltos
       setResumenText(joinResumen(resumenDataToSave))
 
       toast.success("Cambios guardados correctamente")

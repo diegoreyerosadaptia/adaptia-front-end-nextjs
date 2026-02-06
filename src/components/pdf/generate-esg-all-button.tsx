@@ -131,10 +131,22 @@ const SUPER_SCRIPT_MAP: Record<string, string> = {
  * - Si algún carácter no se puede codificar, lo reemplaza por "?".
  */
 function sanitizeText(font: any, raw: string): string {
-  if (!raw) return ""
+  if (raw == null) return ""
+  const input = String(raw)
+
   let result = ""
 
-  for (const ch of raw) {
+  for (const ch of input) {
+    // ✅ preservar saltos de línea (NO deben transformarse en "?")
+    if (ch === "\n") {
+      result += "\n"
+      continue
+    }
+    if (ch === "\r") {
+      // ignorar CR (lo normalizamos a \n en otros lados)
+      continue
+    }
+
     const mapped = SUPER_SCRIPT_MAP[ch] ?? ch
     try {
       font.encodeText(mapped)
@@ -146,6 +158,7 @@ function sanitizeText(font: any, raw: string): string {
 
   return result
 }
+
 
 function measureWrappedHeight(
   font: any,
@@ -316,6 +329,109 @@ function drawWrappedText(
 
   return y
 }
+
+function formatResumenForPdf(raw: string) {
+  const s = String(raw || "").trim()
+  if (!s) return ""
+
+  // ✅ Si viene "1. Título: contenido..." => lo convierte a:
+  // "1. Título:\ncontenido..."
+  // (también 2.1 / 3.3 etc)
+  return s.replace(
+    /(^|\n)\s*((?:\d+(?:\.\d+)*)\s*[^:\n]{2,120}):\s*/g,
+    "$1$2:\n"
+  )
+}
+
+/**
+ * Wrap que respeta saltos de línea reales.
+ * - Separa por \n
+ * - wrapea cada párrafo por ancho
+ * - inserta líneas vacías entre párrafos para que se vea separado
+ */
+function wrapTextPreserveNewlines(
+  font: any,
+  text: string,
+  maxWidth: number,
+  fontSize: number,
+): string[] {
+  const normalized = String(text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+  const blocks = normalized.split("\n")
+
+  const out: string[] = []
+
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i].trim()
+
+    if (!b) {
+      out.push("")
+      continue
+    }
+
+    // ✅ sanitizar acá (sin \n)
+    const safeBlock = sanitizeText(font, b)
+
+    const wrapped = wrapText(font, safeBlock, maxWidth, fontSize)
+    out.push(...wrapped)
+
+    if (i < blocks.length - 1 && blocks[i + 1].trim()) out.push("")
+  }
+
+  while (out.length && !out[out.length - 1].trim()) out.pop()
+  return out.length ? out : [""]
+}
+
+/**
+ * Dibuja un texto ya wrappeado (líneas) paginando si hace falta.
+ * Retorna el nuevo Y.
+ */
+function drawLinesMultiPage(opts: {
+  pdfDoc: PDFDocument
+  page: any
+  font: any
+  boldFont: any
+  logo: any
+  titleForNewPages: string
+  lines: string[]
+  x: number
+  y: number
+  maxWidth: number
+  fontSize: number
+  lineHeight: number
+}) {
+  let { pdfDoc, page, font, boldFont, logo, titleForNewPages, lines, x, y, fontSize, lineHeight } = opts
+
+  const bottom = BOTTOM_MARGIN
+  const topStart = TOP_Y - 40
+
+  for (let i = 0; i < lines.length; i++) {
+    // si no entra la próxima línea, nueva página
+    if (y - lineHeight < bottom) {
+      page = addTitledPage(pdfDoc, font, boldFont, `${titleForNewPages} (continuación)`, logo)
+      y = topStart
+    }
+
+    const line = lines[i]
+
+    // línea vacía => salto visual
+    if (!line.trim()) {
+      y -= lineHeight
+      continue
+    }
+
+    page.drawText(line, {
+      x,
+      y,
+      size: fontSize,
+      font,
+      color: COLOR_TEXT_PRIMARY,
+    })
+    y -= lineHeight
+  }
+
+  return { page, y }
+}
+
 
 function drawTableWithWrapping(
   pdfDoc: PDFDocument,
@@ -582,7 +698,7 @@ type ParteAItemPdf = {
 }
 
 function buildParteAForPdf(analysisData: any[], temasOrdenados: string[]): ParteAItemPdf[] {
-  const parteA = (analysisData?.[1]?.response_content?.materiality_table || []) as any[]
+  const parteA = (analysisData?.[2]?.response_content?.materiality_table || []) as any[]
 
   const mapped: ParteAItemPdf[] = parteA.map((r) => ({
     sector: r.sector ?? "",
@@ -622,7 +738,7 @@ function drawParteAPage(pdfDoc: PDFDocument, font: any, boldFont: any, logo: any
   ]
 
   // total ancho ≈ 515
-  const columnWidths = [50, 70, 95, 95, 70, 70, 65]
+  const columnWidths = [50, 60, 90, 90, 70, 90, 92]
 
   const rows = parteA.map((r) => [
     r.sector,
@@ -676,7 +792,7 @@ function drawContextoPage(
     ["Cadena de valor", contexto.cadena_valor ?? ""],
     ["Actividades principales", contexto.actividades_principales ?? ""],
     ["Madurez ESG", contexto.madurez_esg ?? ""],
-    ["Stakeholders relevantes", contexto.stakeholders_relevantes ?? ""],
+    ["Grupos de interés", contexto.stakeholders_relevantes ?? ""],
   ]
 
   for (const [label, value] of entries) {
@@ -707,8 +823,8 @@ function drawContextoPage(
 }
 
 function buildParteB(analysisData: any[]): ParteBItem[] {
-  const parte2 = analysisData[1]?.response_content?.materiality_table || []
-  const parte4 = analysisData[3]?.response_content?.materiality_table || []
+  const parte2 = analysisData[2]?.response_content?.materiality_table || []
+  const parte4 = analysisData[4]?.response_content?.materiality_table || []
 
   const parteB: ParteBItem[] = parte4.map((row4: any) => {
     const match = parte2.find((r: any) => r.tema === row4.tema)
@@ -887,6 +1003,76 @@ function drawRegulacionesPage(
   drawTableWithWrapping(pdfDoc, font, boldFont, logo, "Regulaciones nacionales relevantes", headers, rows, columnWidths)
 }
 
+
+type ResumenBlock =
+  | { kind: "heading"; text: string }
+  | { kind: "body"; text: string }
+
+/**
+ * Detecta headings aunque estén en medio del texto:
+ * - inicio de string
+ * - salto de línea
+ * - o después de ". " / "! " / "? " / "; "
+ *
+ * Soporta:
+ * - "3.1 Acciones iniciales" (sin ":")
+ * - "3.2 Acciones moderadas: ..." (con ":")
+ */
+function parseResumenBlocks(raw: string): ResumenBlock[] {
+  const s0 = String(raw || "").trim()
+  if (!s0) return []
+
+  const s = s0.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+
+  // group1 = separador (start | newline | ". " | "! " | "? " | "; ")
+  // group2 = heading (ej: "3.2 Acciones moderadas")
+  // group3 = ":" opcional
+  const re =
+    /(^|[\n]|[.!?;]\s+)\s*((?:\d+(?:\.\d+)*)\s+[A-ZÁÉÍÓÚÜÑ][^:\n]{2,160})\s*(:)?\s*/g
+
+  const blocks: ResumenBlock[] = []
+  let last = 0
+  let m: RegExpExecArray | null
+
+  while ((m = re.exec(s)) !== null) {
+    const sep = m[1] ?? ""
+    const heading = (m[2] ?? "").trim()
+
+    // índice real donde empieza el heading (después del separador)
+    const headingStart = m.index + sep.length
+    const afterHeading = re.lastIndex
+
+    // body antes del heading (incluye el separador si era ". " etc)
+    const before = s.slice(last, headingStart).trim()
+    if (before) blocks.push({ kind: "body", text: before })
+
+    blocks.push({ kind: "heading", text: heading })
+
+    // el body de este heading llega hasta el próximo heading o final
+    const next = re.exec(s)
+    if (next) {
+      const body = s.slice(afterHeading, next.index).trim()
+
+      if (body) blocks.push({ kind: "body", text: body })
+
+      // retroceder para que el while procese ese heading encontrado
+      re.lastIndex = next.index
+      last = next.index
+    } else {
+      const body = s.slice(afterHeading).trim()
+      if (body) blocks.push({ kind: "body", text: body })
+      last = s.length
+      break
+    }
+  }
+
+  // si no se detectó ningún heading, todo body
+  if (!blocks.length) return [{ kind: "body", text: s }]
+
+  return blocks
+}
+
+
 function drawResumenPage(
   pdfDoc: PDFDocument,
   font: any,
@@ -894,42 +1080,83 @@ function drawResumenPage(
   logo: any,
   resumen: ResumenData,
 ) {
-  let page = addTitledPage(pdfDoc, font, boldFont, "Resumen ejecutivo", logo)
+  let page = addTitledPage(pdfDoc, font, boldFont, "Ruta de Sostenibilidad", logo)
 
   let y = TOP_Y - 40
   const maxWidth = PAGE_WIDTH - MARGIN_X * 2
-  const fontSize = 11
-  const lineHeight = 15
 
-  const ensureSpace = (text: string) => {
-    const safe = sanitizeText(font, text)
-    const textHeight = measureWrappedHeight(font, safe, maxWidth, fontSize, lineHeight)
-    const blockHeight = textHeight + 12
-    if (y - blockHeight < BOTTOM_MARGIN) {
-      page = addTitledPage(pdfDoc, font, boldFont, "Resumen ejecutivo (continuación)", logo)
-      y = TOP_Y - 40
+  const headingSize = 12
+  const bodySize = 11
+  const lineHeightHeading = 16
+  const lineHeightBody = 15
+
+  const bodyIndent = 12 // ✅ contenido un poquito hacia adentro
+
+  const drawBlocks = (blocks: ResumenBlock[]) => {
+    for (const b of blocks) {
+      if (b.kind === "heading") {
+        // wrap heading (bold)
+        const safeHeading = sanitizeText(boldFont, b.text)
+        const headingLines = wrapText(boldFont, safeHeading, maxWidth, headingSize)
+
+        const r1 = drawLinesMultiPage({
+          pdfDoc,
+          page,
+          font: boldFont,
+          boldFont,
+          logo,
+          titleForNewPages: "Resumen ejecutivo",
+          lines: headingLines,
+          x: MARGIN_X,
+          y,
+          maxWidth,
+          fontSize: headingSize,
+          lineHeight: lineHeightHeading,
+        })
+
+        page = r1.page
+        y = r1.y - 6 // espacio entre título y contenido
+      } else {
+        // body (regular) con indent y separación por líneas en blanco
+        const lines = wrapTextPreserveNewlines(
+          font,
+          b.text,
+          maxWidth - bodyIndent,
+          bodySize,
+        )
+
+        const r2 = drawLinesMultiPage({
+          pdfDoc,
+          page,
+          font,
+          boldFont,
+          logo,
+          titleForNewPages: "Resumen ejecutivo",
+          lines,
+          x: MARGIN_X + bodyIndent,
+          y,
+          maxWidth: maxWidth - bodyIndent,
+          fontSize: bodySize,
+          lineHeight: lineHeightBody,
+        })
+
+        page = r2.page
+        y = r2.y - 14 // separación entre secciones
+      }
     }
   }
 
-  if (resumen.parrafo_1) {
-    ensureSpace(resumen.parrafo_1)
-    y -= 4
-    y = drawWrappedText(page, font, resumen.parrafo_1, MARGIN_X, y, maxWidth, fontSize, lineHeight)
-    y -= 16
+  const drawOne = (raw: string) => {
+    const blocks = parseResumenBlocks(raw)
+    if (!blocks.length) return
+    drawBlocks(blocks)
   }
 
-  if (resumen.parrafo_2) {
-    ensureSpace(resumen.parrafo_2)
-    y -= 4
-    y = drawWrappedText(page, font, resumen.parrafo_2, MARGIN_X, y, maxWidth, fontSize, lineHeight)
-  }
-
-  if (resumen.parrafo_3) {
-    ensureSpace(resumen.parrafo_3)
-    y -= 4
-    y = drawWrappedText(page, font, resumen.parrafo_3, MARGIN_X, y, maxWidth, fontSize, lineHeight)
-  }
+  if (resumen.parrafo_1?.trim()) drawOne(resumen.parrafo_1)
+  if (resumen.parrafo_2?.trim()) drawOne(resumen.parrafo_2)
+  if (resumen.parrafo_3?.trim()) drawOne(resumen.parrafo_3)
 }
+
 
 // ==============================
 // ✅ Componente principal
@@ -949,7 +1176,7 @@ export function GenerateEsgPdfButtonAll({
 
   // ✅ data de chart igual que dashboard: Parte B ordenada por ESG desc
   const chartData = useMemo(() => {
-    const parteBraw = [...(analysisData?.[3]?.response_content?.materiality_table || [])]
+    const parteBraw = [...(analysisData?.[4]?.response_content?.materiality_table || [])]
     const parteBsorted = parteBraw.sort(
       (a, b) => Number(b.materialidad_esg ?? 0) - Number(a.materialidad_esg ?? 0),
     )
@@ -1007,7 +1234,7 @@ export function GenerateEsgPdfButtonAll({
       }
 
       // 2) Contexto
-      const contexto: Partial<ContextoItem> | undefined = analysisData[0]?.response_content
+      const contexto: Partial<ContextoItem> | undefined = analysisData[1]?.response_content
       drawContextoPage(pdfDoc, font, boldFont, logo, orgName || "", contexto)
 
       // ✅ 3) Matriz de materialidad: Gráfico ANTES de tablas
