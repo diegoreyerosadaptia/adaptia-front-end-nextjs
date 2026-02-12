@@ -103,3 +103,37 @@ export const getSasb = async (
 }
 
 
+export type OdsOpt = { code: string; label: string }
+
+export type OdsOptionsResponse = {
+  objectives: OdsOpt[]
+  metas: OdsOpt[]
+  indicadores: OdsOpt[]
+}
+
+export const getOdsOptions = async (
+  params?: { objective?: string; meta?: string },
+  authToken?: string
+): Promise<OdsOptionsResponse | null> => {
+  try {
+    const qs = new URLSearchParams()
+    if (params?.objective) qs.set("objective", params.objective)
+    if (params?.meta) qs.set("meta", params.meta)
+
+    const response = await fetch(`${BASE_URL}/esg-analysis/ods-list/options?${qs.toString()}`, {
+      method: "GET",
+      headers: getJsonHeaders(authToken),
+    })
+
+    const result = await response.json()
+
+    if (response.ok) return result
+
+    console.error("❌ Error del backend (getOdsOptions):", result)
+    return null
+  } catch (error) {
+    console.error("💥 Error obteniendo ODS options:", error)
+    return null
+  }
+}
+

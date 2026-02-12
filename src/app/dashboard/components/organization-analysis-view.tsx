@@ -21,6 +21,7 @@ import { GenerateEsgPdfButtonAll } from "@/components/pdf/generate-esg-all-butto
 import { GenerateEsgPdfButton } from "@/components/pdf/generate-esg-button"
 import { getGriByTemas } from "@/services/esg.service"
 import { buildMaterialityChartData } from "@/lib/materiality/build-materiality-chart-data"
+import { GenerateMaterialityChartPdfButton } from "@/components/pdf/generate-materiality-chart-pdf-button"
 
 interface OrganizationAnalysisViewProps {
   organization: Organization
@@ -168,6 +169,16 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                 </p>
 
                 <section id="materiality-chart">
+                  <div className="space-y-10">
+                    <div className="flex justify-end mb-5">
+                      <GenerateMaterialityChartPdfButton
+                        dataMaterialidad={dataFinal}
+                        portada="/portada_analisis_completo_page-0001.jpg"
+                        contraportada="/contraportada_analisis_completo_page-0001.jpg"
+                        filename="Materialidad_Adaptia.pdf"
+                      />
+                    </div>
+                  </div>
                   <div className=" p-8 rounded-lg border-2 border-green-200 shadow-lg">
                     <MaterialityChart data={dataFinal} />
                   </div>
@@ -225,8 +236,6 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
       case "materialidad_c": {
         const parteC =
           analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
-
-          console.log('PARTE', parteC)
 
         return (
           <MaterialidadCEditable
