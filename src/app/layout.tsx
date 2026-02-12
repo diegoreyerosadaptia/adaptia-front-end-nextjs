@@ -8,7 +8,6 @@ import { MessageCircle } from "lucide-react"
 import { Toaster as SonnerToaster } from "@/components/ui/sonner"
 import { GaPageView } from "@/components/ga-page-view"
 
-// 👉 Fuente global Montserrat
 const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -19,23 +18,17 @@ export const metadata: Metadata = {
   title: "Adaptia - Sostenibilidad sin fricción",
   description:
     "Recibe un análisis de doble materialidad ESG y ruta de sostenibilidad para tu empresa en 24 horas.",
-  icons: {
-    icon: "/favicon.png",
-  },
+  icons: { icon: "/favicon.png" },
 }
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? ""
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
       <body className={`${montserrat.variable} font-sans`}>
         {/* ✅ Google Analytics (GA4) */}
-        {GA_ID && (
+        {GA_ID ? (
           <>
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
@@ -46,14 +39,17 @@ export default function RootLayout({
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
-                gtag('config', '${GA_ID}', {
-                  send_page_view: true
-                });
+
+                // 🔥 importante: desactivar auto page_view
+                gtag('config', '${GA_ID}', { send_page_view: false });
               `}
             </Script>
+
+            {/* ✅ Pageview manual en cada cambio de ruta */}
+            <GaPageView gaId={GA_ID} />
           </>
-        )}
-        <GaPageView />
+        ) : null}
+
         <Toaster />
         {children}
         <SonnerToaster />

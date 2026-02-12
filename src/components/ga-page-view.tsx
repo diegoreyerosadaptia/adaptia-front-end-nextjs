@@ -1,23 +1,21 @@
 "use client"
 
-import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
+import { usePathname } from "next/navigation"
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID
-
-export function GaPageView() {
+export function GaPageView({ gaId }: { gaId: string }) {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
 
   useEffect(() => {
-    if (!GA_ID) return
+    if (!gaId) return
+    if (typeof window === "undefined") return
 
-    const qs = searchParams?.toString()
-    const page_path = qs ? `${pathname}?${qs}` : pathname
+    const page_path = `${pathname}${window.location.search}`
 
+    // gtag se define por el script de GA
     // @ts-ignore
-    window.gtag?.("event", "page_view", { page_path })
-  }, [pathname, searchParams])
+    window.gtag?.("config", gaId, { page_path })
+  }, [pathname, gaId])
 
   return null
 }
