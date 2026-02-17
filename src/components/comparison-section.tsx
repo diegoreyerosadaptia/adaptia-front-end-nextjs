@@ -11,7 +11,7 @@ export function ComparisonSection() {
     {
       feature: "Costo",
       icon: <DollarSign className="w-5 h-5" />,
-      adaptia: "$2,000 USD",
+      adaptia: "Desde $200 hasta $2,000 USD. ",
       traditional: "+ $20,000 USD",
     },
     {
@@ -36,8 +36,7 @@ export function ComparisonSection() {
             ¿Cómo se compara Adaptia con consultoras tradicionales?
           </h2>
           <p className="text-lg text-adaptia-green-medium max-w-4xl mx-auto text-pretty">
-            Muchas empresas enfrentan altos costos, procesos lentos y complejidad técnica al desarrollar rutas de
-            sostenibilidad y ESG. Adaptia resuelve ese cuello de botella con un enfoque ágil, automatizado y validado.
+Ofrecemos una alternativa a los altos costos, procesos lentos y complejidad técnica al desarrollar estrategias de sostenibilidad y ESG. Adaptia facilita el proceso con un enfoque ágil, automatizado y validado..
           </p>
         </div>
 

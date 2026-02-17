@@ -64,7 +64,7 @@ export function WhyAdaptiaSection() {
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-adaptia-blue-primary mb-6 text-balance font-sans">¿Por qué Adaptia?</h2>
           <p className="text-xl text-adaptia-blue-primary/80 max-w-3xl mx-auto text-pretty font-sans">
-            Deja atrás el greenwashing. Toma decisiones con datos.
+            Deja atrás la sostenibilidad confusa. Toma decisiones con información clara y accionable.
           </p>
         </div>
 

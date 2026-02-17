@@ -25,6 +25,7 @@ export type Organization = {
   phone: string
   website: string
   document: string
+  supportingInfo: string
   owner_id: string
   analysis?: Analysis[]
   esgAnalysis: EsgAnalysis[];

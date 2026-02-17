@@ -1,27 +1,32 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, Target, BarChart, Lightbulb } from "lucide-react"
+import { Building2, Target, BarChart, Lightbulb, PhoneCall } from "lucide-react"
 
 export function AnalysisSection() {
   const features = [
     {
       icon: <Building2 className="w-8 h-8" />,
       title: "Contexto base de tu organización",
-      description: "Descripción inicial del contexto de sostenibilidad de la empresa con riesgos y oportunidades ESG.",
+      description: "Una lectura inicial de cómo tu empresa impacta y se ve impactada por aspectos ESG (ambientales, sociales y de gobernanza). Incluye riesgos y oportunidades de negocio",
     },
     {
       icon: <Target className="w-8 h-8" />,
-      title: "Matriz de doble materialidad (financiera y ESG)",
-      description: "Con una priorización automática de los 10 temas prioritarios para la empresa.",
+      title: "Métricas recomendadas: ",
+      description: "Sugerencias de métricas ESG con las que puedes medir tus impactos. Incluye referencias a los marcos de: SASB, GRI, ODS y S&P.",
     },
     {
       icon: <BarChart className="w-8 h-8" />,
-      title: "Recomendaciones de métricas y cómo medirlas",
-      description: "Lista de métricas ESG específicas vinculadas a SASB, GRI, ODS y S&P con las que puedes medir tus temas materiales.",
+      title: "Priorización de impactos clave ",
+      description: "Identificamos los 10 temas más relevantes para tu empresa con un enfoque de doble materialidad (financiera y de sostenibilidad). Recibirás una matriz de doble materialidad ESG. ",
     },
     {
       icon: <Lightbulb className="w-8 h-8" />,
-      title: "Ruta de sostenibilidad con acciones concretas",
-      description: "Un plan de acción con tres niveles de recomendaciones de acciones corporativas para mejorar los 10 temas materiales en un nivel inicial, moderado y estructural.",
+      title: "Ruta de sostenibilidad ",
+      description: "Un plan de acción con sugerencias iniciales, moderadas y estructurales para fortalecer tus 10 temas prioritarios.",
+    },
+        {
+      icon: <PhoneCall className="w-8 h-8" />,
+      title: "Llamada de interpretación",
+      description: "Una llamada complementaria con uno de nuestros expertos en sostenibilidad para ayudarte a interpretar los resultados de tu análisis.",
     },
   ]
 
@@ -31,7 +36,7 @@ export function AnalysisSection() {
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-adaptia-blue-primary mb-6 text-balance">¿Qué incluye tu análisis?</h2>
           <p className="text-lg text-adaptia-blue-primary/70 max-w-4xl mx-auto text-pretty font-heading">
-          Cuando tu análisis esté listo recibirás un correo con instrucciones para ingresar a tu cuenta en donde encontrarás un dashboard interactivo con:
+          Cuando tu análisis esté listo recibirás un dashboard interactivo con:
           </p>
         </div>
 

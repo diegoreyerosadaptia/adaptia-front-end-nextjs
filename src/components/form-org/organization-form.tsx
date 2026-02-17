@@ -16,6 +16,7 @@ import { createPreferenceAction } from "@/actions/payments/create-preference.act
 import { User, Building2, FileText, Paperclip, Loader2, CheckCircle2, Trash2  } from "lucide-react"
 import { CountrySelect } from "./select-country"
 import { toast } from "sonner"
+import { IndustrySelect } from "./Industry-select"
 
 export default function OrganizationForm({
   redirectToPayment = true,
@@ -41,8 +42,10 @@ export default function OrganizationForm({
       industry: "",
       employees_number: EMPLOYEE_RANGE[1],
       phone: "",
+      title: "",
       website: "",
       document: "",
+      supportingInfo: "",
       ownerId: "",
     },
   })
@@ -154,44 +157,6 @@ const onSubmit = (values: OrganizationSchemaType) => {
     }
   })
 }
-const INDUSTRIES = [
-  "Aeroespacial y defensa",
-  "Aerolíneas",
-  "Agroindustria",
-  "Autos",
-  "Banca",
-  "Bienes de capital",
-  "Bienes raíces",
-  "Energía Intermedia",
-  "Farmacéuticos",
-  "Generación de energía",
-  "Infraestructura de transporte",
-  "Ingeniería y Construcción",
-  "Materiales de construcción",
-  "Medios y Entretenimiento",
-  "Metales y Minería",
-  "Ocio",
-  "Petróleo y Gas",
-  "Productos de consumo - No alimenticios",
-  "Productos de consumo – Alimentos",
-  "Productos de papel y forestales",
-  "Químicos",
-  "Seguros",
-  "Servicios de atención médica",
-  "Servicios empresariales",
-  "Servicios públicos",
-  "Software y servicios tecnológicos",
-  "Tecnología Hardware y Semiconductores",
-  "Telecomunicaciones",
-  "Transporte",
-  "Venta minorista - Alimentos",
-  "Venta minorista - No alimenticios",
-]
-
-// 👇 orden alfabético usando reglas de español
-const SORTED_INDUSTRIES = [...INDUSTRIES].sort((a, b) =>
-  a.localeCompare(b, "es", { sensitivity: "base" }),
-)
 
 
 const hasDocument = !!documentUrl
@@ -211,7 +176,7 @@ function normalizeWebsite(input?: string) {
 }
 
 
-
+const supportingInfoValue = form.watch("supportingInfo") ?? ""
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10 max-w-4xl mx-auto">
@@ -252,8 +217,7 @@ function normalizeWebsite(input?: string) {
             Correo electrónico <span className="text-red-500">*</span>
           </Label>
           <p className="text-sm text-gray-500 leading-relaxed">
-            Puedes usar cualquier correo, ya sea tu dirección personal o de trabajo. Sin embargo, esta dirección será la
-            que utilizaremos para generar tu cuenta más adelante.
+Puedes usar un correo personal o corporativo. Esta dirección será con la que crearemos tu cuenta y con la que podrás ingresar a ver tus resultados. 
           </p>
           <Input
             id="email"
@@ -266,9 +230,9 @@ function normalizeWebsite(input?: string) {
       </div>
 
       <div className="space-y-2">
-          <Label htmlFor="title" className="text-sm font-semibold text-gray-700">
-            Título / Cargo
-          </Label>
+        <Label htmlFor="title" className="text-sm font-semibold text-gray-700">
+          Título / Cargo <span className="text-red-500">*</span>
+        </Label>
           <p className="text-sm text-gray-500 leading-relaxed">Tu rol / posición en la empresa.</p>
           <Input
             id="title"
@@ -280,7 +244,7 @@ function normalizeWebsite(input?: string) {
 
         <div className="space-y-2">
             <Label htmlFor="phone" className="text-sm font-semibold text-gray-700">
-              Teléfono
+              Teléfono (opcional)
             </Label>
             <Input
               id="phone"
@@ -303,8 +267,7 @@ function normalizeWebsite(input?: string) {
             Nombre de la empresa <span className="text-red-500">*</span>
           </Label>
           <p className="text-sm text-gray-500 leading-relaxed">
-            Nombre de la empresa para la que querrás hagamos el análisis de doble materialidad ESG y plan de acción de
-            sostenibilidad.
+Nombre de la empresa para la cual realizaremos el análisis de sostenibilidad (ESG) y la ruta de sostenibilidad.
           </p>
           <Input
             id="company"
@@ -321,9 +284,7 @@ function normalizeWebsite(input?: string) {
               País <span className="text-red-500">*</span>
             </Label>
             <p className="text-sm text-gray-500 leading-relaxed">
-              Para lograr los mejores resultados, nuestro análisis se realiza a nivel nacional. Selecciona el país de
-              operación de tu empresa con el cuál te gustaría hagamos el análisis. *Actualmente, nuestro análisis solo
-              analiza países Latinoamericanos y produce resultados en Español.
+ Para obtener resultados precisos, el análisis se realiza a nivel nacional. Selecciona el principal país de operación de tu empresa o el país de operación que quieren analizar. Actualmente analizamos países de Latinoamérica y generamos resultados en español.
             </p>
             <CountrySelect form={form} />
           </div>
@@ -333,31 +294,22 @@ function normalizeWebsite(input?: string) {
               Industria <span className="text-red-500">*</span>
             </Label>
             <p className="text-sm text-gray-500 leading-relaxed">
-              Selecciona la industria en donde opera tu empresa. Si la empresa opera en más de una industria, selecciona
-              la que ocupe la mayoría de sus operaciones.
+              Selecciona la industria principal en la que opera tu empresa. Si participa en más de una, elige aquella que represente la mayor parte de sus operaciones.
             </p>
-            <Select onValueChange={(val) => form.setValue("industry", val)}>
-              <SelectTrigger className="h-12 text-base border-2 focus:border-adaptia-blue-primary transition-colors">
-                <SelectValue placeholder="Seleccionar industria" />
-              </SelectTrigger>
 
-              <SelectContent className="max-h-60 overflow-y-auto">
-                {SORTED_INDUSTRIES.map((i) => (
-                  <SelectItem key={i} value={i}>
-                    {i}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
+            <IndustrySelect form={form} />
           </div>
+
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-6 items-start">
           <div className="space-y-2">
             <Label htmlFor="employees_number" className="text-sm font-semibold text-gray-700">
               Número de empleados <span className="text-red-500">*</span>
             </Label>
+            <p className="text-sm text-gray-500 leading-relaxed min-h-[40px]">
+              Número aproximado de empleados a tiempo completo.
+            </p>
             <Select onValueChange={(val) => form.setValue("employees_number", val as EmployeeRange)}>
               <SelectTrigger className="h-12 text-base border-2 focus:border-adaptia-blue-primary transition-colors">
                 <SelectValue placeholder="Cantidad de empleados" />
@@ -372,29 +324,31 @@ function normalizeWebsite(input?: string) {
             </Select>
           </div>
 
-          
-        <div className="space-y-2">
-          <Label htmlFor="website" className="text-sm font-semibold text-gray-700">
-            Sitio Web
-          </Label>
-          <Input
-            id="website"
-            {...form.register("website", {
-              onBlur: (e) => {
-                const normalized = normalizeWebsite(e.target.value)
-                form.setValue("website", normalized, {
-                  shouldDirty: true,
-                  shouldTouch: true,
-                  shouldValidate: true,
-                })
-              },
-            })}
-            className="h-12 w-full text-base border-2 focus:border-adaptia-blue-primary transition-colors"
-            placeholder="https://www.ejemplo.com"
-          />
+          <div className="space-y-2">
+            <Label htmlFor="website" className="text-sm font-semibold text-gray-700">
+              Sitio Web <span className="text-red-500">*</span>
+            </Label>
+            <p className="text-sm text-gray-500 leading-relaxed min-h-[40px]">
+              URL del sitio oficial de tu empresa.
+            </p>
+            <Input
+              id="website"
+              {...form.register("website", {
+                onBlur: (e) => {
+                  const normalized = normalizeWebsite(e.target.value)
+                  form.setValue("website", normalized, {
+                    shouldDirty: true,
+                    shouldTouch: true,
+                    shouldValidate: true,
+                  })
+                },
+              })}
+              className="h-12 w-full text-base border-2 focus:border-adaptia-blue-primary transition-colors"
+              placeholder="https://www.ejemplo.com"
+            />
+          </div>
+        </div>
 
-        </div>
-        </div>
       </div>
 
       {/* Sección: Información Adicional */}
@@ -409,7 +363,7 @@ function normalizeWebsite(input?: string) {
             Documento de Apoyo
           </Label>
           <p className="text-sm text-gray-500 leading-relaxed">
-          Si quieres subir un documento complementario para tu análisis, sube un PDF, PowerPoint o Word. Este elemento NO es requerido para que realicemos tu análisis de forma confiable."
+          Si cuentas con un documento que complemente la información anterior, puedes adjuntarlo aquí en formato PDF, PowerPoint o Word, como tu deck o presentación corporativa, informes, reportes o memorias de sostenibilidad, u otros documentos con información sobre tus operaciones o esfuerzos en sostenibilidad. Este elemento es opcional y no es necesario para generar un análisis confiable.
             </p>
 
           {/* Botón visual para subir archivo */}
@@ -532,6 +486,28 @@ function normalizeWebsite(input?: string) {
             </div>
           )}
         </div>
+        <div className="space-y-2 mt-6">
+          <Label htmlFor="supportingInfo" className="text-sm font-semibold text-gray-700">
+            Información de Apoyo
+          </Label>
+
+          <p className="text-sm text-gray-500 leading-relaxed">
+            Si lo deseas, puedes compartir aquí cualquier contexto adicional que consideres importante para tu análisis,
+            como certificaciones existentes, compromisos en sostenibilidad, riesgos clave del negocio o iniciativas ya
+            en marcha. Este campo es opcional y nos ayuda a entender mejor el contexto de sostenibilidad de tu organización.
+          </p>
+
+          <p className="text-xs text-gray-400 text-right">
+            {supportingInfoValue.length}/8000
+          </p>
+
+          <textarea
+            id="supportingInfo"
+            {...form.register("supportingInfo")}
+            className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 text-base focus:border-adaptia-blue-primary transition-colors resize-y min-h-[180px] leading-relaxed"
+          />
+        </div>
+
       </div>
 
 

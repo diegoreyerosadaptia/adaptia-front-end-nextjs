@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { AnalysisActionsMenu } from "./analysis-actions-menu"
 import { updateAnalysisJsonAction } from "@/actions/analysis/update-analysis-json.action"
 import { toast } from "sonner"
@@ -11,43 +11,44 @@ type ResumenData = {
   parrafo_3?: string
 }
 
+/** =========================
+ *  Subtítulos esperados
+ *  ========================= */
+const SUBTITLES = [
+  "1. Análisis crítico breve:",
+  "2.1 Marco general de la ruta de sostenibilidad:",
+  "2.2 Lógica estratégica transversal:",
+  "3. Ruta de sostenibilidad por niveles de acción:",
+  "3.1 Acciones iniciales:",
+  "3.2 Acciones moderadas:",
+  "3.3 Acciones estructurales:",
+  "4. Uso práctico de la ruta de sostenibilidad:",
+] as const
+
+function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
 function formatSubtitles(text: string) {
   if (!text) return text
 
-  const subtitles = [
-    "1. Análisis crítico breve:",
-    "2.1 Marco general de la ruta de sostenibilidad:",
-    "2.2 Lógica estratégica transversal:",
-    "3. Ruta de sostenibilidad por niveles de acción:",
-    "3.1 Acciones iniciales:",
-    "3.2 Acciones moderadas:",
-    "3.3 Acciones estructurales:",
-    "4. Uso práctico de la ruta de sostenibilidad:",
-  ]
-
   let out = text.trim()
 
-  for (const s of subtitles) {
-    // 1) asegura que el subtítulo arranque en nueva línea (con espacio arriba)
+  for (const s of SUBTITLES) {
+    // asegura salto antes del subtítulo
     out = out.replaceAll(s, `\n\n${s}`)
 
-    // 2) asegura que DESPUÉS del ":" venga un salto de línea (si venía texto pegado)
-    //    Ej: "1. ...: texto" => "1. ...:\ntexto"
-    const escaped = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    // asegura salto después de ":" si venía texto pegado
+    const escaped = escapeRegExp(s)
     out = out.replace(new RegExp(`${escaped}\\s+`, "g"), `${s}\n`)
   }
 
-  // limpia saltos al inicio
   out = out.replace(/^\n+/, "").trim()
-
-  // colapsa muchos saltos a máximo 2
   out = out.replace(/\n{3,}/g, "\n\n")
-
   return out
 }
 
 function joinResumen(resumen: ResumenData) {
-  // ✅ Formateamos solo para mostrar/textarea, NO cambia el JSON estructural
   const p1 = formatSubtitles(resumen.parrafo_1)
   const p2 = resumen.parrafo_2 ? formatSubtitles(resumen.parrafo_2) : ""
   const p3 = resumen.parrafo_3 ? formatSubtitles(resumen.parrafo_3) : ""
@@ -74,6 +75,49 @@ function splitResumen(text: string): ResumenData {
   }
 }
 
+/** =========================
+ *  Parser: convierte el texto (ya formateado) en secciones:
+ *  [{ title, body }]
+ *  ========================= */
+function parseSections(fullText: string): Array<{ title: string; body: string }> {
+  const text = (fullText ?? "").trim()
+  if (!text) return []
+
+  // armamos un regex con todos los subtítulos
+  const titles = [...SUBTITLES]
+  const pattern = `(${titles.map(escapeRegExp).join("|")})`
+  const re = new RegExp(pattern, "g")
+
+  const matches: Array<{ title: string; index: number }> = []
+  let m: RegExpExecArray | null
+
+  while ((m = re.exec(text)) !== null) {
+    matches.push({ title: m[1], index: m.index })
+  }
+
+  // si no hay títulos conocidos, devolvemos 1 sola sección “Resumen”
+  if (matches.length === 0) {
+    return [{ title: "Resumen", body: text }]
+  }
+
+  const sections: Array<{ title: string; body: string }> = []
+
+  for (let i = 0; i < matches.length; i++) {
+    const start = matches[i].index
+    const end = i + 1 < matches.length ? matches[i + 1].index : text.length
+
+    const chunk = text.slice(start, end).trim()
+    const title = matches[i].title
+
+    // body = todo lo que sigue al título
+    const body = chunk.slice(title.length).trim().replace(/^\n+/, "").trim()
+
+    sections.push({ title, body })
+  }
+
+  return sections
+}
+
 export function ResumenEditable({
   resumenOriginal,
   lastAnalysisId,
@@ -86,31 +130,22 @@ export function ResumenEditable({
   analysisData: any
   accessToken: string
   userRole: string
-  organization: { company?: string }
 }) {
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
-  // ✅ lo que se muestra cuando NO está editando
   const [resumenPersisted, setResumenPersisted] = useState<ResumenData>(resumenOriginal)
-
-  // textarea único
   const [resumenText, setResumenText] = useState<string>(() => joinResumen(resumenOriginal))
 
   useEffect(() => {
     setResumenPersisted(resumenOriginal)
-
-    // Solo si NO estás editando, refrescá el textarea con lo que viene de afuera
-    if (!isEditing) {
-      setResumenText(joinResumen(resumenOriginal))
-    }
+    if (!isEditing) setResumenText(joinResumen(resumenOriginal))
   }, [resumenOriginal, isEditing])
 
   const handleSaveChanges = async () => {
     try {
       setIsSaving(true)
 
-      // ✅ Guardamos lo que el user editó, separado por doble salto
       const resumenDataToSave = splitResumen(resumenText)
 
       const newJson = Array.isArray(analysisData) ? [...analysisData] : []
@@ -130,10 +165,7 @@ export function ResumenEditable({
         return
       }
 
-      // ✅ ACTUALIZA UI SIN REFRESH
       setResumenPersisted(resumenDataToSave)
-
-      // ✅ En UI siempre lo mostramos formateado con saltos
       setResumenText(joinResumen(resumenDataToSave))
 
       toast.success("Cambios guardados correctamente")
@@ -154,49 +186,74 @@ export function ResumenEditable({
 
   const hasContent = Boolean(resumenPersisted?.parrafo_1?.trim())
 
-  return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-3xl font-heading font-bold text-adaptia-blue-primary">
-          Ruta de Sostenibilidad
-        </h2>
+  // ==============================
+  // 🎨 Estilos (igual Contexto)
+  // ==============================
+  const boxClass = "p-4 rounded-lg border border-[#163F6A]/20 bg-white shadow-sm"
+  const labelClass = "text-sm font-medium mb-2 text-[#C2DA62]"
 
-        <div className="flex items-center gap-3">
-          {userRole === "ADMIN" && (
-            <AnalysisActionsMenu
-              isEditing={isEditing}
-              isSaving={isSaving}
-              onEditToggle={() => setIsEditing((v) => !v)}
-              onSave={handleSaveChanges}
-              onCancel={handleCancel}
-            />
-          )}
-        </div>
+  const textareaClass =
+    "w-full border border-gray-300 rounded px-2 py-2 text-base focus:ring-1 focus:ring-[#C2DA62] " +
+    "resize-y min-h-[220px] text-[#163F6A] bg-white whitespace-pre-line"
+
+  const valueClass = "text-base text-[#163F6A] whitespace-pre-line leading-relaxed"
+
+  // ✅ modo lectura: secciones encasilladas
+  const sections = useMemo(() => {
+    if (!hasContent) return []
+    const full = joinResumen(resumenPersisted)
+    return parseSections(full)
+  }, [hasContent, resumenPersisted])
+
+  return (
+    <div className="space-y-6 text-[#163F6A]">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-heading font-bold">Ruta de Sostenibilidad</h2>
+
+        {userRole === "ADMIN" && (
+          <AnalysisActionsMenu
+            isEditing={isEditing}
+            isSaving={isSaving}
+            onEditToggle={() => setIsEditing((v) => !v)}
+            onSave={handleSaveChanges}
+            onCancel={handleCancel}
+          />
+        )}
       </div>
 
-      {hasContent ? (
-        <div
-          className="space-y-5 bg-adaptia-gray-light/10 p-8 rounded-lg border-2"
-          style={{ borderColor: "#C2DA62" }}
-        >
-          {isEditing ? (
-            <textarea
-              value={resumenText}
-              onChange={(e) => setResumenText(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 resize-y min-h-[220px] whitespace-pre-line"
-              placeholder="Separá los párrafos con una línea en blanco."
-            />
-          ) : (
-            <div className="text-adaptia-gray-dark text-justify leading-relaxed whitespace-pre-line">
-              {joinResumen(resumenPersisted)}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="p-8 bg-adaptia-gray-light/10 rounded-lg border border-adaptia-gray-light/30 text-center">
+      {!hasContent ? (
+        <div className={boxClass}>
+          <p className={labelClass}>Resumen</p>
           <p className="text-adaptia-gray-dark">
             El resumen ejecutivo completo se generará una vez finalizado el análisis.
           </p>
+        </div>
+      ) : isEditing ? (
+        // ✅ edición: 1 textarea como antes
+        <div className={boxClass}>
+          <p className={labelClass}>Resumen</p>
+          <textarea
+            value={resumenText}
+            onChange={(e) => setResumenText(e.target.value)}
+            className={textareaClass}
+            placeholder="Separá los párrafos con una línea en blanco."
+          />
+        </div>
+      ) : (
+        // ✅ lectura: títulos en verde + cada sección encasillada con su contenido
+        <div className="space-y-4">
+          {sections.map((s, i) => (
+            <div key={`${s.title}-${i}`} className={boxClass}>
+              <p className={labelClass}>{s.title}</p>
+
+              {s.body ? (
+                <div className={valueClass}>{s.body}</div>
+              ) : (
+                <div className="text-adaptia-gray-dark">-</div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>

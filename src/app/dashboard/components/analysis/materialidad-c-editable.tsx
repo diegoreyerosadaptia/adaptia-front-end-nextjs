@@ -13,22 +13,36 @@ type ParteCItem = {
   indicador_ods: string
 }
 
+/** ====== Parsers robustos (para que siempre salga el code) ====== */
 function getObjectiveCodeFromOdsText(text: string) {
-  const m = (text ?? "").match(/Objetivo\s+(\d+)/i)
+  const t = (text ?? "").trim()
+
+  // "Objetivo 3 ..."
+  let m = t.match(/Objetivo\s+(\d{1,2})/i)
+  if (m?.[1]) return m[1]
+
+  // "ODS 3 ..."
+  m = t.match(/ODS\s*(\d{1,2})/i)
+  if (m?.[1]) return m[1]
+
+  // "3 — ..." o "3 - ..."
+  m = t.match(/^\s*(\d{1,2})\b/)
   return m?.[1] ?? ""
 }
 
 function getMetaCodeFromText(text: string) {
-  const m = (text ?? "").match(/^(\d+\.\d+)/)
+  const t = (text ?? "").trim()
+  const m = t.match(/(\d+\.\d+)/)
   return m?.[1] ?? ""
 }
 
 function getIndicadorCodeFromText(text: string) {
-  const m = (text ?? "").match(/^(\d+\.\d+\.\d+)/)
+  const t = (text ?? "").trim()
+  const m = t.match(/(\d+\.\d+\.\d+)/)
   return m?.[1] ?? ""
 }
 
-/** UI helpers */
+/** ====== UI helpers ====== */
 function ellipsis(text: string, max = 58) {
   const t = (text ?? "").trim()
   if (t.length <= max) return t
@@ -113,13 +127,34 @@ export function MaterialidadCEditable({
     setIndicadoresByMeta((prev) => ({ ...prev, [metaCode]: res.indicadores ?? [] }))
   }
 
+  // ✅ precargar metas/indicadores cuando entrás a editar para que se vean los valores al toque
+  useEffect(() => {
+    if (!isEditing) return
+
+    ;(async () => {
+      const objSet = new Set<string>()
+      const metaSet = new Set<string>()
+
+      for (const row of parteCData) {
+        const obj = getObjectiveCodeFromOdsText(row.ods)
+        const meta = getMetaCodeFromText(row.meta_ods)
+        if (obj) objSet.add(obj)
+        if (meta) metaSet.add(meta)
+      }
+
+      await Promise.allSettled([...objSet].map((o) => ensureMetasLoaded(o)))
+      await Promise.allSettled([...metaSet].map((m) => ensureIndicadoresLoaded(m)))
+    })()
+    // 👇 intencionalmente NO ponemos metasByObjective/indicadoresByMeta para evitar loops
+  }, [isEditing, parteCData, accessToken])
+
   const handleSaveChanges = async () => {
     try {
       setIsSaving(true)
 
       const newJson = [...analysisData]
       const parteCSection = newJson.find(
-        (a: any) => a?.name?.includes("Prompt 6") || a?.name?.includes("ODS")
+        (a: any) => a?.name?.includes("Prompt 6") || a?.name?.includes("ODS"),
       )
 
       if (parteCSection) {
@@ -153,10 +188,8 @@ export function MaterialidadCEditable({
     "w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-adaptia-gray-dark shadow-sm " +
     "focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-500/40"
 
-  const selectBase =
-    cellBase + " appearance-none pr-10 whitespace-nowrap overflow-hidden text-ellipsis"
+  const selectBase = cellBase + " appearance-none pr-10 whitespace-nowrap overflow-hidden text-ellipsis"
 
-  // Tema: mejor look + evita que se vea “aplastado”
   const temaTextarea =
     "w-full min-w-[260px] rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-adaptia-gray-dark shadow-sm " +
     "focus:outline-none focus:ring-2 focus:ring-green-500/40 focus:border-green-500/40 " +
@@ -185,8 +218,8 @@ export function MaterialidadCEditable({
       </div>
 
       <p>
-        Esta tabla detalla el Objetivo de Desarrollo Sostenible, así como la meta e indicador
-        específico con los que cada uno de tus temas materiales tiene incidencia.
+        Esta tabla detalla el Objetivo de Desarrollo Sostenible, así como la meta e indicador específico con los
+        que cada uno de tus temas materiales tiene incidencia.
       </p>
 
       {parteCData.length > 0 ? (
@@ -223,7 +256,6 @@ export function MaterialidadCEditable({
                         />
                       ) : (
                         <div className={temaRead}>
-                          {/* line clamp sin plugin: cortamos a mano */}
                           <p title={row.tema}>{ellipsis(row.tema, 120)}</p>
                         </div>
                       )}
@@ -259,7 +291,15 @@ export function MaterialidadCEditable({
                             }
                           }}
                         >
+                          {/* ✅ fallback: muestra el valor actual aunque aún no haya options cargadas */}
+                          {objectiveCode && !objectives.some((o) => o.code === objectiveCode) && (
+                            <option value={objectiveCode}>
+                              {objectiveCode} — {shortObjectiveLabel(row.ods)}
+                            </option>
+                          )}
+
                           <option value="">Seleccionar objetivo...</option>
+
                           {objectives.map((o) => (
                             <option key={o.code} value={o.code} title={o.label}>
                               {o.code} — {shortObjectiveLabel(o.label)}
@@ -303,9 +343,17 @@ export function MaterialidadCEditable({
                             }
                           }}
                         >
+                          {/* ✅ fallback del valor actual */}
+                          {metaCode && !metas.some((m) => m.code === metaCode) && (
+                            <option value={metaCode}>
+                              {metaCode} — {shortMetaLabel(row.meta_ods)}
+                            </option>
+                          )}
+
                           <option value="">
                             {objectiveCode ? "Seleccionar meta..." : "Elegí un ODS primero"}
                           </option>
+
                           {metas.map((m) => (
                             <option key={m.code} value={m.code} title={m.label}>
                               {m.code} — {shortMetaLabel(m.label)}
@@ -340,9 +388,17 @@ export function MaterialidadCEditable({
                             handleEditCell(idx, "indicador_ods", indLabel)
                           }}
                         >
+                          {/* ✅ fallback del valor actual */}
+                          {indicadorCode && !indicadores.some((i) => i.code === indicadorCode) && (
+                            <option value={indicadorCode}>
+                              {indicadorCode} — {shortIndicadorLabel(row.indicador_ods)}
+                            </option>
+                          )}
+
                           <option value="">
                             {metaCode ? "Seleccionar indicador..." : "Elegí una meta primero"}
                           </option>
+
                           {indicadores.map((i) => (
                             <option key={i.code} value={i.code} title={i.label}>
                               {i.code} — {shortIndicadorLabel(i.label)}
@@ -366,9 +422,8 @@ export function MaterialidadCEditable({
       )}
 
       <p>
-        Nota: Recuerda que los ODS no son un marco de estándares de ESG, sino una agenda global
-        desarrollada por la Organización de las Naciones Unidas. Esta agenda es principalmente útil
-        para comunicar en un lenguaje común.
+        Nota: Recuerda que los ODS no son un marco de estándares de ESG, sino una agenda global desarrollada por la
+        Organización de las Naciones Unidas. Esta agenda es principalmente útil para comunicar en un lenguaje común.
       </p>
     </div>
   )

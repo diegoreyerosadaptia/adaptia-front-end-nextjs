@@ -9,6 +9,8 @@ export const publicRoutes = [
   "/faq",
   "/equipo",
   "/formulario",
+  "/recurso",
+
 
   "/auth/login",
   "/auth/register",

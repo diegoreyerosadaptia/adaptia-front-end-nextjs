@@ -1,4 +1,4 @@
-import { PDFDocument } from "pdf-lib"
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib"
 
 async function fetchAsUint8Array(url: string) {
   const res = await fetch(url)
@@ -23,19 +23,25 @@ export async function generateMaterialityChartPdf({
   chartImg,
   portada,
   contraportada,
+  orgName,
 }: {
   chartImg?: string
   portada: string
   contraportada: string
   filename?: string
+  orgName?: string
 }) {
   const pdf = await PDFDocument.create()
+
+  // ✅ Fuente para el título
+  const fontBold = await pdf.embedFont(StandardFonts.HelveticaBold)
+  const fontRegular = await pdf.embedFont(StandardFonts.Helvetica)
 
   // =====================================
   // ✅ PORTADA
   // =====================================
   const portadaBytes = await fetchAsUint8Array(portada)
-  const portadaImg = await pdf.embedJpg(portadaBytes) // si es png: embedPng
+  const portadaImg = await pdf.embedJpg(portadaBytes)
   {
     const page = pdf.addPage([595.28, 841.89]) // A4 portrait
     const { width, height } = page.getSize()
@@ -49,14 +55,54 @@ export async function generateMaterialityChartPdf({
     const page = pdf.addPage([595.28, 841.89])
     const { width, height } = page.getSize()
 
+    const margin = 10
+
+    // ====== Header (título arriba del gráfico) ======
+    const headerGap = 10
+    const titleFontSize = 18
+    const subFontSize = 10
+
+    // Bloque total reservado arriba (título + línea + aire)
+    const headerHeight = orgName?.trim() ? titleFontSize + 16 : 0
+
+
+    if (orgName?.trim()) {
+      const title = orgName.trim()
+
+      // Centrado real según ancho del texto
+      const titleWidth = fontBold.widthOfTextAtSize(title, titleFontSize)
+      const titleX = Math.max(margin, (width - titleWidth) / 2)
+
+      // Posición arriba, respetando margen
+      const titleY = height - margin - titleFontSize
+
+      page.drawText(title, {
+        x: titleX,
+        y: titleY,
+        size: titleFontSize,
+        font: fontBold,
+        color: rgb(0.1, 0.1, 0.1),
+      })
+
+      // Línea sutil debajo del título (opcional, pero queda prolijo)
+      const lineY = titleY - 6
+      page.drawLine({
+        start: { x: margin, y: lineY },
+        end: { x: width - margin, y: lineY },
+        thickness: 1,
+        color: rgb(0.85, 0.85, 0.85),
+      })
+
+    }
+
+    // ====== Gráfico ======
     if (chartImg) {
       const chartBytes = dataUrlToUint8Array(chartImg)
       const chartPng = await pdf.embedPng(chartBytes)
 
-      // Ajuste para que quede centrado y con márgenes
-      const margin = 28
+      // Máximo para el gráfico, dejando espacio para header
       const maxW = width - margin * 2
-      const maxH = height - margin * 2
+      const maxH = height - margin * 2 - headerHeight
 
       const imgW = chartPng.width
       const imgH = chartPng.height
@@ -64,10 +110,21 @@ export async function generateMaterialityChartPdf({
 
       const w = imgW * scale
       const h = imgH * scale
+
       const x = (width - w) / 2
-      const y = (height - h) / 2
+
+      const availableTop = height - margin - headerHeight
+      const availableBottom = margin
+      const availableHeight = availableTop - availableBottom
+
+      // ✅ TOP aligned (en vez de centrar)
+      let y = availableTop - h
+
+      // ✅ Por seguridad, si por algún motivo queda fuera
+      if (y < availableBottom) y = availableBottom
 
       page.drawImage(chartPng, { x, y, width: w, height: h })
+
     }
   }
 
@@ -75,7 +132,7 @@ export async function generateMaterialityChartPdf({
   // ✅ CONTRAPORTADA
   // =====================================
   const contraBytes = await fetchAsUint8Array(contraportada)
-  const contraImg = await pdf.embedJpg(contraBytes) // si es png: embedPng
+  const contraImg = await pdf.embedJpg(contraBytes)
   {
     const page = pdf.addPage([595.28, 841.89])
     const { width, height } = page.getSize()
@@ -83,5 +140,5 @@ export async function generateMaterialityChartPdf({
   }
 
   const bytes = await pdf.save()
-  return new Uint8Array(bytes) // ✅ para Blob sin error TS
+  return new Uint8Array(bytes)
 }

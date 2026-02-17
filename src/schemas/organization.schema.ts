@@ -10,9 +10,15 @@ export const organizationSchema = z.object({
   country: z.string().min(2, "El país es obligatorio").max(100, "Máximo 100 caracteres"),
   industry: z.string().min(2, "La industria es obligatoria").max(100, "Máximo 100 caracteres"),
   employees_number: z.enum(EMPLOYEE_RANGE), 
-  phone:z.string().min(2, "El Número de celular es obligatorio").max(100, "Máximo 100 caracteres"),
-  website: z.string().url("Debe ser una URL válida").optional().or(z.literal("")),
+  phone:z.string().optional(),
+  website: z.string().url("Debe ser una URL válida").or(z.literal("")),
   document: z.string().optional(),
+  supportingInfo: z
+  .string()
+  .max(8000, "Información de apoyo demasiado larga")
+  .optional()
+  .nullable()
+  .transform((v) => (v ?? "").trim()),
   ownerId: z.string().optional(),
 })
 

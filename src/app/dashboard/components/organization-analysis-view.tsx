@@ -173,9 +173,10 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                     <div className="flex justify-end mb-5">
                       <GenerateMaterialityChartPdfButton
                         dataMaterialidad={dataFinal}
-                        portada="/portada_analisis_completo_page-0001.jpg"
+                        portada="/Portada_MatrizMaterilida _Adaptia_page-0001.jpg"
                         contraportada="/contraportada_analisis_completo_page-0001.jpg"
                         filename="Materialidad_Adaptia.pdf"
+                        orgName={organization.company}
                       />
                     </div>
                   </div>
@@ -267,8 +268,6 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
       case "resumen": {
         const resumenData = analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
 
-        console.log('RESUMEN', resumenData)
-
         return (
           <section id="resumen-section">
             {/* ============================= */}
@@ -280,7 +279,6 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
               analysisData={analysisData}
               accessToken={token}
               userRole={role}
-              organization={organization}
             />
           </section>
         )

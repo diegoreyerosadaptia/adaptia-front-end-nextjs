@@ -44,18 +44,22 @@ export function HeroSection({ onOpenDrawer }: Props) {
           </div>
 
           {/* Main headline matching brand typography */}
-          <div className="space-y-1">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl text-adaptia-yellow font-heading font-bold leading-tight text-balance">
-              Sostenibilidad ágil
-            </h2>
+        <div className="space-y-2">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl text-adaptia-yellow font-heading font-bold leading-tight">
+            Sostenibilidad ágil
+          </h2>
 
-            <h2 className="text-xl md:text-1xl lg:text-2xl text-white max-w-4xl mx-auto leading-relaxed text-pretty font-heading">
-              Recibe un análisis de doble materialidad ESG y ruta de sostenibilidad para tu empresa en{" "}
-            </h2>
-              <h2 className="text-2xl md:text-3xl lg:text-4xl text-adaptia-yellow font-heading font-bold leading-tight text-balance">
-              24 horas
-            </h2>
-          </div>
+          <h3 className="md:text-3xl text-white max-w-5xl mx-auto leading-relaxed font-heading">
+            <span className="block">
+              Recibe un análisis de sostenibilidad (doble materialidad ESG)
+            </span>
+            <span className="block">y una ruta de acción para tu empresa en</span>
+            <span className="block">
+              <span className="text-adaptia-yellow font-bold">24 horas.</span>
+            </span>
+          </h3>
+        </div>
+
 
           {/* CTA section with brand styling */}
           <div className="pt-6 space-y-6">
@@ -64,7 +68,7 @@ export function HeroSection({ onOpenDrawer }: Props) {
               onClick={onOpenDrawer}
               className="btn-primary-brand text-lg px-10 py-6 rounded-xl transition-all duration-300"
             >
-              Solicita tu análisis en segundos
+              Solicita tu análisis en minutos
             </Button>
           </div>
         </div>

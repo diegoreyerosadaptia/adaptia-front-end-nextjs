@@ -5,6 +5,7 @@ import { SupportersSection } from "@/components/supporters-section"
 import { Footer } from "@/components/footer"
 import Link from "next/link"
 import { Linkedin, ArrowLeft } from "lucide-react"
+import Image from "next/image"
 
 export default function EquipoPage() {
   return (
@@ -16,38 +17,57 @@ export default function EquipoPage() {
 
           {/* Header */}
           <div className="text-center mt-10 mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6 text-balance">Equipo y metodología</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6 text-balance">Sobre nosotros</h1>
           </div>
 
           {/* Mission */}
           <div className="mb-16">
             <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-gray-200">
               <CardContent className="p-8">
-                <h2 className="text-2xl font-bold text-primary mb-6 text-center">Lo que buscamos</h2>
+                <h2 className="text-2xl font-bold text-primary mb-6 text-center">
+                  Lo que buscamos
+                </h2>
+
                 <p className="text-lg text-muted-foreground text-center max-w-4xl mx-auto text-pretty">
-                  Adaptia tiene como propósito facilitar el acceso a herramientas de sostenibilidad para cualquier
-                  empresa, sin importar su tamaño o nivel de experiencia. Queremos que más organizaciones puedan tomar
-                  decisiones informadas y accionables, sin depender de procesos largos o costosos.
+                  En Adaptia tenemos como propósito facilitar el acceso a herramientas de sostenibilidad para cualquier empresa, sin importar su tamaño o nivel de experiencia. Buscamos transformar un proceso tradicionalmente complejo, técnico y costoso en una experiencia clara, objetiva y accesible, impulsada por inteligencia artificial.
+                  <br /><br />
+                  Nuestra visión es que más organizaciones en Latinoamérica puedan tomar decisiones informadas y accionables en sostenibilidad desde etapas tempranas, sin depender exclusivamente de procesos largos o consultorías inaccesibles. Creemos que la sostenibilidad no debe ser un privilegio de grandes corporativos, sino una infraestructura disponible para todas las empresas que quieran crecer con impacto y responsabilidad.
+                  <br /><br />
+                  Puedes leer más de nuestra visión en este artículo escrito por TECHLA.
                 </p>
+
+                {/* ✅ Imagen centrada + link debajo */}
+                <div className="mt-8 flex flex-col items-center">
+                  <a
+                    href="https://techla.pro/2026/01/08/adaptia-la-nueva-plataforma-que-busca-democratizar-la-sostenibilidad-empresarial-con-ia/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full max-w-5xl"
+                  >
+                    <div className="relative w-full overflow-hidden rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                      <Image
+                        src="/articulo.png"
+                        alt="Artículo de TECHLA sobre Adaptia"
+                        width={1600}
+                        height={800}
+                        className="w-full h-auto"
+                        priority={false}
+                      />
+                    </div>
+                  </a>
+
+                  <a
+                    href="https://techla.pro/2026/01/08/adaptia-la-nueva-plataforma-que-busca-democratizar-la-sostenibilidad-empresarial-con-ia/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 text-sm font-medium text-primary underline underline-offset-4 hover:opacity-80 text-center"
+                  >
+                    Leer el artículo en TECHLA →
+                  </a>
+                </div>
               </CardContent>
             </Card>
           </div>
-
-          {/* Methodology */}
-          <Card className="bg-card border-gray-200 mb-16">
-            <CardHeader>
-              <CardTitle className="text-3xl text-center text-primary">Nuestra metodología</CardTitle>
-            </CardHeader>
-            <CardContent className="p-8">
-              <p className="text-lg text-muted-foreground text-pretty leading-relaxed">
-                Usamos inteligencia artificial para analizar los datos proporcionados por cada organización, cruzándolos
-                con estándares internacionales como GRI, SASB, GAIL, S&P y los ODS. A partir de esta base, identificamos
-                impactos relevantes, priorizamos temas materiales y sugerimos una ruta práctica y adaptada a la
-                realidad de cada empresa. Nuestro objetivo es facilitar un primer paso claro, riguroso y accionable en
-                sostenibilidad, sin procesos largos ni complejos.
-              </p>
-            </CardContent>
-          </Card>
 
           {/* Team members */}
           <div className="mb-16">

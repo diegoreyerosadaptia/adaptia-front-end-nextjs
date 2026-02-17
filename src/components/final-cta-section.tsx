@@ -30,9 +30,9 @@ export function FinalCtaSection({ onOpenDrawer }: Props) {
             Comienza hoy tu ruta de sostenibilidad
           </h2>
 
-          <h2 className="text-xl md:text-1xl lg:text-2xl text-white max-w-4xl mx-auto leading-relaxed text-pretty font-heading">
-            No esperes más para transformar tu empresa. Obtén tu análisis de doble materialidad ESG en{" "}
-            <span className="font-semibold text-adaptia-yellow">24 horas</span>.
+          <h2 className="text-lg md:text-1xl lg:text-2xl text-white max-w-4xl mx-auto leading-relaxed text-pretty font-heading">
+           Obtén tu análisis de sostenibilidad en{" "}
+            <span className="text-xl font-semibold text-adaptia-yellow">24 horas</span>.
           </h2>
           
           <div className="space-y-6">
@@ -42,7 +42,7 @@ export function FinalCtaSection({ onOpenDrawer }: Props) {
               onClick={onOpenDrawer}
               className="btn-primary-brand text-lg px-10 py-6 rounded-xl transition-all duration-300"
             >
-              Solicita tu análisis en segundos
+              Solicita tu análisis en minutos
             </Button>
             
             {/* Trust indicators */}

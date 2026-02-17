@@ -28,8 +28,7 @@ export function AnalysisDrawer({ open, onOpenChange }: AnalysisDrawerProps) {
         <SheetHeader className="space-y-6">
           <SheetTitle className="text-3xl font-bold text-primary">Solicitar análisis</SheetTitle>
           <SheetDescription className="text-base text-muted-foreground">
-            Completa el formulario en menos de 5 minutos y activa tu análisis personalizado. 
-            El proceso comienza una vez realizado el pago. En 24 horas hábiles tendrás tu ruta lista.
+           Completa el formulario en menos de 5 minutos para generar tu análisis de sostenibilidad. El proceso comienza una vez se haya confirmado el pago y, en un plazo máximo de 24 horas hábiles, recibirás tu análisis de sostenibilidad personalizado. 
           </SheetDescription>
         </SheetHeader>
 

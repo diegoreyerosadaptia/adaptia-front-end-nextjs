@@ -80,23 +80,21 @@ export function AddOrganizationDialog() {
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border-2 border-adaptia-blue-primary/10">
-          <DialogHeader className="space-y-3 pb-6 border-b border-gray-200">
-            <DialogTitle className="text-3xl font-bold text-adaptia-blue-primary">
-              Nueva Analisis
+        <DialogContent className="max-w-2xl max-h-[90vh] rounded-2xl border-2 border-adaptia-blue-primary/10 text-left">
+          <DialogHeader className="space-y-3 pb-6 border-b border-gray-200 text-left">
+            <DialogTitle className="text-3xl font-bold text-adaptia-blue-primary text-left">
+              Nuevo Analisis
             </DialogTitle>
-            <DialogDescription className="text-base text-gray-600">
-            Complete el formulario con la información de su organización para comenzar el análisis de sostenibilidad. Todos los análisis nuevos que generes tendrán un 10% de descuento de forma automática. 
+            <DialogDescription className="text-base text-gray-600 text-left">
+              Completa el formulario...
             </DialogDescription>
           </DialogHeader>
 
-          <div className="pt-6 pb-4 px-2">
-            <OrganizationForm
-              redirectToPayment={false}
-              onSuccess={handleSuccess}
-            />
+          <div className="pt-6 pb-4 px-2 text-left">
+            <OrganizationForm redirectToPayment={false} onSuccess={handleSuccess} />
           </div>
         </DialogContent>
+
       </Dialog>
 
       {/* Drawer de pago con el link ya generado */}
