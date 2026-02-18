@@ -10,6 +10,7 @@ import { SupportersSection } from "@/components/supporters-section"
 import { Footer } from "@/components/footer"
 import { FinalCtaWithDrawer } from "@/components/final-cta-with-drawer"
 import { HeroSectionDrawer } from "@/components/hero-section-with-drawer"
+import { ScrollToTop } from "@/components/scroll-to-top"
 
 export default function HomePage() {
   return (
@@ -44,6 +45,7 @@ export default function HomePage() {
       </div>
       <FinalCtaWithDrawer />
       <Footer />
+      <ScrollToTop />
     </main>
   )
 }

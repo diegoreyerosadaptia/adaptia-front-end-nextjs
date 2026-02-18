@@ -166,8 +166,8 @@ h3, h4, h5, h6{
 
 
 /* Tipografía uniforme en todo */
-p, span, label, input, button, textarea, select {
-  font-size: 1rem !important;
+p, label, input, button, textarea, select {
+  font-size: 1.1rem !important;
 }
 
 /* Tamaños secundarios */

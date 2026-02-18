@@ -26,17 +26,24 @@ export function FinalCtaSection({ onOpenDrawer }: Props) {
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
         <div className="space-y-8">
+          {/* Título principal */}
           <h2 className="text-2xl md:text-3xl lg:text-4xl text-adaptia-yellow font-heading font-bold leading-tight text-balance">
             Comienza hoy tu ruta de sostenibilidad
           </h2>
 
-          <h2 className="text-lg md:text-1xl lg:text-2xl text-white max-w-4xl mx-auto leading-relaxed text-pretty font-heading">
-           Obtén tu análisis de sostenibilidad en{" "}
-            <span className="text-xl font-semibold text-adaptia-yellow">24 horas</span>.
-          </h2>
-          
+          {/* Subtítulo + “24 horas” del MISMO tamaño que el título */}
+          <p className="text-lg md:text-xl lg:text-2xl text-white max-w-4xl mx-auto leading-relaxed text-pretty font-heading">
+            Obtén tu{" "}
+            <span className="font-semibold bg-gradient-to-r from-adaptia-green-primary to-adaptia-yellow bg-clip-text text-transparent">
+              análisis de sostenibilidad
+            </span>{" "}
+            en{" "}
+            <span className="block text-4xl md:text-4xl lg:text-4xl font-heading font-bold text-adaptia-yellow leading-tight">
+              24 horas.
+            </span>
+          </p>
+
           <div className="space-y-6">
-            {/* ✅ Ahora abre el drawer */}
             <Button
               size="lg"
               onClick={onOpenDrawer}
@@ -44,7 +51,7 @@ export function FinalCtaSection({ onOpenDrawer }: Props) {
             >
               Solicita tu análisis en minutos
             </Button>
-            
+
             {/* Trust indicators */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-8 pt-4">
               <div className="flex items-center gap-2 text-sm text-white font-heading">
@@ -63,6 +70,7 @@ export function FinalCtaSection({ onOpenDrawer }: Props) {
           </div>
         </div>
       </div>
+
     </section>
   )
 }

@@ -138,18 +138,29 @@ export function ContextoEditable({
 
   return (
     <div className="space-y-6 text-[#163F6A]">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-heading font-bold">Contexto de organización</h2>
 
-        {userRole === "ADMIN" && (
-          <AnalysisActionsMenu
-            isEditing={isEditing}
-            isSaving={isSaving}
-            onEditToggle={() => setIsEditing((p) => !p)}
-            onSave={handleSaveChanges}
-            onCancel={handleCancel}
-          />
-        )}
+    <div className="space-y-3">
+        {/* fila 1: título + menú */}
+        <div className="flex items-start justify-between gap-4">
+          <h2 className="text-3xl font-heading font-bold leading-tight">
+            Contexto de organización
+          </h2>
+
+          {userRole === "ADMIN" && (
+            <AnalysisActionsMenu
+              isEditing={isEditing}
+              isSaving={isSaving}
+              onEditToggle={() => setIsEditing((v) => !v)}
+              onSave={handleSaveChanges}
+              onCancel={handleCancel}
+            />
+          )}
+        </div>
+
+        {/* fila 2: descripción */}
+        <p className="">
+          Esta sección resume el perfil organizacional construido para tu empresa con base en información pública y los datos proporcionados en el registro. Este contexto es la base sobre la cual se desarrolla todo el análisis de sostenibilidad.
+        </p>
       </div>
 
       {/* ✅ 1) NOMBRE (compacto) */}

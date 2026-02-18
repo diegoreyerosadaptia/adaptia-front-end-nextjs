@@ -25,6 +25,9 @@ interface Props {
   filename?: string
   className?: string
   orgName?: string
+  orgInd?: string
+  orgCountry?: string
+  orgCreation?: string
 }
 
 export function GenerateMaterialityChartPdfButton({
@@ -33,7 +36,10 @@ export function GenerateMaterialityChartPdfButton({
   contraportada,
   filename = "Materialidad_Adaptia.pdf",
   className,
-  orgName
+  orgName,
+  orgInd,
+  orgCountry,
+  orgCreation,
 }: Props) {
   const chartRef = useRef<HTMLDivElement>(null)
 
@@ -76,7 +82,10 @@ export function GenerateMaterialityChartPdfButton({
         chartImg,
         portada,
         contraportada,
-        orgName
+        orgName,
+        orgInd,
+        orgCountry,
+        orgCreation,
       })
 
       const safeBytes = pdfBytes instanceof Uint8Array ? pdfBytes : new Uint8Array(pdfBytes as any)

@@ -5,17 +5,89 @@ import Link from "next/link"
 import { ArrowLeft, Mail, MessageCircle } from "lucide-react"
 import { Footer } from "@/components/footer"
 
-function renderAnswer(answer: string) {
-  return answer
-    .trim()
-    .split(/\n\s*\n/g) // separa por párrafos (línea en blanco)
-    .map((block, i) => (
-      <p key={i} className="mb-4 last:mb-0">
-        {block.trim()}
-      </p>
-    ))
+function renderGlossaryLine(line: string) {
+  const idx = line.indexOf(":")
+  if (idx <= 0) return null
+
+  const left = line.slice(0, idx).trim()
+  const right = line.slice(idx + 1).trim()
+
+  // evita falsos positivos tipo "https://"
+  if (!right) return null
+  if (left.includes("http") || left.includes("www")) return null
+
+  return (
+    <p className="mb-4 last:mb-0">
+      <span className="font-bold text-foreground">{left}:</span> {right}
+    </p>
+  )
 }
 
+function renderAnswer(answer: string, preserveLines?: boolean) {
+  const text = (answer ?? "").trim()
+  const blocks = text.split(/\n\s*\n/g) // separa por párrafos (línea en blanco)
+
+  // ✅ preserveLines: bullets (con sangría) + glosario + párrafos
+  if (preserveLines) {
+    return (
+      <div className="space-y-4">
+        {blocks.map((block, i) => {
+          const lines = block
+            .split("\n")
+            .map((l) => l.trimEnd())
+            .filter((l) => l.trim().length > 0)
+
+          const hasBullets = lines.some((l) => l.trim().startsWith("-"))
+
+          // bullets
+          if (hasBullets) {
+            const title = lines.find((l) => !l.trim().startsWith("-")) ?? ""
+            const bullets = lines
+              .filter((l) => l.trim().startsWith("-"))
+              .map((l) => l.trim().replace(/^-+\s*/, ""))
+
+            return (
+              <div key={i} className="space-y-2">
+                {title && <p className="font-semibold">{title}</p>}
+                <ul className="list-disc pl-6 space-y-1">
+                  {bullets.map((b, idx) => (
+                    <li key={idx}>{b}</li>
+                  ))}
+                </ul>
+              </div>
+            )
+          }
+
+          // glosario (aunque venga como un solo bloque por línea)
+          if (lines.length === 1) {
+            const gloss = renderGlossaryLine(lines[0].trim())
+            if (gloss) return <div key={i}>{gloss}</div>
+          }
+
+          return (
+            <p key={i} className="mb-0">
+              {lines.join(" ")}
+            </p>
+          )
+        })}
+      </div>
+    )
+  }
+
+  // ✅ modo normal: párrafos + glosario línea por línea
+  return blocks.map((block, i) => {
+    const b = block.trim()
+
+    const gloss = renderGlossaryLine(b)
+    if (gloss) return <div key={i}>{gloss}</div>
+
+    return (
+      <p key={i} className="mb-4 last:mb-0">
+        {b}
+      </p>
+    )
+  })
+}
 
 export default function FaqPage() {
   const faqs = [
@@ -70,31 +142,39 @@ export default function FaqPage() {
     {
       question: "¿Cuál es la huella ambiental de un análisis de Adaptia?",
       answer: `Cada análisis completo de Adaptia utiliza en promedio 17,500 tokens. Esto se traduce en una huella ambiental muy baja. En términos simples, por cada análisis:
-    
+
     Huella de CO₂e: aproximadamente 13 gramos
     - Equivalente a enviar 1–2 correos electrónicos con adjunto.
     - Similar a tener un refrigerador doméstico encendido por 10–12 minutos.
-    
+
     Consumo de energía: alrededor de 0.088 kWh
     - Equivalente al consumo de una laptop durante 5–7 minutos.
     - Similar a la energía necesaria para calentar agua para ⅛ de taza de té.
-    
+
     Uso de agua: entre 0.42 y 0.64 litros
     - Equivalente al agua asociada a producir 1–2 hojas impresas tamaño carta.
     - Aproximadamente medio vaso de agua.
-    
+
     Para reducir nuestra huella, seguimos mejorando la eficiencia del pipeline para disminuir la cantidad de tokens necesarios en cada análisis.`,
       preserveLines: true,
-    },    
+    },  
     {
       question: "¿Cómo protegen los datos de mi organización?",
-      answer:
-        "Adaptia utiliza exclusivamente los datos que tu organización proporciona —así como la información generada durante el análisis— para elaborar el estudio contratado. Estos datos no se comparten, no se venden y no se usan para fines distintos a los establecidos en el servicio. Cada análisis es independiente y nunca se mezcla ni se agrega información entre distintas organizaciones./nToda la información se almacena en Supabase (PostgreSQL). El acceso está protegido mediante autenticación con tokens JWT y validación en cada solicitud. Además, todas las conexiones entre la aplicación, el servidor y la base de datos utilizan HTTPS y TLS, garantizando la encriptación, la integridad y la protección de tus datos en todo momento.",
+      answer: `Adaptia utiliza exclusivamente los datos que tu organización proporciona así como la información generada durante el análisis para elaborar el estudio contratado. Estos datos no se comparten, no se venden y no se usan para fines distintos a los establecidos en el servicio. Cada análisis es independiente y nunca se mezcla ni se agrega información entre distintas organizaciones.
+
+    Toda la información se almacena en Supabase (PostgreSQL). El acceso está protegido mediante autenticación con tokens JWT y validación en cada solicitud.
+
+    Además, todas las conexiones entre la aplicación, el servidor y la base de datos utilizan HTTPS y TLS, garantizando la encriptación, la integridad y la protección de tus datos en todo momento.`,
     },
     {
       question: "¿Qué hacen con los datos de mi organización? ",
-      answer:
-        "Toda la información proporcionada por tu organización se considera confidencial y será tratada como tal. Adaptia solo podrá divulgar datos cuando exista una obligación legal expresa o el consentimiento escrito por parte de la empresa usuaria de nuestra plataforma. De manera agregada y anónima, Adaptia podrá utilizar metadatos de la plataforma para realizar análisis macro de tendencias por industria, país, temas de sostenibilidad o entorno regulatorio. Estos análisis nunca incluyen información identificable ni datos individuales de una empresa en particular que haya usado nuestra plataforma. Esta información se utilizará para generar reporte de la mano de aliados estratégicos con el fin de generar conocimiento para la industria de sostenibilidad.",
+      answer: `Toda la información proporcionada por tu organización se considera confidencial y será tratada como tal. Adaptia solo podrá divulgar datos cuando exista una obligación legal expresa o el consentimiento escrito por parte de la empresa usuaria de nuestra plataforma.
+
+    De manera agregada y anónima, Adaptia podrá utilizar metadatos de la plataforma para realizar análisis macro de tendencias por industria, país, temas de sostenibilidad o entorno regulatorio.
+
+    Estos análisis nunca incluyen información identificable ni datos individuales de una empresa en particular que haya usado nuestra plataforma.
+
+    Esta información se utilizará para generar reportes de la mano de aliados estratégicos con el fin de generar conocimiento para la industria de sostenibilidad.`,
     },
     {
       question: "¿Al usar Adaptia, me otorgan licencia sobre la tecnología?",
@@ -183,7 +263,7 @@ Objetividad metodológica: Uso de criterios estructurados y estándares reconoci
                     {faq.question}
                   </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground text-pretty text-lg leading-relaxed">
-                      {renderAnswer(faq.answer)}
+                      {renderAnswer(faq.answer, faq.preserveLines)}
                     </AccordionContent>
                 </AccordionItem>
               ))}

@@ -137,3 +137,56 @@ export const getOdsOptions = async (
   }
 }
 
+
+
+// ===============================
+// ✅ ODS hidden columns (ADMIN)
+// ===============================
+type ColKey = "tema" | "ods" | "meta_ods" | "indicador_ods"
+export type HiddenColsDto = Partial<Record<ColKey, boolean>>
+
+export const getEsgAnalysisById = async (id: string, authToken?: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/esg-analysis/${id}`, {
+      method: "GET",
+      headers: getJsonHeaders(authToken),
+    })
+
+    const result = await response.json()
+
+    if (response.ok) return result
+
+    console.error("❌ Error del backend (getEsgAnalysisById):", result)
+    return null
+  } catch (error) {
+    console.error("💥 Error obteniendo análisis ESG:", error)
+    return null
+  }
+}
+
+export const setOdsHiddenCols = async (
+  esgAnalysisId: string,
+  body: HiddenColsDto,
+  authToken?: string
+) => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/esg-analysis/${esgAnalysisId}/ods-hidden-cols`,
+      {
+        method: "PATCH",
+        headers: getJsonHeaders(authToken),
+        body: JSON.stringify(body),
+      }
+    )
+
+    const result = await response.json()
+
+    if (response.ok) return result
+
+    console.error("❌ Error del backend (setOdsHiddenCols):", result)
+    return null
+  } catch (error) {
+    console.error("💥 Error guardando hiddenCols:", error)
+    return null
+  }
+}

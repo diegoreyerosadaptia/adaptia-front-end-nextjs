@@ -16,7 +16,7 @@ export function Navigation() {
 
   const navLinks = [
     { href: "/", label: "Inicio" },
-    { href: "/equipo", label: "Equipo" },
+    { href: "/sobreNosotros", label: "Sobre nosotros" },
     { href: "/faq", label: "FAQ" },
     { href: "/recurso", label: "Recursos" },
   ]

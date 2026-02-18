@@ -29,12 +29,24 @@ export default function EquipoPage() {
                 </h2>
 
                 <p className="text-lg text-muted-foreground text-center max-w-4xl mx-auto text-pretty">
-                  En Adaptia tenemos como propósito facilitar el acceso a herramientas de sostenibilidad para cualquier empresa, sin importar su tamaño o nivel de experiencia. Buscamos transformar un proceso tradicionalmente complejo, técnico y costoso en una experiencia clara, objetiva y accesible, impulsada por inteligencia artificial.
-                  <br /><br />
-                  Nuestra visión es que más organizaciones en Latinoamérica puedan tomar decisiones informadas y accionables en sostenibilidad desde etapas tempranas, sin depender exclusivamente de procesos largos o consultorías inaccesibles. Creemos que la sostenibilidad no debe ser un privilegio de grandes corporativos, sino una infraestructura disponible para todas las empresas que quieran crecer con impacto y responsabilidad.
-                  <br /><br />
+                  En Adaptia tenemos como propósito{" "}
+                  <strong>facilitar el acceso a herramientas de sostenibilidad</strong> para{" "}
+                  <strong>cualquier empresa</strong>, sin importar su tamaño o nivel de experiencia. Buscamos
+                  transformar un proceso tradicionalmente complejo, técnico y costoso{" "}
+                  <strong>en una experiencia clara, objetiva y accesible,</strong> impulsada por inteligencia
+                  artificial.
+                  <br />
+                  <br />
+                  Nuestra visión es que más organizaciones en Latinoamérica puedan tomar decisiones informadas y
+                  accionables en sostenibilidad desde etapas tempranas, sin depender exclusivamente de procesos
+                  largos o consultorías inaccesibles. Creemos que la sostenibilidad no debe ser un privilegio de
+                  grandes corporativos, sino una infraestructura disponible para todas las empresas que quieran
+                  crecer con impacto y responsabilidad.
+                  <br />
+                  <br />
                   Puedes leer más de nuestra visión en este artículo escrito por TECHLA.
                 </p>
+
 
                 {/* ✅ Imagen centrada + link debajo */}
                 <div className="mt-8 flex flex-col items-center">
@@ -42,15 +54,15 @@ export default function EquipoPage() {
                     href="https://techla.pro/2026/01/08/adaptia-la-nueva-plataforma-que-busca-democratizar-la-sostenibilidad-empresarial-con-ia/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full max-w-5xl"
+                    className="w-full max-w-3xl"
                   >
                     <div className="relative w-full overflow-hidden rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                       <Image
                         src="/articulo.png"
                         alt="Artículo de TECHLA sobre Adaptia"
-                        width={1600}
-                        height={800}
-                        className="w-full h-auto"
+                        width={300}
+                        height={200}
+                        className="w-300 h-auto"
                         priority={false}
                       />
                     </div>

@@ -24,12 +24,18 @@ export async function generateMaterialityChartPdf({
   portada,
   contraportada,
   orgName,
+  orgInd,
+  orgCountry,
+  orgCreation,
 }: {
   chartImg?: string
   portada: string
   contraportada: string
   filename?: string
   orgName?: string
+  orgInd?: string
+  orgCountry?: string
+  orgCreation?: string
 }) {
   const pdf = await PDFDocument.create()
 
@@ -48,85 +54,111 @@ export async function generateMaterialityChartPdf({
     page.drawImage(portadaImg, { x: 0, y: 0, width, height })
   }
 
-  // =====================================
-  // ✅ PÁGINA GRÁFICO
-  // =====================================
-  {
-    const page = pdf.addPage([595.28, 841.89])
-    const { width, height } = page.getSize()
+// =====================================
+// ✅ PÁGINA GRÁFICO
+// =====================================
+{
+  const page = pdf.addPage([595.28, 841.89])
+  const { width, height } = page.getSize()
 
-    const margin = 10
+  const margin = 10
 
-    // ====== Header (título arriba del gráfico) ======
-    const headerGap = 10
-    const titleFontSize = 18
-    const subFontSize = 10
+  // ====== Header (título arriba del gráfico) ======
+  const headerGap = 10
+  const titleFontSize = 18
+  const subFontSize = 10
 
-    // Bloque total reservado arriba (título + línea + aire)
-    const headerHeight = orgName?.trim() ? titleFontSize + 16 : 0
+  const hasTitle = !!orgName?.trim()
+
+  // Armamos la línea secundaria (solo con datos presentes)
+  const metaParts: string[] = []
+
+  if (orgInd?.trim()) metaParts.push(`Industria: ${orgInd.trim()}`)
+  if (orgCountry?.trim()) metaParts.push(`País: ${orgCountry.trim()}`)
+
+  if (orgCreation?.trim()) metaParts.push(`Creación: ${orgCreation.trim()}`)
 
 
-    if (orgName?.trim()) {
-      const title = orgName.trim()
+  const metaLine = metaParts.join(" · ")
+  const hasMeta = metaLine.length > 0
 
-      // Centrado real según ancho del texto
-      const titleWidth = fontBold.widthOfTextAtSize(title, titleFontSize)
-      const titleX = Math.max(margin, (width - titleWidth) / 2)
+  // Altura reservada para el header (título + meta + separador)
+  const headerHeight = hasTitle
+    ? titleFontSize + (hasMeta ? subFontSize + 10 : 0) + 16
+    : 0
 
-      // Posición arriba, respetando margen
-      const titleY = height - margin - titleFontSize
+  if (hasTitle) {
+    const title = orgName!.trim()
 
-      page.drawText(title, {
-        x: titleX,
-        y: titleY,
-        size: titleFontSize,
-        font: fontBold,
-        color: rgb(0.1, 0.1, 0.1),
+    // Centrado real según ancho del texto
+    const titleWidth = fontBold.widthOfTextAtSize(title, titleFontSize)
+    const titleX = Math.max(margin, (width - titleWidth) / 2)
+
+    // Posición arriba, respetando margen
+    const titleY = height - margin - titleFontSize
+
+    page.drawText(title, {
+      x: titleX,
+      y: titleY,
+      size: titleFontSize,
+      font: fontBold,
+      color: rgb(0.1, 0.1, 0.1),
+    })
+
+    // ✅ Meta debajo del nombre (Industria · País · Fecha)
+    if (hasMeta) {
+      const metaWidth = fontRegular.widthOfTextAtSize(metaLine, subFontSize)
+      const metaX = Math.max(margin, (width - metaWidth) / 2)
+
+      const metaY = titleY - (subFontSize + 6)
+
+      page.drawText(metaLine, {
+        x: metaX,
+        y: metaY,
+        size: subFontSize,
+        font: fontRegular,
+        color: rgb(0.35, 0.35, 0.35),
       })
-
-      // Línea sutil debajo del título (opcional, pero queda prolijo)
-      const lineY = titleY - 6
-      page.drawLine({
-        start: { x: margin, y: lineY },
-        end: { x: width - margin, y: lineY },
-        thickness: 1,
-        color: rgb(0.85, 0.85, 0.85),
-      })
-
     }
 
-    // ====== Gráfico ======
-    if (chartImg) {
-      const chartBytes = dataUrlToUint8Array(chartImg)
-      const chartPng = await pdf.embedPng(chartBytes)
-
-      // Máximo para el gráfico, dejando espacio para header
-      const maxW = width - margin * 2
-      const maxH = height - margin * 2 - headerHeight
-
-      const imgW = chartPng.width
-      const imgH = chartPng.height
-      const scale = Math.min(maxW / imgW, maxH / imgH)
-
-      const w = imgW * scale
-      const h = imgH * scale
-
-      const x = (width - w) / 2
-
-      const availableTop = height - margin - headerHeight
-      const availableBottom = margin
-      const availableHeight = availableTop - availableBottom
-
-      // ✅ TOP aligned (en vez de centrar)
-      let y = availableTop - h
-
-      // ✅ Por seguridad, si por algún motivo queda fuera
-      if (y < availableBottom) y = availableBottom
-
-      page.drawImage(chartPng, { x, y, width: w, height: h })
-
-    }
+    // Línea sutil debajo del header
+    const lineY = titleY - (hasMeta ? (subFontSize + 14) : 6)
+    page.drawLine({
+      start: { x: margin, y: lineY },
+      end: { x: width - margin, y: lineY },
+      thickness: 1,
+      color: rgb(0.85, 0.85, 0.85),
+    })
   }
+
+  // ====== Gráfico ======
+  if (chartImg) {
+    const chartBytes = dataUrlToUint8Array(chartImg)
+    const chartPng = await pdf.embedPng(chartBytes)
+
+    const maxW = width - margin * 2
+    const maxH = height - margin * 2 - headerHeight
+
+    const imgW = chartPng.width
+    const imgH = chartPng.height
+    const scale = Math.min(maxW / imgW, maxH / imgH)
+
+    const w = imgW * scale
+    const h = imgH * scale
+
+    const x = (width - w) / 2
+
+    const availableTop = height - margin - headerHeight
+    const availableBottom = margin
+
+    // ✅ TOP aligned
+    let y = availableTop - h
+    if (y < availableBottom) y = availableBottom
+
+    page.drawImage(chartPng, { x, y, width: w, height: h })
+  }
+}
+
 
   // =====================================
   // ✅ CONTRAPORTADA

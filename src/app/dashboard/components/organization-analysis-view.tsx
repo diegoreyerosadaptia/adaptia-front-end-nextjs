@@ -55,6 +55,13 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
   const [subTab, setSubTab] = useState<"grafico" | "acciones" | "evaluacion">("grafico")
   const router = useRouter()
 
+      // Antes del return (o arriba en el componente)
+  const createdAtLabel = new Date(organization.createdAt).toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
+
   const lastAnalysis = organization?.esgAnalysis?.at(-1) // obtiene el último análisis
   const analysisData =
     typeof lastAnalysis?.analysisJson === "string" ? JSON.parse(lastAnalysis.analysisJson) : lastAnalysis?.analysisJson
@@ -165,7 +172,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                   Matriz de Materialidad
                 </h3>
                 <p>
-                Esta gráfica muestra de manera visual el análisis de doble materialidad ESG de tu organización. Los temas más prioritarios —los llamados temas materiales— son aquellos ubicados más cerca del cuadrante superior derecho. Es decir, los temas que presentan una mayor relevancia tanto en su impacto financiero como en sus impactos ESG.
+                Esta gráfica muestra de manera visual el análisis de doble materialidad ESG de tu organización. Los temas más prioritarios los llamados temas materiales son aquellos ubicados más cerca del cuadrante superior derecho. Es decir, los temas que presentan una mayor relevancia tanto en su impacto financiero como en sus impactos ESG.
                 </p>
 
                 <section id="materiality-chart">
@@ -177,6 +184,9 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                         contraportada="/contraportada_analisis_completo_page-0001.jpg"
                         filename="Materialidad_Adaptia.pdf"
                         orgName={organization.company}
+                        orgInd={organization.industry}
+                        orgCountry={organization.country}
+                        orgCreation={createdAtLabel}
                       />
                     </div>
                   </div>
@@ -348,12 +358,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
   // ======================
   const finalScatterData = [...dataFinal.filter((d) => d.materialidad?.toLowerCase() !== "alta"), ...altaAgrupada]
 
-    // Antes del return (o arriba en el componente)
-  const createdAtLabel = new Date(organization.createdAt).toLocaleDateString("es-AR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  })
+
 
 
   return (
@@ -374,8 +379,9 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
               </div>
               <div className="h-8 w-px bg-slate-300" />
               <div className="space-y-1">
-                  <p className="text-xs font-semibold uppercase tracking-wide">
-                    Análisis de doble materialidad ESG
+                  <p className="text-xs font-semibold tracking-wide">
+                    ANÁLISIS DE SOSTENIBILIDAD
+                  (doble materialidad ESG)
                   </p>
 
                   <h2 className="text-lg font-bold text-slate-800">

@@ -2,33 +2,61 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Building2, Target, BarChart, Lightbulb, PhoneCall } from "lucide-react"
 
 export function AnalysisSection() {
-  const features = [
-    {
-      icon: <Building2 className="w-8 h-8" />,
-      title: "Contexto base de tu organización",
-      description: "Una lectura inicial de cómo tu empresa impacta y se ve impactada por aspectos ESG (ambientales, sociales y de gobernanza). Incluye riesgos y oportunidades de negocio",
-    },
-    {
-      icon: <Target className="w-8 h-8" />,
-      title: "Métricas recomendadas: ",
-      description: "Sugerencias de métricas ESG con las que puedes medir tus impactos. Incluye referencias a los marcos de: SASB, GRI, ODS y S&P.",
-    },
-    {
-      icon: <BarChart className="w-8 h-8" />,
-      title: "Priorización de impactos clave ",
-      description: "Identificamos los 10 temas más relevantes para tu empresa con un enfoque de doble materialidad (financiera y de sostenibilidad). Recibirás una matriz de doble materialidad ESG. ",
-    },
-    {
-      icon: <Lightbulb className="w-8 h-8" />,
-      title: "Ruta de sostenibilidad ",
-      description: "Un plan de acción con sugerencias iniciales, moderadas y estructurales para fortalecer tus 10 temas prioritarios.",
-    },
-        {
-      icon: <PhoneCall className="w-8 h-8" />,
-      title: "Llamada de interpretación",
-      description: "Una llamada complementaria con uno de nuestros expertos en sostenibilidad para ayudarte a interpretar los resultados de tu análisis.",
-    },
-  ]
+const features = [
+  {
+    icon: <Building2 className="w-8 h-8" />,
+    title: "Contexto base de tu organización",
+    description: (
+      <>
+        Una lectura inicial de cómo tu empresa impacta y se ve impactada por aspectos ESG{" "}
+        <strong>(ambientales, sociales y de gobernanza)</strong>. Incluye riesgos y
+        oportunidades de negocio
+      </>
+    ),
+  },
+  {
+    icon: <Target className="w-8 h-8" />,
+    title: "Métricas recomendadas: ",
+    description: (
+      <>
+        Sugerencias de métricas ESG con las que puedes medir tus impactos. Incluye referencias a
+        los marcos de: <strong>SASB, GRI, ODS y S&amp;P.</strong>
+      </>
+    ),
+  },
+  {
+    icon: <BarChart className="w-8 h-8" />,
+    title: "Priorización de impactos clave ",
+    description: (
+      <>
+        Identificamos los <strong>10 temas prioritarios.</strong> más relevantes para tu empresa
+        con un enfoque de doble materialidad (financiera y de sostenibilidad). Recibirás una{" "}
+        <strong>matriz de doble materialidad ESG.</strong>
+      </>
+    ),
+  },
+  {
+    icon: <Lightbulb className="w-8 h-8" />,
+    title: "Ruta de sostenibilidad ",
+    description: (
+      <>
+        Un plan de acción con sugerencias iniciales, moderadas y estructurales para fortalecer tus{" "}
+        <strong>10 temas prioritarios.</strong>
+      </>
+    ),
+  },
+  {
+    icon: <PhoneCall className="w-8 h-8" />,
+    title: "Llamada de interpretación",
+    description: (
+      <>
+        Una llamada complementaria con uno de nuestros expertos en sostenibilidad para ayudarte a
+        interpretar los resultados de tu análisis.
+      </>
+    ),
+  },
+]
+
 
   return (
     <section id="que-incluye" className="py-20 relative bg-white">

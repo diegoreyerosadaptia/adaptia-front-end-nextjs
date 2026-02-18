@@ -491,7 +491,7 @@ const addParagraph = (text: string) => {
     // espacio mínimo usable antes del footer
     const minBottom = 60
     if (y < minBottom + 50) {
-      resumenPage = addPage("Resumen Ejecutivo")
+      resumenPage = addPage("Ruta de sostenibilidad")
       y = pageHeight - 130
     }
   }
@@ -510,7 +510,7 @@ const addParagraph = (text: string) => {
 
     // si no cabe ni una línea, nueva página
     if (maxLines <= 0) {
-      resumenPage = addPage("Resumen Ejecutivo")
+      resumenPage = addPage("Ruta de sostenibilidad")
       y = pageHeight - 130
       continue
     }
@@ -522,7 +522,7 @@ const addParagraph = (text: string) => {
 
     // si por alguna razón igual no entra (borde), forzamos salto
     if (y - boxHeight < minBottom) {
-      resumenPage = addPage("Resumen Ejecutivo")
+      resumenPage = addPage("Ruta de sostenibilidad")
       y = pageHeight - 130
       continue
     }
@@ -563,7 +563,7 @@ const addParagraph = (text: string) => {
 
     // si todavía quedan líneas del mismo párrafo, no dejar que el siguiente recuadro arranque pegado al borde
     if (idx < allLines.length && y < minBottom + 40) {
-      resumenPage = addPage("Resumen Ejecutivo")
+      resumenPage = addPage("Ruta de sostenibilidad")
       y = pageHeight - 130
     }
   }

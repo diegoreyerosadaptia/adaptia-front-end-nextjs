@@ -208,19 +208,30 @@ export function ResumenEditable({
   return (
     <div className="space-y-6 text-[#163F6A]">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-heading font-bold">Ruta de Sostenibilidad</h2>
+      <div className="space-y-3">
+        {/* fila 1: título + menú */}
+        <div className="flex items-start justify-between gap-4">
+          <h2 className="text-3xl font-heading font-bold leading-tight">
+            Ruta de Sostenibilidad
+          </h2>
 
-        {userRole === "ADMIN" && (
-          <AnalysisActionsMenu
-            isEditing={isEditing}
-            isSaving={isSaving}
-            onEditToggle={() => setIsEditing((v) => !v)}
-            onSave={handleSaveChanges}
-            onCancel={handleCancel}
-          />
-        )}
+          {userRole === "ADMIN" && (
+            <AnalysisActionsMenu
+              isEditing={isEditing}
+              isSaving={isSaving}
+              onEditToggle={() => setIsEditing((v) => !v)}
+              onSave={handleSaveChanges}
+              onCancel={handleCancel}
+            />
+          )}
+        </div>
+
+        {/* fila 2: descripción */}
+        <p className="">
+          Esta sección presenta una ruta de acciones basada en los 10 temas más relevantes identificados en tu análisis. La información se organiza en tres niveles de acción inicial, moderado y estructural alineados con el contexto real y la madurez actual de tu empresa. Puedes utilizar esta ruta como guía estratégica para decidir qué abordar primero, cómo escalar tus esfuerzos en el tiempo y cómo respaldar tus decisiones ante inversionistas, clientes o aliados.
+        </p>
       </div>
+
 
       {!hasContent ? (
         <div className={boxClass}>

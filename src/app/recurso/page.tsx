@@ -7,7 +7,6 @@ import { PlayCircle, CheckCircle2 } from "lucide-react"
 
 type VideoItem = {
   title: string
-  description: string
   // Ideal: URL embed de YouTube (https://www.youtube.com/embed/VIDEO_ID)
   embedUrl: string
 }
@@ -22,22 +21,18 @@ type StepItem = {
 const VIDEOS: VideoItem[] = [
   {
     title: "¿Qué es Adaptia?",
-    description: "Conoce qué hacemos y por qué Adaptia facilita el acceso a sostenibilidad corporativa.",
     embedUrl: "https://www.youtube.com/embed/VIDEO_ID_1",
   },
   {
     title: "¿Para quién está diseñada Adaptia?",
-    description: "A quién ayuda, en qué casos aporta valor y cómo se adapta por país e industria.",
     embedUrl: "https://www.youtube.com/embed/VIDEO_ID_2",
   },
   {
     title: "Los pasos para generar tu análisis",
-    description: "Te mostramos el flujo completo desde el registro hasta la entrega del análisis.",
     embedUrl: "https://www.youtube.com/embed/VIDEO_ID_3",
   },
   {
     title: "Introducción a Adaptia",
-    description: "Una visión general del producto y de los resultados que vas a recibir.",
     embedUrl: "https://www.youtube.com/embed/VIDEO_ID_4",
   },
 ]
@@ -153,7 +148,6 @@ export default function RecursosPage() {
                     <Card key={v.title} className="bg-card border-gray-200 hover:shadow-lg transition-shadow duration-300">
                       <CardContent className="p-6">
                         <h3 className="text-xl font-bold text-primary mb-2">{v.title}</h3>
-                        <p className="text-muted-foreground text-pretty mb-4">{v.description}</p>
 
                         <div className="relative w-full overflow-hidden rounded-xl border border-gray-200 bg-black/5 aspect-video">
                           <iframe
@@ -210,16 +204,17 @@ export default function RecursosPage() {
                         </span>
                       </AccordionTrigger>
 
-                      <AccordionContent className="text-muted-foreground text-pretty text-lg">
+                      <AccordionContent className="text-muted-foreground text-pretty text-base md:text-lg leading-relaxed">
                         <div className="space-y-4 pt-2">
                           {s.paragraphs?.map((p, i) => (
                             <p key={i}>{p}</p>
                           ))}
-
                           {s.bullets?.length ? (
                             <ul className="list-disc pl-6 space-y-2">
                               {s.bullets.map((b) => (
-                                <li key={b}>{b}</li>
+                                <li key={b} className="leading-relaxed">
+                                  {b}
+                                </li>
                               ))}
                             </ul>
                           ) : null}
