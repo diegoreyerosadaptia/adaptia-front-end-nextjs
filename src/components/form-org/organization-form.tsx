@@ -498,7 +498,7 @@ Nombre de la empresa para la cual realizaremos el análisis de sostenibilidad (E
           </p>
 
           <p className="text-xs text-gray-400 text-right">
-            {supportingInfoValue.length}/8000
+            {supportingInfoValue.length}/10000
           </p>
 
           <textarea

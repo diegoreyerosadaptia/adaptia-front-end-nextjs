@@ -34,7 +34,7 @@ export function FinalCtaSection({ onOpenDrawer }: Props) {
           {/* Subtítulo + “24 horas” del MISMO tamaño que el título */}
           <p className="text-lg md:text-xl lg:text-2xl text-white max-w-4xl mx-auto leading-relaxed text-pretty font-heading">
             Obtén tu{" "}
-            <span className="font-semibold bg-gradient-to-r from-adaptia-green-primary to-adaptia-yellow bg-clip-text text-transparent">
+            <span className="font-semibold text-adaptia-yellow bg-clip-text text-transparent">
               análisis de sostenibilidad
             </span>{" "}
             en{" "}

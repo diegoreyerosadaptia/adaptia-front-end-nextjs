@@ -53,14 +53,14 @@ export function HeroSection({ onOpenDrawer }: Props) {
             <h3 className="text-xl sm:text-2xl md:text-4xl text-white max-w-5xl mx-auto leading-relaxed font-heading">
               <span className="block">
                 Recibe un{" "}
-                <span className="bg-gradient-to-r from-adaptia-green-primary to-adaptia-yellow bg-clip-text text-transparent font-bold">
+                <span className="text-adaptia-yellow bg-clip-text text-transparent font-bold">
                   análisis de sostenibilidad
                 </span>{" "}
                 (doble materialidad ESG)
               </span>
               <span className="block">
                 y una{" "}
-                <span className="bg-gradient-to-r from-adaptia-green-primary to-adaptia-yellow bg-clip-text text-transparent font-bold">
+                <span className="text-adaptia-yellow bg-clip-text text-transparent font-bold">
                   ruta de acción
                 </span>{" "}
                 para tu empresa en

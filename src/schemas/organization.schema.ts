@@ -15,7 +15,7 @@ export const organizationSchema = z.object({
   document: z.string().optional(),
   supportingInfo: z
   .string()
-  .max(8000, "Información de apoyo demasiado larga")
+  .max(10000, "Información de apoyo demasiado larga")
   .optional()
   .nullable()
   .transform((v) => (v ?? "").trim()),

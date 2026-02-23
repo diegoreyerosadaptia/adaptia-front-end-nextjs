@@ -162,10 +162,6 @@ export default function RecursosPage() {
                     </Card>
                   ))}
                 </div>
-
-                <p className="text-sm text-muted-foreground mt-6 text-center">
-                  Tip: si querés que el video no muestre “videos sugeridos”, puedo ayudarte a armar los parámetros del embed.
-                </p>
               </CardContent>
             </Card>
           </div>

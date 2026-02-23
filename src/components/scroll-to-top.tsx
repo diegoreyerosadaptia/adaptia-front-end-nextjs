@@ -19,9 +19,9 @@ export function ScrollToTop() {
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       aria-label="Volver arriba"
       className={[
-        "fixed right-6 bottom-24 z-[9999]", // ✅ sube para no chocar con WhatsApp
+        "fixed left-6 bottom-5", // ✅ sube para no chocar con WhatsApp
         "cursor-pointer h-14 w-14 rounded-full",
-        "bg-black text-white",
+        "bg-adaptia-yellow text-black",
         "shadow-lg hover:shadow-xl",
         "transition-all duration-300",
         "flex items-center justify-center",
