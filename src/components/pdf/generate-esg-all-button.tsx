@@ -132,18 +132,19 @@ const SUPER_SCRIPT_MAP: Record<string, string> = {
  */
 function sanitizeText(font: any, raw: string): string {
   if (raw == null) return ""
+
+  // ✅ Normalizar saltos y TABs (importante)
   const input = String(raw)
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(/\t/g, "  ")
 
   let result = ""
 
   for (const ch of input) {
-    // ✅ preservar saltos de línea (NO deben transformarse en "?")
+    // ❌ NUNCA pasar \n a drawText => lo convertimos a espacio
     if (ch === "\n") {
-      result += "\n"
-      continue
-    }
-    if (ch === "\r") {
-      // ignorar CR (lo normalizamos a \n en otros lados)
+      result += " "
       continue
     }
 
@@ -158,7 +159,6 @@ function sanitizeText(font: any, raw: string): string {
 
   return result
 }
-
 
 function measureWrappedHeight(
   font: any,
