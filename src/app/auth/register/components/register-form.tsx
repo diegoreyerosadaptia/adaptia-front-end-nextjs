@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState, useTransition } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Eye, EyeOff } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, MailCheck } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
@@ -19,10 +19,14 @@ import { registerAction } from "@/actions/auth/resgiter.actions"
 export default function RegisterClient() {
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
-  const router = useRouter()
   const { toast } = useToast()
+
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  // ✅ estado para mostrar pantalla de éxito y ocultar form
+  const [submitted, setSubmitted] = useState(false)
+  const [submittedEmail, setSubmittedEmail] = useState<string>("")
 
   const params = useSearchParams()
   const orgIdQS = params.get("orgId") ?? ""
@@ -67,13 +71,22 @@ export default function RegisterClient() {
             return
           }
 
+          // ✅ NO redirigir: ocultar form y mostrar cartel
+          setSubmittedEmail(values.email)
+          setSubmitted(true)
+
           toast({
             title: "Correo de confirmación enviado",
-            description: "Confirma tu registro a Adaptia.",
+            description: "Revisá tu bandeja de entrada (y spam) para confirmar tu registro.",
             className: "bg-green-600 text-white border-none",
           })
 
-          router.push("/auth/login")
+          // opcional: limpiar campos visualmente
+          form.reset({
+            ...values,
+            password: "",
+            confirmPassword: "",
+          })
         })
         .catch((err) => {
           console.error(err)
@@ -108,103 +121,127 @@ export default function RegisterClient() {
           <Card className="border-adaptia-gray-light/20">
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl font-heading text-adaptia-blue-primary">
-                Crear cuenta
+                {submitted ? "¡Listo!" : "Crear cuenta"}
               </CardTitle>
               <CardDescription className="text-base">
-                Completa los campos para registrarte
+                {submitted
+                  ? "Te enviamos un correo para confirmar tu registro."
+                  : "Completa los campos para registrarte"}
               </CardDescription>
             </CardHeader>
 
             <CardContent>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                {/* Hidden fields desde query params */}
-                <input type="hidden" {...form.register("orgId")} />
-                <input type="hidden" {...form.register("claimToken")} />
+              {/* ✅ Pantalla éxito (sin redirigir) */}
+              {submitted ? (
+                <div className="rounded-xl border border-green-200 bg-green-50 p-8">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 rounded-full bg-green-600 text-white p-2">
+                      <MailCheck className="h-5 w-5" />
+                    </div>
 
-                {/* Email */}
-                <div className="grid gap-2">
-                  <Label htmlFor="email" className="text-adaptia-blue-primary">
-                    Email
-                  </Label>
-                  <Input id="email" type="email" {...form.register("email")} />
-                  {form.formState.errors.email && (
-                    <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>
-                  )}
-                </div>
+                    <div className="space-y-2">
+                      <p className="font-semibold text-adaptia-blue-primary">
+                        Correo de confirmación enviado
+                      </p>
 
-                {/* Contraseña */}
-                <div className="grid gap-2">
-                  <Label htmlFor="password" className="text-adaptia-blue-primary">
-                    Contraseña
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      {...form.register("password")}
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
-                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
+                      <p className="text-sm text-muted-foreground">
+                        Enviamos un link de confirmación a{" "}
+                        <span className="font-semibold text-adaptia-blue-primary">
+                          {submittedEmail || "tu email"}
+                        </span>
+                        .
+                      </p>
+
+                      <p className="text-sm text-muted-foreground">
+                        Si no lo ves en unos minutos, revisá <b>Spam/Promociones</b>.
+                      </p>
+                    </div>
                   </div>
-                  {form.formState.errors.password && (
-                    <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>
-                  )}
                 </div>
+              ) : (
+                // ✅ Form normal
+                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                  <input type="hidden" {...form.register("orgId")} />
+                  <input type="hidden" {...form.register("claimToken")} />
 
-                {/* Confirmar contraseña */}
-                <div className="grid gap-2">
-                  <Label htmlFor="confirmPassword" className="text-adaptia-blue-primary">
-                    Confirmar Contraseña
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      {...form.register("confirmPassword")}
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
-                      aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
+                  <div className="grid gap-2">
+                    <Label htmlFor="email" className="text-adaptia-blue-primary">
+                      Email
+                    </Label>
+                    <Input id="email" type="email" {...form.register("email")} />
+                    {form.formState.errors.email && (
+                      <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>
+                    )}
                   </div>
-                  {form.formState.errors.confirmPassword && (
-                    <p className="text-sm text-red-500">
-                      {form.formState.errors.confirmPassword.message}
-                    </p>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="password" className="text-adaptia-blue-primary">
+                      Contraseña
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        {...form.register("password")}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                        aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    {form.formState.errors.password && (
+                      <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>
+                    )}
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="confirmPassword" className="text-adaptia-blue-primary">
+                      Confirmar Contraseña
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        {...form.register("confirmPassword")}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                        aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    {form.formState.errors.confirmPassword && (
+                      <p className="text-sm text-red-500">
+                        {form.formState.errors.confirmPassword.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {error && (
+                    <p className="text-sm text-red-500 bg-red-50 p-3 rounded-md">{error}</p>
                   )}
-                </div>
 
-                {error && (
-                  <p className="text-sm text-red-500 bg-red-50 p-3 rounded-md">{error}</p>
-                )}
+                  <Button type="submit" disabled={isPending}>
+                    {isPending ? "Creando cuenta..." : "Registrarse"}
+                  </Button>
 
-                <Button type="submit" disabled={isPending}>
-                  {isPending ? "Creando cuenta..." : "Registrarse"}
-                </Button>
-
-                <div className="mt-2 text-sm text-center">
-                  ¿Ya tenés una cuenta?{" "}
-                  <Link href="/auth/login" className="text-adaptia-blue-primary hover:underline">
-                    Inicia sesión
-                  </Link>
-                </div>
-              </form>
+                  <div className="mt-2 text-sm text-center">
+                    ¿Ya tenés una cuenta?{" "}
+                    <Link href="/auth/login" className="text-adaptia-blue-primary hover:underline">
+                      Inicia sesión
+                    </Link>
+                  </div>
+                </form>
+              )}
             </CardContent>
           </Card>
         </div>

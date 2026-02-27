@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -23,6 +23,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
 
+  // ✅ estado para mostrar mensajito si vino por confirmación
+  const [confirmed, setConfirmed] = useState(false)
+
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -30,6 +33,40 @@ export default function LoginPage() {
       password: "",
     },
   })
+
+  // ✅ CONFIRM FLOW: si venís del email, Supabase te deja tokens en el hash
+  useEffect(() => {
+    const hash = window.location.hash?.startsWith("#") ? window.location.hash.slice(1) : ""
+    if (!hash) return
+
+    const params = new URLSearchParams(hash)
+    const access_token = params.get("access_token")
+    const refresh_token = params.get("refresh_token")
+    const type = params.get("type") // "signup" normalmente
+
+    if (!access_token || !refresh_token) return
+
+    startTransition(async () => {
+      try {
+        const { error } = await supabase.auth.setSession({ access_token, refresh_token })
+        if (error) {
+          console.error("Error setSession confirm:", error)
+          setError("No pudimos iniciar sesión con el link. Intentá loguearte manualmente.")
+          return
+        }
+
+        // ✅ limpiar URL (sacar #access_token...)
+        window.history.replaceState(null, "", "/auth/login")
+        setConfirmed(type === "signup" || type === "recovery" || true)
+
+        // ✅ opcional: si querés entrar directo
+        router.replace("/dashboard")
+      } catch (e) {
+        console.error(e)
+        setError("Ocurrió un error al confirmar. Intentá loguearte manualmente.")
+      }
+    })
+  }, [router, startTransition])
 
   const onSubmit = (values: LoginSchemaType) => {
     setError(null)
@@ -68,11 +105,9 @@ export default function LoginPage() {
         console.error("Error en loginUser:", e)
         setError("Error de conexión. Intenta nuevamente.")
       }
-      // cuando termina, isPending vuelve a false automáticamente
     })
   }
 
-  // 🟣 PANTALLA COMPLETA DE CARGA
   if (isPending) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-adaptia-blue-primary/10 via-white to-adaptia-green-primary/10">
@@ -102,7 +137,6 @@ export default function LoginPage() {
     )
   }
 
-  // 🟢 VISTA NORMAL DE LOGIN (se muestra solo cuando NO está cargando)
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-6 bg-gradient-to-br from-adaptia-blue-primary/5 to-adaptia-green-primary/5">
       <div className="w-full max-w-md">
@@ -134,11 +168,17 @@ export default function LoginPage() {
               <CardDescription className="text-base">
                 Ingresa tus credenciales para acceder a tu cuenta
               </CardDescription>
+
+              {/* ✅ Mensaje si vino desde confirmación */}
+              {confirmed && !error && (
+                <div className="mt-3 rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+                  ✅ Email confirmado. Iniciando sesión...
+                </div>
+              )}
             </CardHeader>
 
             <CardContent>
               <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                {/* Email */}
                 <div className="grid gap-2">
                   <Label htmlFor="email" className="text-adaptia-blue-primary">
                     Email
@@ -151,13 +191,10 @@ export default function LoginPage() {
                     className="border-adaptia-gray-light/30 focus:border-adaptia-green-primary"
                   />
                   {form.formState.errors.email && (
-                    <p className="text-sm text-red-500">
-                      {form.formState.errors.email.message}
-                    </p>
+                    <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>
                   )}
                 </div>
 
-                {/* Contraseña */}
                 <div className="grid gap-2">
                   <Label htmlFor="password" className="text-adaptia-blue-primary">
                     Contraseña
@@ -176,24 +213,16 @@ export default function LoginPage() {
                       className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
                       aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                     >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                   {form.formState.errors.password && (
-                    <p className="text-sm text-red-500">
-                      {form.formState.errors.password.message}
-                    </p>
+                    <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>
                   )}
                 </div>
 
                 {error && (
-                  <p className="text-sm text-red-500 bg-red-50 p-3 rounded-md">
-                    {error}
-                  </p>
+                  <p className="text-sm text-red-500 bg-red-50 p-3 rounded-md">{error}</p>
                 )}
 
                 <Button
@@ -204,20 +233,14 @@ export default function LoginPage() {
                 </Button>
 
                 <div className="mt-1 text-sm text-center">
-                  <Link
-                    href="/auth/reset"
-                    className="text-adaptia-blue-primary hover:underline"
-                  >
+                  <Link href="/auth/reset" className="text-adaptia-blue-primary hover:underline">
                     ¿Olvidaste tu contraseña?
                   </Link>
                 </div>
 
                 <div className="mt-2 text-sm text-center">
                   ¿No tienes una cuenta?{" "}
-                  <Link
-                    href="/auth/register"
-                    className="text-adaptia-blue-primary hover:underline"
-                  >
+                  <Link href="/auth/register" className="text-adaptia-blue-primary hover:underline">
                     Registrarse
                   </Link>
                 </div>

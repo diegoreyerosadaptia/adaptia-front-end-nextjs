@@ -13,15 +13,15 @@ export function PricingByEmployeesSection() {
   ]
 
   return (
-    <section className="w-full bg-[#CFE2E1] py-14 md:py-20" >
+    <section className="w-full bg-[#CFE2E1] py-19 md:py-25" style={{ backgroundColor: "#C2DA62" }}>
       <div className="max-w-[1440px] mx-auto px-3 sm:px-4 lg:px-6">
         {/* ✅ más compacto para que entren 7 */}
-        <div className="flex flex-wrap justify-center items-end gap-4 md:gap-5">
+        <div className="flex flex-wrap pt-10 justify-center items-end gap-4 md:gap-5">
           {cards.map((c, idx) => (
             <div
               key={idx}
               className={[
-                "relative rounded-[24px] bg-[#EAF6F6]",
+                "relative rounded-[24px] bg-white",
                 "shadow-[0_10px_26px_rgba(11,47,74,0.12)]",
                 "border border-[#D7EAED] overflow-hidden",
                 "h-[250px] md:h-[270px]",
@@ -34,7 +34,7 @@ export function PricingByEmployeesSection() {
             >
               {/* ✅ pill centrado */}
               <div className="absolute left-1/2 -translate-x-1/2 top-4">
-                <div className="inline-flex justify-center text-center rounded-full bg-[#58B4C8] px-3 py-1.5 text-white font-semibold text-[10px] md:text-[9px] shadow-[0_6px_14px_rgba(88,180,200,0.35)]">
+                <div className="inline-flex justify-center text-center rounded-full bg-[#0B2F4A] px-3 py-1.5 text-white font-semibold text-[10px] md:text-[9px] shadow-[0_6px_14px_rgba(88,180,200,0.35)]">
                   {c.pill}
                 </div>
               </div>
