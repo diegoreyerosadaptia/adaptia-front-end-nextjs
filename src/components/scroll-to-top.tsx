@@ -7,7 +7,7 @@ export function ScrollToTop() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 150) // aparece antes
+    const onScroll = () => setVisible(window.scrollY > 150)
     onScroll()
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
@@ -19,7 +19,7 @@ export function ScrollToTop() {
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       aria-label="Volver arriba"
       className={[
-        "fixed left-6 bottom-5", // ✅ sube para no chocar con WhatsApp
+        "fixed left-6 bottom-5 z-50", // ✅ z-50
         "cursor-pointer h-14 w-14 rounded-full",
         "bg-adaptia-yellow text-black",
         "shadow-lg hover:shadow-xl",

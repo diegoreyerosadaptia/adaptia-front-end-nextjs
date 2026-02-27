@@ -4,6 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { SupportersSection } from "@/components/supporters-section"
 import { Footer } from "@/components/footer"
 import { PlayCircle, CheckCircle2 } from "lucide-react"
+import { RecursosVideosSection } from "@/components/recursos-videos-section"
 
 type VideoItem = {
   title: string
@@ -136,34 +137,7 @@ export default function RecursosPage() {
 
           {/* Videos */}
           <div className="mb-16">
-            <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-gray-200">
-              <CardContent className="p-8">
-                <div className="flex items-center justify-center gap-2 mb-6">
-                  <PlayCircle className="w-6 h-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-primary text-center">Videos</h2>
-                </div>
-
-                <div className="grid gap-8 md:grid-cols-2">
-                  {VIDEOS.map((v) => (
-                    <Card key={v.title} className="bg-card border-gray-200 hover:shadow-lg transition-shadow duration-300">
-                      <CardContent className="p-6">
-                        <h3 className="text-xl font-bold text-primary mb-2">{v.title}</h3>
-
-                        <div className="relative w-full overflow-hidden rounded-xl border border-gray-200 bg-black/5 aspect-video">
-                          <iframe
-                            className="absolute inset-0 h-full w-full"
-                            src={v.embedUrl}
-                            title={v.title}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <RecursosVideosSection />
           </div>
 
           {/* Metodología */}
