@@ -8,14 +8,14 @@ const ADAPTIA_LIME = "#B9D84A"
 
 const VIDEOS = [
   {
-    title: "Demo Adaptia (V3)",
+    title: "¿Qué es Adaptia?",
     subtitle: "Vista general del flujo y resultados",
     url: "https://zonohzcylydpimhxkqjm.supabase.co/storage/v1/object/public/adaptia-documents/videos-adaptia/Adaptia_V3_Horizontal.mp4",
     poster:
       "https://zonohzcylydpimhxkqjm.supabase.co/storage/v1/object/public/adaptia-documents/videos-adaptia/Thumbnail%20_%20Video%203.png",
   },
   {
-    title: "Demo Adaptia (V2)",
+    title: "¿Cómo completo mi registro?",
     subtitle: "Versión anterior para comparar mejoras",
     url: "https://zonohzcylydpimhxkqjm.supabase.co/storage/v1/object/public/adaptia-documents/videos-adaptia/Adaptia_V2_Horizontal.mp4",
     poster:
@@ -85,47 +85,53 @@ export function VideoSection() {
     <section id="por-que-adaptia" className="py-16 sm:py-40 bg-transparent">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-70">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {items.map((v) => (
+        {items.map((v) => (
+            <div key={v.url} className="text-center">
+            {/* ✅ título arriba y centrado */}
+<h3 className="mb-4 text-xl sm:text-2xl font-black tracking-tight text-[#0B2F4A]">
+  {v.title}
+</h3>
+
             <button
-              key={v.url}
-              type="button"
-              onClick={() => onOpen(v.url, v.title)}
-              className="group text-left rounded-2xl border border-slate-200 bg-white/70 backdrop-blur shadow-sm hover:shadow-md transition overflow-hidden"
+                type="button"
+                onClick={() => onOpen(v.url, v.title)}
+                className="group w-full text-left rounded-2xl border border-slate-200 bg-white/70 backdrop-blur shadow-sm hover:shadow-md transition overflow-hidden"
             >
-              <div className="cursor-pointer relative aspect-video bg-slate-100">
+                <div className="cursor-pointer relative aspect-video bg-slate-100">
                 <img
-                  src={v.poster}
-                  alt={v.title}
-                  className="absolute inset-0 h-full w-full object-cover"
-                  loading="lazy"
+                    src={v.poster}
+                    alt={v.title}
+                    className="absolute inset-0 h-full w-full object-cover"
+                    loading="lazy"
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
 
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="relative">
+                    <div className="relative">
                     <div
-                      className="
+                        className="
                         cursor-pointer relative inline-flex items-center justify-center
                         h-16 w-16 sm:h-20 sm:w-20 rounded-full
                         shadow-lg ring-1 ring-black/10
                         transition
                         group-hover:scale-110
                         active:scale-105
-                      "
-                      style={{ background: ADAPTIA_BLUE }}
+                        "
+                        style={{ background: ADAPTIA_BLUE }}
                     >
-                      <span
+                        <span
                         className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition"
                         style={{ background: ADAPTIA_LIME }}
-                      />
-                      <PlayIcon className="relative z-10 h-7 w-7 sm:h-8 sm:w-8 text-white translate-x-[1px]" />
+                        />
+                        <PlayIcon className="relative z-10 h-7 w-7 sm:h-8 sm:w-8 text-white translate-x-[1px]" />
                     </div>
-                  </div>
+                    </div>
                 </div>
-              </div>
+                </div>
             </button>
-          ))}
+            </div>
+        ))}
         </div>
       </div>
 

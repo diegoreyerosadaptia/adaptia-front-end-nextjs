@@ -55,13 +55,12 @@ export default function HomePage() {
         </div>
       </div>
       
-      <div className="bg-combo-green-gray-light relative">
-        {/* ✅ NO bloquear scroll/click */}
-        <div className="absolute inset-0 bg-brand-pattern opacity-15 pointer-events-none" />
-        <div className="relative z-10">
-          <PricingByEmployeesSection />
-        </div>
-      </div>
+<div className="bg-combo-green-gray-light relative overflow-x-visible">
+  <div className="absolute inset-0 bg-brand-pattern opacity-15 pointer-events-none" />
+  <div className="relative z-10">
+    <PricingByEmployeesSection />
+  </div>
+</div>
 
       <div className="bg-white relative">
         {/* ✅ NO bloquear scroll/click */}

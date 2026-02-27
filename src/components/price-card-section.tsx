@@ -1,255 +1,69 @@
 "use client"
 
 export function PricingByEmployeesSection() {
+  const cards = [
+    // ✅ escalera más alta
+    { pill: "1 - 9 empleados", title: "Empresas\nmicro", price: "$200", lift: "md:translate-y-14" },
+    { pill: "10-99 empleados", title: "Empresas\npequeñas", price: "$400", lift: "md:translate-y-8" },
+    { pill: "100 - 499 empleados", title: "Empresas\nmedianas", price: "$800", lift: "md:translate-y-2" },
+    { pill: "500-1000 empleados", title: "Empresas\nnacionales", price: "$1,200", lift: "md:-translate-y-4" },
+    { pill: "1000-5000 empleados", title: "Empresas\nregionales", price: "$1,400", lift: "md:-translate-y-8" },
+    { pill: "5000 - 10,000 empleados", title: "Empresas\ninternacionales", price: "$1,600", lift: "md:-translate-y-12" },
+    { pill: "+10,000 empleados", title: "Empresas multi\nnacionales\nmasivas", price: "$2,000", lift: "md:-translate-y-16" },
+  ]
+
   return (
-    <section className="w-full bg-[#CFE2E1] py-16 md:py-24">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* FILA 1 */}
-        <div className="grid gap-8 md:grid-cols-3 items-end">
-          {/* Empresas micro */}
-          <div
-            className={[
-              "relative rounded-[28px] bg-[#EAF6F6]",
-              "shadow-[0_10px_26px_rgba(11,47,74,0.12)]",
-              "border border-[#D7EAED] overflow-hidden",
-              "min-h-[300px] md:min-h-[380px]", // ✅ menos altura
-              "px-8 md:px-10 py-10 md:py-12",
-              // ✅ hover movimiento
-              "transition-transform duration-300 ease-out",
-              "hover:-translate-y-2 hover:shadow-[0_16px_34px_rgba(11,47,74,0.16)]",
-            ].join(" ")}
-          >
-            <div className="absolute left-1/2 -translate-x-1/2 top-7">
-              <div className="rounded-full bg-[#58B4C8] px-6 py-2 text-white font-semibold text-sm md:text-base shadow-[0_6px_14px_rgba(88,180,200,0.35)]">
-                1 - 9 empleados
+    <section className="w-full bg-[#CFE2E1] py-14 md:py-20" >
+      <div className="max-w-[1440px] mx-auto px-3 sm:px-4 lg:px-6">
+        {/* ✅ más compacto para que entren 7 */}
+        <div className="flex flex-wrap justify-center items-end gap-4 md:gap-5">
+          {cards.map((c, idx) => (
+            <div
+              key={idx}
+              className={[
+                "relative rounded-[24px] bg-[#EAF6F6]",
+                "shadow-[0_10px_26px_rgba(11,47,74,0.12)]",
+                "border border-[#D7EAED] overflow-hidden",
+                "h-[250px] md:h-[270px]",
+                "px-4 md:px-5 py-7 md:py-8",
+                "w-[180px] sm:w-[180px] md:w-[180px] lg:w-[180px]",
+                c.lift,
+                "transition-all duration-300 ease-out",
+                "hover:-translate-y-2 hover:shadow-[0_16px_34px_rgba(11,47,74,0.16)]",
+              ].join(" ")}
+            >
+              {/* ✅ pill centrado */}
+              <div className="absolute left-1/2 -translate-x-1/2 top-4">
+                <div className="inline-flex justify-center text-center rounded-full bg-[#58B4C8] px-3 py-1.5 text-white font-semibold text-[10px] md:text-[9px] shadow-[0_6px_14px_rgba(88,180,200,0.35)]">
+                  {c.pill}
+                </div>
+              </div>
+
+              <div className="pt-12">
+                <h3
+                  className="text-[#0B2F4A] font-extrabold leading-[1.08] tracking-tight text-[15px] sm:text-[16px] md:text-[17px]"
+                  style={{ whiteSpace: "pre-line" }}
+                >
+                  {c.title}
+                </h3>
+
+                <div className="mt-7">
+                  <p className="text-[#0B2F4A] font-semibold text-[11px] md:text-xs opacity-90">
+                    Precio USD:
+                  </p>
+
+                  {/* ✅ monto en verde */}
+                  <p className="text-[#2E7D32] font-extrabold text-[12px] md:text-sm">
+                    {c.price}
+                  </p>
+                </div>
               </div>
             </div>
-
-            <div className="pt-16 md:pt-20">
-              <h3
-                className="text-[#0B2F4A] font-extrabold leading-[1.05] tracking-tight text-[40px] md:text-[48px] lg:text-[52px]"
-                style={{ whiteSpace: "pre-line" }}
-              >
-                {"Empresas\nmicro"}
-              </h3>
-
-              <div className="mt-12 md:mt-16">
-                <p className="text-[#0B2F4A] font-semibold text-lg md:text-xl opacity-90">Precio USD:</p>
-                <p className="text-[#0B2F4A] font-extrabold text-4xl md:text-5xl">$200</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Empresas pequeñas */}
-          <div
-            className={[
-              "relative rounded-[28px] bg-[#EAF6F6]",
-              "shadow-[0_10px_26px_rgba(11,47,74,0.12)]",
-              "border border-[#D7EAED] overflow-hidden",
-              "min-h-[300px] md:min-h-[380px]", // ✅ menos altura
-              "px-8 md:px-10 py-10 md:py-12",
-              "md:-translate-y-5",
-              // ✅ hover movimiento
-              "transition-transform duration-300 ease-out",
-              "hover:-translate-y-7 hover:shadow-[0_16px_34px_rgba(11,47,74,0.16)]",
-            ].join(" ")}
-          >
-            <div className="absolute left-1/2 -translate-x-1/2 top-7">
-              <div className="rounded-full bg-[#58B4C8] px-6 py-2 text-white font-semibold text-sm md:text-base shadow-[0_6px_14px_rgba(88,180,200,0.35)]">
-                10-99 empleados
-              </div>
-            </div>
-
-            <div className="pt-16 md:pt-20">
-              <h3
-                className="text-[#0B2F4A] font-extrabold leading-[1.05] tracking-tight text-[40px] md:text-[48px] lg:text-[52px]"
-                style={{ whiteSpace: "pre-line" }}
-              >
-                {"Empresas\npequeñas"}
-              </h3>
-
-              <div className="mt-12 md:mt-16">
-                <p className="text-[#0B2F4A] font-semibold text-lg md:text-xl opacity-90">Precio USD:</p>
-                <p className="text-[#0B2F4A] font-extrabold text-4xl md:text-5xl">$400</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Empresas medianas */}
-          <div
-            className={[
-              "relative rounded-[28px] bg-[#EAF6F6]",
-              "shadow-[0_10px_26px_rgba(11,47,74,0.12)]",
-              "border border-[#D7EAED] overflow-hidden",
-              "min-h-[300px] md:min-h-[380px]", // ✅ menos altura
-              "px-8 md:px-10 py-10 md:py-12",
-              "md:-translate-y-8",
-              // ✅ hover movimiento
-              "transition-transform duration-300 ease-out",
-              "hover:-translate-y-10 hover:shadow-[0_16px_34px_rgba(11,47,74,0.16)]",
-            ].join(" ")}
-          >
-            <div className="absolute left-1/2 -translate-x-1/2 top-7">
-              <div className="rounded-full bg-[#58B4C8] px-6 py-2 text-white font-semibold text-sm md:text-base shadow-[0_6px_14px_rgba(88,180,200,0.35)]">
-                100 - 499 empleados
-              </div>
-            </div>
-
-            <div className="pt-16 md:pt-20">
-              <h3
-                className="text-[#0B2F4A] font-extrabold leading-[1.05] tracking-tight text-[40px] md:text-[48px] lg:text-[52px]"
-                style={{ whiteSpace: "pre-line" }}
-              >
-                {"Empresas\nmedianas"}
-              </h3>
-
-              <div className="mt-12 md:mt-16">
-                <p className="text-[#0B2F4A] font-semibold text-lg md:text-xl opacity-90">Precio USD:</p>
-                <p className="text-[#0B2F4A] font-extrabold text-4xl md:text-5xl">$800</p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
-        <div className="h-10 md:h-16" />
-
-        {/* FILA 2 */}
-        <div className="grid gap-8 md:grid-cols-4 items-end">
-          {/* Empresas nacionales */}
-          <div
-            className={[
-              "relative rounded-[28px] bg-[#EAF6F6]",
-              "shadow-[0_10px_26px_rgba(11,47,74,0.12)]",
-              "border border-[#D7EAED] overflow-hidden",
-              "min-h-[300px] md:min-h-[380px]",
-              "px-8 md:px-10 py-10 md:py-12",
-              "transition-transform duration-300 ease-out",
-              "hover:-translate-y-2 hover:shadow-[0_16px_34px_rgba(11,47,74,0.16)]",
-            ].join(" ")}
-          >
-            <div className="absolute left-1/2 -translate-x-1/2 top-7">
-              <div className="rounded-full bg-[#58B4C8] px-6 py-2 text-white font-semibold text-sm md:text-base shadow-[0_6px_14px_rgba(88,180,200,0.35)]">
-                500-1000 empleados
-              </div>
-            </div>
-
-            <div className="pt-16 md:pt-20">
-              <h3
-                className="text-[#0B2F4A] font-extrabold leading-[1.05] tracking-tight text-[40px] md:text-[48px] lg:text-[52px]"
-                style={{ whiteSpace: "pre-line" }}
-              >
-                {"Empresas\nnacionales"}
-              </h3>
-
-              <div className="mt-12 md:mt-16">
-                <p className="text-[#0B2F4A] font-semibold text-lg md:text-xl opacity-90">Precio USD:</p>
-                <p className="text-[#0B2F4A] font-extrabold text-4xl md:text-5xl">$1,200</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Empresas regionales */}
-          <div
-            className={[
-              "relative rounded-[28px] bg-[#EAF6F6]",
-              "shadow-[0_10px_26px_rgba(11,47,74,0.12)]",
-              "border border-[#D7EAED] overflow-hidden",
-              "min-h-[300px] md:min-h-[380px]",
-              "px-8 md:px-10 py-10 md:py-12",
-              "md:-translate-y-5",
-              "transition-transform duration-300 ease-out",
-              "hover:-translate-y-7 hover:shadow-[0_16px_34px_rgba(11,47,74,0.16)]",
-            ].join(" ")}
-          >
-            <div className="absolute left-1/2 -translate-x-1/2 top-7">
-              <div className="rounded-full bg-[#58B4C8] px-6 py-2 text-white font-semibold text-sm md:text-base shadow-[0_6px_14px_rgba(88,180,200,0.35)]">
-                1000-5000 empleados
-              </div>
-            </div>
-
-            <div className="pt-16 md:pt-20">
-              <h3
-                className="text-[#0B2F4A] font-extrabold leading-[1.05] tracking-tight text-[40px] md:text-[48px] lg:text-[52px]"
-                style={{ whiteSpace: "pre-line" }}
-              >
-                {"Empresas\nregionales"}
-              </h3>
-
-              <div className="mt-12 md:mt-16">
-                <p className="text-[#0B2F4A] font-semibold text-lg md:text-xl opacity-90">Precio USD:</p>
-                <p className="text-[#0B2F4A] font-extrabold text-4xl md:text-5xl">$1,400</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Empresas internacionales */}
-          <div
-            className={[
-              "relative rounded-[28px] bg-[#EAF6F6]",
-              "shadow-[0_10px_26px_rgba(11,47,74,0.12)]",
-              "border border-[#D7EAED] overflow-hidden",
-              "min-h-[300px] md:min-h-[380px]",
-              "px-8 md:px-10 py-10 md:py-12",
-              "md:-translate-y-8",
-              "transition-transform duration-300 ease-out",
-              "hover:-translate-y-10 hover:shadow-[0_16px_34px_rgba(11,47,74,0.16)]",
-            ].join(" ")}
-          >
-            <div className="absolute left-1/2 -translate-x-1/2 top-7">
-              <div className="rounded-full bg-[#58B4C8] px-6 py-2 text-white font-semibold text-sm md:text-base shadow-[0_6px_14px_rgba(88,180,200,0.35)]">
-                5000 - 10,000 empleados
-              </div>
-            </div>
-
-            <div className="pt-16 md:pt-20">
-              <h3
-                className="text-[#0B2F4A] font-extrabold leading-[1.05] tracking-tight text-[40px] md:text-[48px] lg:text-[52px]"
-                style={{ whiteSpace: "pre-line" }}
-              >
-                {"Empresas\ninternacionales"}
-              </h3>
-
-              <div className="mt-12 md:mt-16">
-                <p className="text-[#0B2F4A] font-semibold text-lg md:text-xl opacity-90">Precio USD:</p>
-                <p className="text-[#0B2F4A] font-extrabold text-4xl md:text-5xl">$1,600</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Empresas multi nacionales masivas */}
-          <div
-            className={[
-              "relative rounded-[28px] bg-[#EAF6F6]",
-              "shadow-[0_10px_26px_rgba(11,47,74,0.12)]",
-              "border border-[#D7EAED] overflow-hidden",
-              "min-h-[300px] md:min-h-[380px]",
-              "px-8 md:px-10 py-10 md:py-12",
-              "md:-translate-y-10",
-              "transition-transform duration-300 ease-out",
-              "hover:-translate-y-12 hover:shadow-[0_16px_34px_rgba(11,47,74,0.16)]",
-            ].join(" ")}
-          >
-            <div className="absolute left-1/2 -translate-x-1/2 top-7">
-              <div className="rounded-full bg-[#58B4C8] px-6 py-2 text-white font-semibold text-sm md:text-base shadow-[0_6px_14px_rgba(88,180,200,0.35)]">
-                +10,000 empleados
-              </div>
-            </div>
-
-            <div className="pt-16 md:pt-20">
-              <h3
-                className="text-[#0B2F4A] font-extrabold leading-[1.05] tracking-tight text-[40px] md:text-[48px] lg:text-[52px]"
-                style={{ whiteSpace: "pre-line" }}
-              >
-                {"Empresas multi\nnacionales\nmasivas"}
-              </h3>
-
-              <div className="mt-12 md:mt-16">
-                <p className="text-[#0B2F4A] font-semibold text-lg md:text-xl opacity-90">Precio USD:</p>
-                <p className="text-[#0B2F4A] font-extrabold text-4xl md:text-5xl">$2,000</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* espacio por escalera */}
+        <div className="h-10 md:h-12" />
       </div>
     </section>
   )
