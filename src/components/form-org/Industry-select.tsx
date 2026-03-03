@@ -63,15 +63,16 @@ export function IndustrySelect({ form }: any) {
     })
   }, [open])
 
+  const baseTriggerClass =
+    "w-full h-12 text-base border-2 rounded-md px-3 flex items-center justify-between bg-white " +
+    "border-adaptia-green-primary/70 focus:border-adaptia-blue-primary focus:outline-none transition-colors"
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="
-            w-full h-12 text-base border-2 rounded-md px-3 flex items-center justify-between
-            focus:border-adaptia-blue-primary transition-colors bg-white
-          "
+          className={baseTriggerClass}
         >
           <span className="truncate">
             {selected || "Seleccionar industria"}

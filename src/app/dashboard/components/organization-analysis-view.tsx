@@ -421,7 +421,9 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                   filename={organization.company}
                   dataMaterialidad={finalScatterData}
                   orgName={organization.company}
-
+                  orgCountry={organization.country}
+                  orgCreation={createdAtLabel}
+                  orgInd={organization.industry}
                 />
               </div>
 
@@ -434,6 +436,9 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                   contraportada="/contraportada_analisis_completo_page-0001.jpg"
                   griData={griData} 
                   orgName={organization.company}
+                  orgCountry={organization.country}
+                  orgCreation={createdAtLabel}
+                  orgInd={organization.industry}
                 />
               </div>
             </div>

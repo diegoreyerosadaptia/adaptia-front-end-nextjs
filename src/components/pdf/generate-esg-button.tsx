@@ -47,6 +47,9 @@ interface GenerateEsgPdfButtonProps {
   className?: string
   dashboard?: boolean
   orgName?: string
+  orgInd?: string
+  orgCountry?: string
+  orgCreation?: string
 }
 
 export function GenerateEsgPdfButton({
@@ -59,6 +62,9 @@ export function GenerateEsgPdfButton({
   className,
   dashboard = false,
   orgName,
+  orgInd,
+  orgCountry,
+  orgCreation,
 }: GenerateEsgPdfButtonProps) {
   const chartRef = useRef<HTMLDivElement>(null)
 
@@ -103,6 +109,9 @@ export function GenerateEsgPdfButton({
         contraportada,
         chartImg,
         orgName,
+        orgInd,
+        orgCountry,
+        orgCreation,
       })
 
       const blob = new Blob([pdfBytes], { type: "application/pdf" })

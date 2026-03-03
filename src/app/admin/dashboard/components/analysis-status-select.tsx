@@ -51,7 +51,7 @@ export default function PaymentStatusSelect({
 
   return (
     <Select value={status} onValueChange={handleStatusChange} disabled={loading}>
-      <SelectTrigger className="w-[130px] h-7 text-xs">
+      <SelectTrigger className="w-[140px] h-7 text-xs">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

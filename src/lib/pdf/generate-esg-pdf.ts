@@ -1,7 +1,11 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib"
 
 /**
- * Genera un PDF ESG con estilo corporativo mejorado: portada, contexto, gráfico y resumen.
+ * Genera un PDF ESG con estilo corporativo mejorado:
+ * - Portada / Contraportada full-bleed (sin header)
+ * - Todas las páginas de contenido con el MISMO header corporativo (como tu otro PDF)
+ * - Números de página solo en páginas de contenido
+ * - Chart page con el mismo header y sin pisarlo
  */
 export async function generateEsgPdf({
   contexto,
@@ -9,7 +13,10 @@ export async function generateEsgPdf({
   portada,
   contraportada,
   chartImg,
-  orgName
+  orgName,
+  orgInd,
+  orgCountry,
+  orgCreation,
 }: {
   contexto: {
     nombre_empresa: string
@@ -23,117 +30,226 @@ export async function generateEsgPdf({
     madurez_esg: string
     stakeholders_relevantes: string
   }
-  resumen: { parrafo_1: string; parrafo_2?: string; parrafo_3?: string  }
+  resumen: { parrafo_1: string; parrafo_2?: string; parrafo_3?: string }
   portada?: string
   contraportada?: string
-  chartImg?: string
-  orgName?:string
-
+  chartImg?: string // puede venir dataURL o URL (si es URL la embebés con fetch)
+  orgName?: string
+  orgInd?: string
+  orgCountry?: string
+  orgCreation?: string
 }) {
   const pdfDoc = await PDFDocument.create()
   const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica)
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
 
-  const pageWidth = 595.28
-  const pageHeight = 841.89
+  const PAGE_WIDTH = 595.28
+  const PAGE_HEIGHT = 841.89
 
   /* 🎨 PALETA ADAPTIA ESG */
-  const textPrimary = rgb(22 / 255, 63 / 255, 106 / 255)       // #163F6A
-  const sectionTitle = rgb(27 / 255, 69 / 255, 57 / 255)        // #1B4539
-  const boxTitleColor = rgb(97 / 255, 159 / 255, 68 / 255)      // #619F44
-  const boxTitleBg = rgb(194 / 255, 218 / 255, 98 / 255)        // #C2DA62
-  const boxBgLight = rgb(203 / 255, 220 / 255, 219 / 255)  // #CBDCDB 50%
+  const textPrimary = rgb(22 / 255, 63 / 255, 106 / 255) // #163F6A
+  const sectionTitle = rgb(27 / 255, 69 / 255, 57 / 255) // #1B4539
+  const boxTitleColor = rgb(97 / 255, 159 / 255, 68 / 255) // #619F44
+  const boxTitleBg = rgb(194 / 255, 218 / 255, 98 / 255) // #C2DA62
+  const boxBgLight = rgb(203 / 255, 220 / 255, 219 / 255) // #CBDCDB 50%
 
-// 🟦 Guarda referencia al logo para reusarlo en todas las páginas
-let adaptiaLogo: any = null
+  // ===== Layout (mismo criterio del otro PDF) =====
+  const MARGIN_X = 55
+  const HEADER_TOP_MARGIN = 16
+  const HEADER_LINE_MARGIN_X = 20
+  const CONTENT_TOP_GAP = 22
+  const BOTTOM_MARGIN = 55
 
-// Cargamos el logo una sola vez
-if (!adaptiaLogo) {
-  const logoBytes = await fetch("/adaptia-logo.png").then((res) =>
-    res.arrayBuffer()
-  )
-  adaptiaLogo = await pdfDoc.embedPng(logoBytes)
-}
+  // ===== Page counter SOLO para contenido (excluye portada/contraportada) =====
+  let PAGE_COUNTER = 0
 
-// Contador de páginas
-let pageIndex = 0
+  // 🟦 Logo Adaptia (se embebe una sola vez)
+  let adaptiaLogo: any = null
+  try {
+    const logoBytes = await fetch("/adaptia-logo.png").then((res) => res.arrayBuffer())
+    adaptiaLogo = await pdfDoc.embedPng(logoBytes)
+  } catch {
+    adaptiaLogo = null
+  }
 
-const addPage = (title?: string, skipBranding = false) => {
-  const page = pdfDoc.addPage([pageWidth, pageHeight])
-  pageIndex++
-  const { height } = page.getSize()
+  const HEADER_INFO = { orgName, orgInd, orgCountry, orgCreation }
 
-  /* ============================
-     🟩 TÍTULO DE SECCIÓN
-  ============================= */
-  if (title) {
+  // =========================
+  // ✅ Header corporativo (igual en TODAS las páginas de contenido)
+  // =========================
+  function drawCorporateHeader(
+    page: any,
+    logo: any,
+    opts: { orgName?: string; orgInd?: string; orgCountry?: string; orgCreation?: string },
+  ) {
+    const { orgName, orgInd, orgCountry, orgCreation } = opts
+    const { width, height } = page.getSize()
+
+    const titleFontSize = 22
+    const subFontSize = 11
+    const hasTitle = !!orgName?.trim()
+
+    const metaParts: string[] = []
+    if (orgInd?.trim()) metaParts.push(`Industria: ${orgInd.trim()}`)
+    if (orgCountry?.trim()) metaParts.push(`País: ${orgCountry.trim()}`)
+    if (orgCreation?.trim()) metaParts.push(`Creación: ${orgCreation.trim()}`)
+    const metaLine = metaParts.join(" · ")
+    const hasMeta = metaLine.length > 0
+
+    // Si no hay orgName, igual dibujamos línea sutil
+    if (!hasTitle) {
+      const lineY = height - HEADER_TOP_MARGIN - 22
+      page.drawLine({
+        start: { x: HEADER_LINE_MARGIN_X, y: lineY },
+        end: { x: width - HEADER_LINE_MARGIN_X, y: lineY },
+        thickness: 1,
+        color: rgb(0.85, 0.85, 0.85),
+      })
+      return { headerBottomY: lineY }
+    }
+
+    const title = orgName!.trim()
+    const titleWidth = fontBold.widthOfTextAtSize(title, titleFontSize)
+    const titleX = Math.max(MARGIN_X, (width - titleWidth) / 2)
+    const titleY = height - HEADER_TOP_MARGIN - titleFontSize
+
     page.drawText(title, {
-      x: 50,
-      y: height - 60,
-      size: 24,
+      x: titleX,
+      y: titleY,
+      size: titleFontSize,
       font: fontBold,
-      color: sectionTitle,
+      color: rgb(0.1, 0.1, 0.1),
     })
 
+    let metaY = titleY - (subFontSize + 8)
+    if (hasMeta) {
+      const metaWidth = fontRegular.widthOfTextAtSize(metaLine, subFontSize)
+      const metaX = Math.max(MARGIN_X, (width - metaWidth) / 2)
+      page.drawText(metaLine, {
+        x: metaX,
+        y: metaY,
+        size: subFontSize,
+        font: fontRegular,
+        color: rgb(0.35, 0.35, 0.35),
+      })
+    } else {
+      metaY = titleY - 10
+    }
+
+    const lineY = metaY - 14
     page.drawLine({
-      start: { x: 50, y: height - 75 },
-      end: { x: pageWidth - 50, y: height - 75 },
-      thickness: 2,
-      color: sectionTitle,
+      start: { x: HEADER_LINE_MARGIN_X, y: lineY },
+      end: { x: width - HEADER_LINE_MARGIN_X, y: lineY },
+      thickness: 1,
+      color: rgb(0.85, 0.85, 0.85),
     })
+
+    // Logo a la derecha centrado verticalmente en el bloque del header
+    if (logo) {
+      const logoWidth = 55
+      const ratio = logo.height / logo.width
+      const logoHeight = logoWidth * ratio
+      const headerCenterY = (titleY + lineY) / 2
+
+      page.drawImage(logo, {
+        x: width - MARGIN_X - logoWidth,
+        y: headerCenterY - logoHeight / 2,
+        width: logoWidth,
+        height: logoHeight,
+      })
+    }
+
+    return { headerBottomY: lineY }
   }
 
-  /* ============================
-     🟦 LOGO ADAPTIA (no portada / no contraportada)
-     skipBranding = true → NO colocar logo
-  ============================= */
-  if (!skipBranding) {
-    const logoWidth = 60
-    const ratio = adaptiaLogo.height / adaptiaLogo.width
-    const logoHeight = logoWidth * ratio
+  /**
+   * ✅ Crea página de CONTENIDO con:
+   * - header corporativo
+   * - numeración
+   * - contentStartY para layout consistente
+   * - title opcional como subtítulo de sección (debajo del header)
+   */
+  function addContentPage(opts?: { sectionTitle?: string }) {
+    PAGE_COUNTER += 1
+    const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT])
 
-    page.drawImage(adaptiaLogo, {
-      x: pageWidth - logoWidth - 40,
-      y: height - logoHeight - 40,
-      width: logoWidth,
-      height: logoHeight,
-    })
-  }
+    const { headerBottomY } = drawCorporateHeader(page, adaptiaLogo, HEADER_INFO)
 
-  /* ============================
-     🔢 NÚMERO DE PÁGINA
-  ============================= */
-  if (!skipBranding) {
-    page.drawText(String(pageIndex), {
-      x: pageWidth - 40,
-      y: 30,
+    // Número de página (contenido)
+    page.drawText(String(PAGE_COUNTER), {
+      x: PAGE_WIDTH - MARGIN_X,
+      y: 25,
       size: 10,
       font: fontRegular,
       color: textPrimary,
     })
+
+    let y = headerBottomY - CONTENT_TOP_GAP
+
+    // Subtítulo opcional de sección
+    if (opts?.sectionTitle?.trim()) {
+      page.drawText(opts.sectionTitle.trim(), {
+        x: MARGIN_X,
+        y,
+        size: 18,
+        font: fontBold,
+        color: sectionTitle,
+      })
+
+      y -= 12
+      page.drawLine({
+        start: { x: MARGIN_X, y },
+        end: { x: PAGE_WIDTH - MARGIN_X, y },
+        thickness: 2,
+        color: sectionTitle,
+      })
+      y -= 20
+    }
+
+    return { page, y }
   }
 
-  return page
-}
+  /**
+   * ✅ Portada / Contraportada full-bleed (sin header ni número)
+   */
+  async function addFullBleedImagePage(url: string) {
+    const bytes = await fetch(url).then((r) => r.arrayBuffer())
+    // si necesitás jpg también, detectalo acá
+    const img = await pdfDoc.embedPng(bytes)
+    const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT])
+    page.drawImage(img, { x: 0, y: 0, width: PAGE_WIDTH, height: PAGE_HEIGHT })
+  }
 
-  /* =======================
-     🖼️ Portada
-  ======================= */
+  /**
+   * ✅ Si chartImg viene como dataURL => convertir a bytes.
+   * Si viene como URL => fetch
+   */
+  function dataUrlToUint8Array(dataUrl: string) {
+    const base64 = dataUrl.split(",")[1] ?? ""
+    const binary = atob(base64)
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+    return bytes
+  }
+
+  // =======================
+  // 🖼️ Portada
+  // =======================
   if (portada) {
-    const imgBytes = await fetch(portada).then((r) => r.arrayBuffer())
-    const image = await pdfDoc.embedPng(imgBytes)
-    const page = addPage()
-    const { width, height } = page.getSize()
-    page.drawImage(image, { x: 0, y: 0, width, height })
+    try {
+      await addFullBleedImagePage(portada)
+    } catch (e) {
+      console.warn("No se pudo cargar portada", e)
+    }
   }
 
-  /* =======================
-     🏢 CONTEXTO DE ORGANIZACIÓN
-  ======================= */
-  let contextoPage = addPage("Contexto de la organización")
-  let y = pageHeight - 110
-  const leftMargin = 50
-  const contentWidth = pageWidth - 100
+  // =======================
+  // 🏢 CONTEXTO
+  // =======================
+  let { page: contextoPage, y } = addContentPage({ sectionTitle: "Contexto de la organización" })
+
+  const leftMargin = MARGIN_X
+  const contentWidth = PAGE_WIDTH - MARGIN_X * 2
 
   const drawFieldBox = (label: string, value: string) => {
     const wrapped = wrapText(value, 75)
@@ -142,15 +258,15 @@ const addPage = (title?: string, skipBranding = false) => {
     const paddingTop = 14
     const paddingBottom = 16
 
-    const boxHeight =
-      headerHeight + paddingTop + wrapped.length * lineHeight + paddingBottom
+    const boxHeight = headerHeight + paddingTop + wrapped.length * lineHeight + paddingBottom
 
-    if (y - boxHeight < 60) {
-      contextoPage = addPage("Contexto de la organización")
-      y = pageHeight - 110
+    // si no entra => nueva página de contenido (con mismo header) + mismo título de sección
+    if (y - boxHeight < BOTTOM_MARGIN) {
+      const next = addContentPage({ sectionTitle: "Contexto de la organización" })
+      contextoPage = next.page
+      y = next.y
     }
 
-    // Fondo recuadro
     contextoPage.drawRectangle({
       x: leftMargin,
       y: y - boxHeight,
@@ -161,7 +277,6 @@ const addPage = (title?: string, skipBranding = false) => {
       borderWidth: 1,
     })
 
-    // Header recuadro
     contextoPage.drawRectangle({
       x: leftMargin,
       y: y - headerHeight,
@@ -170,7 +285,6 @@ const addPage = (title?: string, skipBranding = false) => {
       color: boxTitleBg,
     })
 
-    // Título del recuadro
     contextoPage.drawText(label, {
       x: leftMargin + 14,
       y: y - 18,
@@ -179,7 +293,6 @@ const addPage = (title?: string, skipBranding = false) => {
       color: boxTitleColor,
     })
 
-    // Texto del recuadro
     let textY = y - headerHeight - paddingTop
     wrapped.forEach((line) => {
       contextoPage.drawText(line, {
@@ -195,8 +308,7 @@ const addPage = (title?: string, skipBranding = false) => {
     y -= boxHeight + 20
   }
 
-  /* Recuadros de contexto */
-  drawFieldBox(orgName || "", contexto.nombre_empresa)
+  drawFieldBox(orgName || "Nombre organización", contexto.nombre_empresa)
   drawFieldBox("País de Operación", contexto.pais_operacion)
   drawFieldBox("Industria", contexto.industria)
   drawFieldBox("Tamaño de la Empresa", contexto.tamano_empresa)
@@ -206,9 +318,9 @@ const addPage = (title?: string, skipBranding = false) => {
   drawFieldBox("Actividades Principales", contexto.actividades_principales)
   drawFieldBox("Madurez ESG", contexto.madurez_esg)
 
-  /* =======================
-     👥 Stakeholders (multi-página)
-  ======================= */
+  // =======================
+  // 👥 Stakeholders (multi-página)
+  // =======================
   const stakeholdersRaw = contexto.stakeholders_relevantes || ""
   const stakeholders = stakeholdersRaw
     .split("\n")
@@ -221,33 +333,32 @@ const addPage = (title?: string, skipBranding = false) => {
     const paddingTop = 12
     const paddingBottom = 16
 
-    const allLines = stakeholders.flatMap((s) =>
-      wrapText(`• ${s}`, 75)
-    )
+    const allLines = stakeholders.flatMap((s) => wrapText(`• ${s}`, 75))
 
     let index = 0
 
     while (index < allLines.length) {
-      // Altura disponible
-      let available = y - 60
-      let maxLines = Math.floor(
-        (available - (headerHeight + paddingTop + paddingBottom)) / lineHeight
-      )
+      let available = y - BOTTOM_MARGIN
+      let maxLines = Math.floor((available - (headerHeight + paddingTop + paddingBottom)) / lineHeight)
 
       if (maxLines <= 0) {
-        contextoPage = addPage("Contexto de la organización")
-        y = pageHeight - 110
-        available = y - 60
-        maxLines = Math.floor(
-          (available - (headerHeight + paddingTop + paddingBottom)) / lineHeight
-        )
+        const next = addContentPage({ sectionTitle: "Contexto de la organización" })
+        contextoPage = next.page
+        y = next.y
+        available = y - BOTTOM_MARGIN
+        maxLines = Math.floor((available - (headerHeight + paddingTop + paddingBottom)) / lineHeight)
       }
 
       const batch = allLines.slice(index, index + maxLines)
-      const boxHeight =
-        headerHeight + paddingTop + paddingBottom + batch.length * lineHeight
+      const boxHeight = headerHeight + paddingTop + paddingBottom + batch.length * lineHeight
 
-      // Recuadro
+      if (y - boxHeight < BOTTOM_MARGIN) {
+        const next = addContentPage({ sectionTitle: "Contexto de la organización" })
+        contextoPage = next.page
+        y = next.y
+        continue
+      }
+
       contextoPage.drawRectangle({
         x: leftMargin,
         y: y - boxHeight,
@@ -258,7 +369,6 @@ const addPage = (title?: string, skipBranding = false) => {
         borderWidth: 1,
       })
 
-      // Header
       contextoPage.drawRectangle({
         x: leftMargin,
         y: y - headerHeight,
@@ -275,7 +385,6 @@ const addPage = (title?: string, skipBranding = false) => {
         color: boxTitleColor,
       })
 
-      // Texto
       let textY = y - headerHeight - paddingTop
       batch.forEach((line) => {
         contextoPage.drawText(line, {
@@ -293,302 +402,277 @@ const addPage = (title?: string, skipBranding = false) => {
     }
   }
 
-  /* =======================
-     📊 MATRIZ DE MATERIALIDAD
-  ======================= */
+  // =======================
+  // 📊 CHART (misma página de contenido con header)
+  // =======================
   if (chartImg) {
-    const image = await pdfDoc.embedPng(chartImg)
-    const chartPage = addPage("Matriz de Materialidad")
+    try {
+      let imageBytes: ArrayBuffer | Uint8Array
 
-    const maxWidth = pageWidth - 80
-    const maxHeight = pageHeight - 180
+      if (chartImg.startsWith("data:image/")) {
+        imageBytes = dataUrlToUint8Array(chartImg)
+      } else {
+        imageBytes = await fetch(chartImg).then((r) => r.arrayBuffer())
+      }
 
-    const ratio = image.height / image.width
-    let width = maxWidth
-    let height = width * ratio
+      const chartPng = await pdfDoc.embedPng(imageBytes as any)
 
-    if (height > maxHeight) {
-      height = maxHeight
-      width = height / ratio
+      const chartPageObj = addContentPage({ sectionTitle: "Matriz de materialidad" })
+      const chartPage = chartPageObj.page
+      const startY = chartPageObj.y
+
+      const margin = MARGIN_X
+      const usableBottom = BOTTOM_MARGIN
+      const usableTop = startY
+      const usableHeight = usableTop - usableBottom
+
+      const maxWidth = PAGE_WIDTH - margin * 2
+      const maxHeight = usableHeight
+
+      const ratio = chartPng.height / chartPng.width
+      let width = maxWidth
+      let height = width * ratio
+
+      if (height > maxHeight) {
+        height = maxHeight
+        width = height / ratio
+      }
+
+      chartPage.drawImage(chartPng, {
+        x: (PAGE_WIDTH - width) / 2,
+        y: usableBottom + (usableHeight - height) / 2,
+        width,
+        height,
+      })
+    } catch (e) {
+      console.warn("No se pudo embedir el chart", e)
+    }
+  }
+
+  // =======================
+  // 📘 RESUMEN (multi-página) con MISMO header
+  // =======================
+  let resumenPageObj = addContentPage({ sectionTitle: "Ruta de Sostenibilidad" })
+  let resumenPage = resumenPageObj.page
+  y = resumenPageObj.y
+
+  function formatResumenForPdf(text: string) {
+    const safe = String(text ?? "")
+
+    const subtitles = [
+      "1. Análisis crítico breve:",
+      "2. Ruta de sostenibilidad ajustada:",
+      "2.1 Marco general de la ruta de sostenibilidad:",
+      "2.2 Lógica estratégica transversal:",
+      "3. Ruta de sostenibilidad por niveles de acción:",
+      "3.1 Acciones iniciales:",
+      "3.2 Acciones moderadas:",
+      "3.3 Acciones estructurales:",
+      "4. Uso práctico de la ruta de sostenibilidad:",
+    ]
+
+    let out = safe.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+
+    for (const s of subtitles) {
+      out = out.replaceAll(s, `\n\n${s}`)
+      const escaped = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      out = out.replace(new RegExp(`${escaped}\\s+`, "g"), `${s}\n`)
     }
 
-    chartPage.drawImage(image, {
-      x: (pageWidth - width) / 2,
-      y: (pageHeight - height) / 2 - 10,
-      width,
-      height,
+    out = out.replace(/^\n+/, "").replace(/\n{3,}/g, "\n\n").trim()
+    return out
+  }
+
+  function normalizePdfTextPreserveNewlines(input: string) {
+    let s = String(input ?? "")
+    s = s.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+    s = s.replace(/\u00A0/g, " ")
+    s = s.replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, " ")
+    s = s.replace(/[ \t]+/g, " ")
+    s = s.replace(/[ \t]*\n[ \t]*/g, "\n")
+    return s.trim()
+  }
+
+  function wrapTextByWidthPreserveNewlines(text: string, font: any, size: number, maxWidth: number) {
+    const safe = normalizePdfTextPreserveNewlines(text)
+    const paragraphs = safe.split("\n")
+
+    const lines: string[] = []
+
+    const pushLine = (line: string) => {
+      const v = line?.trim()
+      if (v) lines.push(v)
+    }
+
+    const breakLongWord = (word: string) => {
+      const chunks: string[] = []
+      let chunk = ""
+
+      for (const ch of word) {
+        const test = chunk + ch
+        const w = font.widthOfTextAtSize(test, size)
+        if (w > maxWidth && chunk) {
+          chunks.push(chunk)
+          chunk = ch
+        } else {
+          chunk = test
+        }
+      }
+
+      if (chunk) chunks.push(chunk)
+      return chunks
+    }
+
+    const wrapOneParagraph = (p: string) => {
+      const words = p.split(" ").filter(Boolean)
+      let current = ""
+
+      for (const word of words) {
+        const wordWidth = font.widthOfTextAtSize(word, size)
+
+        if (wordWidth > maxWidth) {
+          if (current) {
+            pushLine(current)
+            current = ""
+          }
+          const chunks = breakLongWord(word)
+          chunks.forEach((c, i) => {
+            if (i < chunks.length - 1) pushLine(c)
+            else current = c
+          })
+          continue
+        }
+
+        const test = current ? `${current} ${word}` : word
+        const width = font.widthOfTextAtSize(test, size)
+
+        if (width > maxWidth && current) {
+          pushLine(current)
+          current = word
+        } else {
+          current = test
+        }
+      }
+
+      if (current) pushLine(current)
+    }
+
+    paragraphs.forEach((p, idx) => {
+      const trimmed = p.trim()
+      if (!trimmed) {
+        lines.push("")
+        return
+      }
+      wrapOneParagraph(trimmed)
+      if (idx < paragraphs.length - 1) lines.push("")
     })
+
+    return lines.length ? lines : [""]
   }
 
-/* =======================
-   📘 RESUMEN EJECUTIVO
-======================= */
-let resumenPage = addPage("Ruta de Sostenibilidad")
-y = pageHeight - 130
+  const addParagraph = (text: string) => {
+    const fontSize = 12
+    const lineHeight = 16
 
+    const maxWidth = contentWidth
+    const innerPaddingX = 12
+    const paddingTop = 14
+    const paddingBottom = 14
 
-y -= 25
+    const innerMaxWidth = maxWidth - innerPaddingX * 2
 
-// ✅ Formatea subtítulos para que el contenido vaya ABAJO del ":"
-function formatResumenForPdf(text: string) {
-  const safe = String(text ?? "")
+    const formatted = formatResumenForPdf(text)
 
-  const subtitles = [
-    "1. Análisis crítico breve:",
-    "2. Ruta de sostenibilidad ajustada:",
-    "2.1 Marco general de la ruta de sostenibilidad:",
-    "2.2 Lógica estratégica transversal:",
-    "3. Ruta de sostenibilidad por niveles de acción:",
-    "3.1 Acciones iniciales:",
-    "3.2 Acciones moderadas:",
-    "3.3 Acciones estructurales:",
-    "4. Uso práctico de la ruta de sostenibilidad:",
-  ]
+    const allLines = wrapTextByWidthPreserveNewlines(formatted, fontRegular, fontSize, innerMaxWidth)
 
-  let out = safe.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
-
-  for (const s of subtitles) {
-    // garantiza que el subtítulo arranque en nueva línea con aire arriba
-    out = out.replaceAll(s, `\n\n${s}`)
-
-    // si venía "TITULO: texto", lo convierte en "TITULO:\ntexto"
-    const escaped = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-    out = out.replace(new RegExp(`${escaped}\\s+`, "g"), `${s}\n`)
-  }
-
-  // limpia múltiples saltos
-  out = out.replace(/^\n+/, "").replace(/\n{3,}/g, "\n\n").trim()
-  return out
-}
-
-// ✅ Normaliza para PDF, pero SIN eliminar \n (los preservamos)
-function normalizePdfTextPreserveNewlines(input: string) {
-  let s = String(input ?? "")
-  s = s.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
-  s = s.replace(/\u00A0/g, " ")                 // NBSP
-  // elimina caracteres de control EXCEPTO \n
-  s = s.replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, " ")
-  // colapsa espacios (pero no toca saltos)
-  s = s.replace(/[ \t]+/g, " ")
-  // limpia espacios alrededor de saltos
-  s = s.replace(/[ \t]*\n[ \t]*/g, "\n")
-  return s.trim()
-}
-
-// ✅ Wrap por ancho, pero respetando saltos de línea
-function wrapTextByWidthPreserveNewlines(
-  text: string,
-  font: any,
-  size: number,
-  maxWidth: number
-) {
-  const safe = normalizePdfTextPreserveNewlines(text)
-  const paragraphs = safe.split("\n") // cada línea es un "párrafo lógico"
-
-  const lines: string[] = []
-
-  const pushLine = (line: string) => {
-    const v = line?.trim()
-    if (v) lines.push(v)
-  }
-
-  const breakLongWord = (word: string) => {
-    const chunks: string[] = []
-    let chunk = ""
-
-    for (const ch of word) {
-      const test = chunk + ch
-      const w = font.widthOfTextAtSize(test, size)
-      if (w > maxWidth && chunk) {
-        chunks.push(chunk)
-        chunk = ch
-      } else {
-        chunk = test
+    const ensureSpace = () => {
+      if (y < BOTTOM_MARGIN + 50) {
+        const next = addContentPage({ sectionTitle: "Ruta de Sostenibilidad" })
+        resumenPage = next.page
+        y = next.y
       }
     }
 
-    if (chunk) chunks.push(chunk)
-    return chunks
-  }
+    let idx = 0
+    while (idx < allLines.length) {
+      ensureSpace()
 
-  const wrapOneParagraph = (p: string) => {
-    const words = p.split(" ").filter(Boolean)
-    let current = ""
+      const available = y - BOTTOM_MARGIN
+      let maxLines = Math.floor((available - (paddingTop + paddingBottom)) / lineHeight)
 
-    for (const word of words) {
-      const wordWidth = font.widthOfTextAtSize(word, size)
-
-      if (wordWidth > maxWidth) {
-        if (current) {
-          pushLine(current)
-          current = ""
-        }
-        const chunks = breakLongWord(word)
-        chunks.forEach((c, i) => {
-          if (i < chunks.length - 1) pushLine(c)
-          else current = c
-        })
+      if (maxLines <= 0) {
+        const next = addContentPage({ sectionTitle: "Ruta de Sostenibilidad" })
+        resumenPage = next.page
+        y = next.y
         continue
       }
 
-      const test = current ? `${current} ${word}` : word
-      const width = font.widthOfTextAtSize(test, size)
+      const chunk = allLines.slice(idx, idx + maxLines)
+      const boxHeight = paddingTop + paddingBottom + chunk.length * lineHeight
 
-      if (width > maxWidth && current) {
-        pushLine(current)
-        current = word
-      } else {
-        current = test
-      }
-    }
-
-    if (current) pushLine(current)
-  }
-
-  paragraphs.forEach((p, idx) => {
-    const trimmed = p.trim()
-
-    // línea vacía => separador (lo representamos con "" para mantener salto)
-    if (!trimmed) {
-      lines.push("")
-      return
-    }
-
-    wrapOneParagraph(trimmed)
-
-    // si no es el último párrafo, mantenemos separación
-    if (idx < paragraphs.length - 1) lines.push("")
-  })
-
-  // si quedó todo vacío
-  return lines.length ? lines : [""]
-}
-
-const addParagraph = (text: string) => {
-  const fontSize = 12
-  const lineHeight = 16
-
-  const maxWidth = contentWidth
-  const innerPaddingX = 12
-  const paddingTop = 14
-  const paddingBottom = 14
-
-  const innerMaxWidth = maxWidth - innerPaddingX * 2
-
-  // ✅ Formateo: subtítulos "1. ...:" pasan a "1. ...:\ncontenido"
-  const formatted = formatResumenForPdf(text)
-
-  // ✅ Wrap respetando saltos
-  const allLines = wrapTextByWidthPreserveNewlines(
-    formatted,
-    fontRegular,
-    fontSize,
-    innerMaxWidth
-  )
-
-  // helper: asegura que haya una página con espacio mínimo
-  const ensureSpace = () => {
-    // espacio mínimo usable antes del footer
-    const minBottom = 60
-    if (y < minBottom + 50) {
-      resumenPage = addPage("Ruta de sostenibilidad")
-      y = pageHeight - 130
-    }
-  }
-
-  let idx = 0
-  while (idx < allLines.length) {
-    ensureSpace()
-
-    const minBottom = 60
-    const available = y - minBottom
-
-    // cuántas líneas caben en este recuadro dentro del espacio disponible
-    let maxLines = Math.floor(
-      (available - (paddingTop + paddingBottom)) / lineHeight
-    )
-
-    // si no cabe ni una línea, nueva página
-    if (maxLines <= 0) {
-      resumenPage = addPage("Ruta de sostenibilidad")
-      y = pageHeight - 130
-      continue
-    }
-
-    const chunk = allLines.slice(idx, idx + maxLines)
-
-    // altura real del recuadro para este chunk
-    const boxHeight = paddingTop + paddingBottom + chunk.length * lineHeight
-
-    // si por alguna razón igual no entra (borde), forzamos salto
-    if (y - boxHeight < minBottom) {
-      resumenPage = addPage("Ruta de sostenibilidad")
-      y = pageHeight - 130
-      continue
-    }
-
-    // dibujar recuadro
-    resumenPage.drawRectangle({
-      x: leftMargin,
-      y: y - boxHeight,
-      width: maxWidth,
-      height: boxHeight,
-      color: boxBgLight,
-      borderColor: boxTitleColor,
-      borderWidth: 1,
-    })
-
-    // dibujar texto línea por línea
-    let textY = y - paddingTop
-    chunk.forEach((line) => {
-      // línea vacía => aire visual
-      if (!line.trim()) {
-        textY -= lineHeight
-        return
+      if (y - boxHeight < BOTTOM_MARGIN) {
+        const next = addContentPage({ sectionTitle: "Ruta de Sostenibilidad" })
+        resumenPage = next.page
+        y = next.y
+        continue
       }
 
-      resumenPage.drawText(line, {
-        x: leftMargin + innerPaddingX,
-        y: textY,
-        size: fontSize,
-        font: fontRegular,
-        color: textPrimary,
+      resumenPage.drawRectangle({
+        x: leftMargin,
+        y: y - boxHeight,
+        width: maxWidth,
+        height: boxHeight,
+        color: boxBgLight,
+        borderColor: boxTitleColor,
+        borderWidth: 1,
       })
-      textY -= lineHeight
-    })
 
-    // avanzar
-    y -= boxHeight + 20
-    idx += chunk.length
+      let textY = y - paddingTop
+      chunk.forEach((line) => {
+        if (!line.trim()) {
+          textY -= lineHeight
+          return
+        }
 
-    // si todavía quedan líneas del mismo párrafo, no dejar que el siguiente recuadro arranque pegado al borde
-    if (idx < allLines.length && y < minBottom + 40) {
-      resumenPage = addPage("Ruta de sostenibilidad")
-      y = pageHeight - 130
+        resumenPage.drawText(line, {
+          x: leftMargin + innerPaddingX,
+          y: textY,
+          size: fontSize,
+          font: fontRegular,
+          color: textPrimary,
+        })
+        textY -= lineHeight
+      })
+
+      y -= boxHeight + 20
+      idx += chunk.length
+
+      if (idx < allLines.length && y < BOTTOM_MARGIN + 40) {
+        const next = addContentPage({ sectionTitle: "Ruta de Sostenibilidad" })
+        resumenPage = next.page
+        y = next.y
+      }
     }
   }
-}
 
-addParagraph(resumen.parrafo_1)
-if (resumen.parrafo_2) addParagraph(resumen.parrafo_2)
-if (resumen.parrafo_3) addParagraph(resumen.parrafo_3)
+  addParagraph(resumen.parrafo_1)
+  if (resumen.parrafo_2) addParagraph(resumen.parrafo_2)
+  if (resumen.parrafo_3) addParagraph(resumen.parrafo_3)
 
-
-  /* =======================
-     🖼️ Contraportada
-  ======================= */
+  // =======================
+  // 🖼️ Contraportada
+  // =======================
   if (contraportada) {
-    const imgBytes = await fetch(contraportada).then((r) => r.arrayBuffer())
-    const image = await pdfDoc.embedPng(imgBytes)
-    const page = addPage()
-    const { width, height } = page.getSize()
-    page.drawImage(image, { x: 0, y: 0, width, height })
+    try {
+      await addFullBleedImagePage(contraportada)
+    } catch (e) {
+      console.warn("No se pudo cargar contraportada", e)
+    }
   }
 
   return pdfDoc.save()
 }
 
-/* WRAPPERS */
 /* WRAPPERS */
 function wrapText(text: string, maxChars: number) {
   const safe = normalizePdfText(text)
@@ -609,35 +693,16 @@ function wrapText(text: string, maxChars: number) {
 }
 
 function normalizePdfText(input: string) {
-  // 1) asegurar string
   let s = String(input ?? "")
-
-  // 2) normalizar saltos de línea
   s = s.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
-
-  // 3) convertir saltos de línea a espacio (para que NUNCA lleguen a widthOfTextAtSize)
-  //    (si quisieras respetar saltos, más abajo te dejo alternativa)
   s = s.replace(/\n+/g, " ")
-
-  // 4) espacios raros comunes (NBSP) -> espacio normal
   s = s.replace(/\u00A0/g, " ")
-
-  // 5) remover otros caracteres de control (excepto tab si quisieras)
-  //    Esto elimina cualquier 0x00-0x1F y 0x7F que pueda romper WinAnsi
   s = s.replace(/[\u0000-\u001F\u007F]/g, " ")
-
-  // 6) colapsar espacios
   s = s.replace(/\s+/g, " ").trim()
-
   return s
 }
 
-function wrapTextByWidth(
-  text: string,
-  font: any,
-  size: number,
-  maxWidth: number
-) {
+function wrapTextByWidth(text: string, font: any, size: number, maxWidth: number) {
   const safeText = normalizePdfText(text)
 
   const words = safeText.split(" ")
@@ -674,7 +739,6 @@ function wrapTextByWidth(
 
     const wordWidth = font.widthOfTextAtSize(word, size)
 
-    // ✅ si una palabra sola no entra, la partimos
     if (wordWidth > maxWidth) {
       if (current) {
         pushLine(current)
@@ -703,4 +767,3 @@ function wrapTextByWidth(
   if (current) pushLine(current)
   return lines.length ? lines : [""]
 }
-

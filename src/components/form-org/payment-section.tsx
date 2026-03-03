@@ -13,6 +13,7 @@ import {
   Globe,
   Users,
   Banknote,
+  XCircle,
 } from "lucide-react"
 
 type PaymentSectionProps = {
@@ -43,10 +44,10 @@ export default function PaymentSection({
   organization,
   whatsappNumber = "5491122334455",
   features = [
-    "Matriz de doble materialidad (financiera y ESG)",
-    "Recomendaciones basadas en marcos internacionales (GRI, SASB, GAIL, S&P, ODS)",
-    "Ruta de sostenibilidad personalizada",
-    "Dashboard interactivo para revisar resultados",
+    "Pago seguro a través de Mercado Pago.",
+    "El cobro se realizará en pesos Chilenos.",
+    "Si pagas fuera de Chile podrás pagar con tarjeta de débito o crédito.",
+    "Si pagas fuera de Chile no podrás pagar con una cuenta de Mercado Pago.",
   ],
   asEmbedded = false,
 }: PaymentSectionProps) {
@@ -54,9 +55,6 @@ export default function PaymentSection({
     if (onPay) return onPay()
     if (checkoutUrl) window.open(checkoutUrl, "_blank", "noopener,noreferrer")
   }
-
-
-  console.log('amountUSD', amountUSD)
 
   const content = (
     <>
@@ -114,12 +112,21 @@ export default function PaymentSection({
         </CardHeader>
         <CardContent className="p-6 md:p-8">
           <div className="grid md:grid-cols-2 gap-4">
-            {features.map((feature, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-blue-700 flex-shrink-0 mt-0.5" />
-                <span className="text-gray-800 text-sm">{feature}</span>
-              </div>
-            ))}
+            {features.map((feature, index) => {
+              const isLast = index === features.length - 1
+              const Icon = isLast ? XCircle : CheckCircle
+
+              return (
+                <div key={index} className="flex items-start gap-3">
+                  <Icon
+                    className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+                      isLast ? "text-red-600" : "text-blue-700"
+                    }`}
+                  />
+                  <span className="text-gray-800 text-sm">{feature}</span>
+                </div>
+              )
+            })}
           </div>
         </CardContent>
       </Card>
@@ -136,12 +143,6 @@ export default function PaymentSection({
       Realizar pago ahora con <strong>Mercado Pago</strong> — ${amountUSD?.toLocaleString("en-US")} USD
     </span>
   </Button>
-
-  <div className="flex items-center justify-center gap-2 mt-4 text-sm text-gray-500">
-    <Shield className="w-4 h-4" />
-    <span>Pago seguro a través de Mercado Pago.</span>
-  </div>
-    <span>El cobro se realizará en pesos Chilenos.</span>
 
   <div className="mt-6 text-center text-sm text-gray-600">
     <p>¿Tienes dudas sobre el proceso?</p>

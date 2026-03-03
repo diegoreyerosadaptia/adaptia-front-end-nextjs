@@ -132,33 +132,83 @@ export default function RegisterClient() {
 
             <CardContent>
               {/* ✅ Pantalla éxito (sin redirigir) */}
-              {submitted ? (
-                <div className="rounded-xl border border-green-200 bg-green-50 p-8">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5 rounded-full bg-green-600 text-white p-2">
-                      <MailCheck className="h-5 w-5" />
+            {submitted ? (
+              <div className="rounded-xl border border-green-200 bg-green-50 p-2 pt-10 pb-10">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 rounded-full bg-green-600 text-white p-2">
+                    <MailCheck className="h-5 w-5" />
+                  </div>
+
+                  <div className="space-y-4">
+                    <p className="font-semibold text-adaptia-blue-primary text-lg">
+                      ¡Gracias por enviar tu registro de cuenta con Adaptia!
+                    </p>
+
+                    <p className="text-sm text-muted-foreground">
+                      Estás cerca de terminar tu solicitud.
+                    </p>
+
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <p className="font-semibold text-adaptia-blue-primary">Siguientes pasos:</p>
+
+                      <ol className="list-decimal pl-5 space-y-2">
+                        <li>
+                          Antes de continuar, necesitamos que verifiques tu dirección de correo electrónico.
+                          <br />
+                          Revisa tu bandeja de entrada y sigue las instrucciones del correo de verificación.
+                          <br />
+                          Asegúrate de revisar tu bandeja de correo no deseado.
+                        </li>
+
+                        <li>Ingresar a tu cuenta.</li>
+
+                        <li>Completar tu pago.</li>
+                      </ol>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="rounded-lg border border-green-200 bg-white/60 p-4 text-sm text-muted-foreground space-y-2">
                       <p className="font-semibold text-adaptia-blue-primary">
-                        Correo de confirmación enviado
+                        ¿No recibiste el correo de confirmación?
                       </p>
 
-                      <p className="text-sm text-muted-foreground">
-                        Enviamos un link de confirmación a{" "}
-                        <span className="font-semibold text-adaptia-blue-primary">
-                          {submittedEmail || "tu email"}
-                        </span>
-                        .
+                      <p>
+                        Por favor ponte en contacto con nosotros para apoyarte:
                       </p>
 
-                      <p className="text-sm text-muted-foreground">
-                        Si no lo ves en unos minutos, revisá <b>Spam/Promociones</b>.
+                      <p>
+                        <span className="font-semibold">Email:</span>{" "}
+                        <a
+                          href="mailto:diego@adaptianow.com"
+                          className="text-adaptia-blue-primary hover:underline"
+                        >
+                          diego@adaptianow.com
+                        </a>
+                      </p>
+
+                      <p>
+                        <span className="font-semibold">WhatsApp:</span>{" "}
+                        <a
+                          href="https://wa.me/56935027636"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-green-700 hover:underline font-medium"
+                        >
+                          +56 9 3502 7636
+                        </a>
                       </p>
                     </div>
+
+                    <p className="text-xs text-muted-foreground">
+                      Enviamos el correo de verificación a{" "}
+                      <span className="font-semibold text-adaptia-blue-primary">
+                        {submittedEmail || "tu email"}
+                      </span>
+                      .
+                    </p>
                   </div>
                 </div>
-              ) : (
+              </div>
+            ) : (
                 // ✅ Form normal
                 <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
                   <input type="hidden" {...form.register("orgId")} />

@@ -402,24 +402,25 @@ export default function DashboardTable({ organizations, meta, token }: Dashboard
                             </div>
                           </td>
 
-                          <td className="px-3 py-3 text-center">
+                              <td className="px-3 py-3 text-center">
                             {org.analysis?.length ? (
                               <div className="flex flex-col items-center gap-1">
                                 {org.analysis.map((a: any) => {
                                   const discount = a.discount_percentage ? Number(a.discount_percentage) : 0
+                                  const discountName = a.coupon?.name ?? null
+
                                   return (
                                     <span
                                       key={a.id}
                                       className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium ${
-                                        discount > 0
-                                          ? "bg-emerald-50 text-emerald-700"
-                                          : "bg-gray-50 text-gray-500"
+                                        discount > 0 ? "bg-emerald-50 text-emerald-700" : "bg-gray-50 text-gray-500"
                                       }`}
                                     >
                                       {discount > 0 ? (
                                         <>
                                           <span className="mr-1">{discount}%</span>
                                           <span>descuento</span>
+                                          {discountName ? <span className="ml-1">({discountName})</span> : null}
                                         </>
                                       ) : (
                                         "Sin descuento"
@@ -433,7 +434,7 @@ export default function DashboardTable({ organizations, meta, token }: Dashboard
                             )}
                           </td>
 
-                          <td className="px-3 py-3 text-center">
+                          <td className="px-5 py-3 text-center">
                             {org.analysis?.map((a: any) => (
                               <PaymentStatusSelect
                                 key={a.id}
