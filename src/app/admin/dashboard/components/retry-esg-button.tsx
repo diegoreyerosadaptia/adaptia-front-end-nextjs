@@ -5,10 +5,9 @@ import { createEsg } from "@/services/esg.service"
 import { supabase } from "@/lib/supabase/client"
 import { Loader2, RotateCcw } from "lucide-react"
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 
-export default function RetryEsgButton({ org, label }: { org: any, label: string }) {
+export default function RetryEsgButton({ org, label }: { org: any; label: string }) {
   const [loading, setLoading] = useState(false)
 
   const handleRetry = async () => {
@@ -25,10 +24,10 @@ export default function RetryEsgButton({ org, label }: { org: any, label: string
       const dto = {
         organization_name: org.company,
         country: org.country,
-        website: org.website || "https://example.com",
+        website: org.website,
         organizationId: org.id,
         industry: org.industry,
-        document: org.document
+        document: org.document,
       }
 
       const res = await createEsg(dto, token)
@@ -37,7 +36,6 @@ export default function RetryEsgButton({ org, label }: { org: any, label: string
         toast.success(`Nuevo análisis ESG para ${org.company} encolado correctamente`, {
           description: "El análisis ha sido marcado como pendiente y comenzará su ejecución en breve.",
         })
-        // 🔁 Recargar parcialmente después de unos segundos (opcional)
         setTimeout(() => window.location.reload(), 2000)
       } else {
         toast.error("Error al volver a ejecutar el análisis", {
@@ -56,34 +54,32 @@ export default function RetryEsgButton({ org, label }: { org: any, label: string
 
   return (
     <DropdownMenuItem
-      asChild
+      onClick={handleRetry}
+      disabled={loading}
       className="
-        mt-1
+        cursor-pointer
+        gap-3
+        rounded-md
+        px-2
+        py-2
+        transition-colors
         data-[highlighted]:bg-orange-50
         data-[highlighted]:text-orange-700
+        focus:bg-orange-50
+        focus:text-orange-700
       "
     >
-      <button
-        type="button"
-        onClick={handleRetry}
-        disabled={loading}
-        className="flex w-full items-center gap-3 px-3 py-2.5 text-sm rounded-lg 
-                   text-gray-700 hover:bg-orange-50 hover:text-orange-700 
-                   transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-      >
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-100">
-          {loading ? (
-            <Loader2 className="w-4 h-4 text-orange-600 animate-spin" />
-          ) : (
-            <RotateCcw className="w-4 h-4 text-orange-600" />
-          )}
-        </div>
-  
-        <span className="font-medium">
-          {loading ? "Procesando..." : label}
-        </span>
-      </button>
+      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-orange-100 shrink-0">
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin text-orange-600" />
+        ) : (
+          <RotateCcw className="h-4 w-4 text-orange-600" />
+        )}
+      </div>
+
+      <span className="font-medium">
+        {loading ? "Procesando..." : label}
+      </span>
     </DropdownMenuItem>
   )
-  
 }

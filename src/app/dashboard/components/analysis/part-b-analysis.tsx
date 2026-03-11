@@ -1,13 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import { Eye, X } from "lucide-react"
 import { AnalysisActionsMenu } from "./analysis-actions-menu"
 import { updateAnalysisJsonAction } from "@/actions/analysis/update-analysis-json.action"
 import { toast } from "sonner"
 
 type ParteBItem = {
+  sector?: string
   tema: string
+  temas?: string
   materialidad_financiera: string
+  valor_materialidad_financiera?: string
   tipo_impacto: string
   potencialidad_impacto: string
   horizonte_impacto: string
@@ -17,31 +21,62 @@ type ParteBItem = {
   gravedad: string
   probabilidad: string
   alcance: string
-  impacto_esg: string
-  impacto_financiero: string
+  impacto_esg?: string
+  impacto_financiero?: string
   materialidad_esg: string
+  resumen?: string
 }
 
-function mapPrompt5ToParteB(item: any): ParteBItem {
-  const materialidad = item.materialidad_esg?.toString() || ""
+function normalizeParteBItem(item: any): ParteBItem {
+  const temaNormalizado =
+    typeof item?.tema === "string" && item.tema.trim()
+      ? item.tema
+      : typeof item?.temas === "string" && item.temas.trim()
+      ? item.temas
+      : ""
+
+  const materialidad = item?.materialidad_esg?.toString?.() || ""
 
   return {
+    sector: item?.sector || "",
+    tema: temaNormalizado,
+    temas: temaNormalizado,
+    materialidad_financiera: item?.materialidad_financiera || "",
+    valor_materialidad_financiera: item?.valor_materialidad_financiera?.toString?.() || "",
+    tipo_impacto: item?.tipo_impacto || "",
+    potencialidad_impacto: item?.potencialidad_impacto || "",
+    horizonte_impacto: item?.horizonte_impacto || "",
+    intencionalidad_impacto: item?.intencionalidad_impacto || "",
+    penetracion_impacto: item?.penetracion_impacto || "",
+    grado_implicacion: item?.grado_implicacion || "",
+    gravedad: item?.gravedad?.toString?.() || "",
+    probabilidad: item?.probabilidad?.toString?.() || "",
+    alcance: item?.alcance?.toString?.() || "",
+    impacto_esg: materialidad,
+    impacto_financiero: item?.impacto_financiero || "",
+    materialidad_esg: materialidad,
+    resumen: item?.resumen || "",
+  }
+}
+
+function mapParteBToPromptPayload(item: ParteBItem) {
+  return {
+    sector: item.sector || "",
     tema: item.tema || "",
+    temas: item.tema || "",
     materialidad_financiera: item.materialidad_financiera || "",
+    valor_materialidad_financiera: item.valor_materialidad_financiera || "",
     tipo_impacto: item.tipo_impacto || "",
     potencialidad_impacto: item.potencialidad_impacto || "",
     horizonte_impacto: item.horizonte_impacto || "",
     intencionalidad_impacto: item.intencionalidad_impacto || "",
     penetracion_impacto: item.penetracion_impacto || "",
     grado_implicacion: item.grado_implicacion || "",
-
-    gravedad: item.gravedad?.toString() || "",
-    probabilidad: item.probabilidad?.toString() || "",
-    alcance: item.alcance?.toString() || "",
-
-    impacto_esg: materialidad,
-    impacto_financiero: "",
-    materialidad_esg: materialidad,
+    gravedad: Number(item.gravedad || 0),
+    probabilidad: Number(item.probabilidad || 0),
+    alcance: Number(item.alcance || 0),
+    materialidad_esg: Number(item.materialidad_esg || 0),
+    resumen: item.resumen || "",
   }
 }
 
@@ -52,35 +87,47 @@ export function ParteBEditable({
   accessToken,
   userRole,
 }: {
-  parteBOriginal: ParteBItem[]
+  parteBOriginal: any[]
   lastAnalysisId: string
   analysisData: any
   accessToken: string
   userRole: string
 }) {
+  const normalizedOriginal = useMemo(
+    () => (parteBOriginal || []).map(normalizeParteBItem),
+    [parteBOriginal]
+  )
+
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [parteBData, setParteBData] = useState<ParteBItem[]>(parteBOriginal)
+  const [showResumenDialog, setShowResumenDialog] = useState(false)
+  const [parteBData, setParteBData] = useState<ParteBItem[]>(normalizedOriginal)
 
   const handleEditCell = (index: number, field: keyof ParteBItem, value: string) => {
-    const updated = [...parteBData]
-    updated[index][field] = value
-    setParteBData(updated)
+    setParteBData((prev) => {
+      const updated = [...prev]
+      updated[index] = {
+        ...updated[index],
+        [field]: value,
+      }
+      return updated
+    })
   }
 
   const handleSaveChanges = async () => {
     try {
       setIsSaving(true)
 
-      const cleanedParteB = parteBData.map(mapPrompt5ToParteB)
+      const cleanedParteB = parteBData.map(mapParteBToPromptPayload)
 
       const newJson = [...analysisData]
       newJson[3].response_content.materiality_table = cleanedParteB
 
       const res = await updateAnalysisJsonAction(lastAnalysisId, newJson as any, accessToken)
 
-      if (res?.error) toast.error("Error al guardar los cambios")
-      else {
+      if (res?.error) {
+        toast.error("Error al guardar los cambios")
+      } else {
         toast.success("Cambios guardados correctamente")
         setIsEditing(false)
       }
@@ -93,37 +140,49 @@ export function ParteBEditable({
   }
 
   const handleCancel = () => {
-    setParteBData(parteBOriginal)
+    setParteBData(normalizedOriginal)
     setIsEditing(false)
     toast.info("Cambios descartados")
   }
 
-  // ✅ clases reutilizables para mantener simetría total
   const thBase =
-    "w-1/12 px-3 py-3 text-center align-middle font-semibold border border-white/30"
+    "px-3 py-3 text-center align-middle font-semibold border border-white/30 whitespace-normal break-words"
+
   const tdBase =
-    "w-1/12 px-3 py-3 text-center align-middle border border-gray-200"
+    "px-3 py-3 text-center align-middle border border-gray-200 whitespace-normal break-words"
 
   const textareaBase =
-    "w-full min-h-[44px] resize-none rounded-md border border-gray-200 bg-white px-2 py-1 text-xs leading-snug focus:outline-none focus:ring-1 focus:ring-[#619F44] text-center"
+    "w-full min-h-[44px] resize-none rounded-md border border-gray-200 bg-white px-2 py-1 text-xs leading-snug text-center whitespace-pre-wrap break-words overflow-hidden focus:outline-none focus:ring-1 focus:ring-[#619F44]"
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex flex-wrap justify-between items-center gap-3 mb-2">
         <h3 className="text-lg font-semibold" style={{ color: "#619F44" }}>
           Evaluación
         </h3>
 
-        {userRole === "ADMIN" && (
-          <AnalysisActionsMenu
-            isEditing={isEditing}
-            isSaving={isSaving}
-            onEditToggle={() => setIsEditing(!isEditing)}
-            onSave={handleSaveChanges}
-            onCancel={handleCancel}
-          />
-        )}
+        <div className="flex items-center gap-2">
+          {userRole === "ADMIN" && (
+            <button
+              type="button"
+              onClick={() => setShowResumenDialog(true)}
+              className="inline-flex items-center gap-2 rounded-md border border-[#619F44] bg-white px-3 py-2 text-sm font-medium text-[#619F44] transition hover:bg-[#F4FAF1]"
+            >
+              <Eye className="h-4 w-4" />
+              Ver resúmenes
+            </button>
+          )}
+
+          {userRole === "ADMIN" && (
+            <AnalysisActionsMenu
+              isEditing={isEditing}
+              isSaving={isSaving}
+              onEditToggle={() => setIsEditing(!isEditing)}
+              onSave={handleSaveChanges}
+              onCancel={handleCancel}
+            />
+          )}
+        </div>
       </div>
 
       <p>
@@ -132,34 +191,32 @@ export function ParteBEditable({
         prioritarios para tu empresa, también conocidos como “temas materiales”.
       </p>
 
-      {/* Tabla compacta sin scroll */}
-      <div className="rounded-lg border border-adaptia-gray-light/40 shadow-sm overflow-hidden">
-        <table className="w-full border-collapse text-sm table-fixed">
-          {/* HEADER */}
+    <div className="rounded-lg border border-adaptia-gray-light/40 shadow-sm overflow-hidden">
+      <table className="w-full border-collapse text-sm table-fixed">
           <thead style={{ backgroundColor: "#619F44", color: "white" }}>
             <tr>
-              <th className={thBase}>Tema</th>
-              <th className={thBase}>
-                Materialidad<br />Financiera
+              <th className={`${thBase} w-[10%]`}>Tema</th>
+              <th className={`${thBase} w-[10%]`}>
+                Materialidad
+                <br />
+                Financiera
               </th>
-              <th className={thBase}>Tipo</th>
-              <th className={thBase}>Potencialidad</th>
-              <th className={thBase}>Horizonte</th>
-              <th className={thBase}>Intencionalid.</th>
-              <th className={thBase}>Penetración</th>
-              <th className={thBase}>Implicación</th>
-              <th className={thBase}>Grav.</th>
-              <th className={thBase}>Prob.</th>
-              <th className={thBase}>Alc.</th>
-              <th className={thBase}>ESG</th>
+              <th className={`${thBase} w-[8%]`}>Tipo</th>
+              <th className={`${thBase} w-[10%]`}>Potencialidad</th>
+              <th className={`${thBase} w-[8%]`}>Horizonte</th>
+              <th className={`${thBase} w-[12%]`}>Intencionalidad</th>
+              <th className={`${thBase} w-[10%]`}>Penetración</th>
+              <th className={`${thBase} w-[10%]`}>Implicación</th>
+              <th className={`${thBase} w-[7%]`}>Gravedad</th>
+              <th className={`${thBase} w-[10%]`}>Probabilidad</th>
+              <th className={`${thBase} w-[8%]`}>Alcance</th>
+              <th className={`${thBase} w-[7%]`}>ESG</th>
             </tr>
           </thead>
 
-          {/* BODY */}
           <tbody className="bg-white">
             {parteBData.map((row, idx) => (
-              <tr key={idx} className="hover:bg-adaptia-gray-light/10">
-                {/* Tema */}
+              <tr key={`${row.tema}-${idx}`} className="hover:bg-adaptia-gray-light/10">
                 <td className={tdBase}>
                   {isEditing ? (
                     <textarea
@@ -172,7 +229,6 @@ export function ParteBEditable({
                   )}
                 </td>
 
-                {/* Materialidad financiera */}
                 <td className={tdBase}>
                   {isEditing ? (
                     <textarea
@@ -187,7 +243,6 @@ export function ParteBEditable({
                   )}
                 </td>
 
-                {/* Tipo */}
                 <td className={tdBase}>
                   {isEditing ? (
                     <textarea
@@ -200,7 +255,6 @@ export function ParteBEditable({
                   )}
                 </td>
 
-                {/* Potencialidad */}
                 <td className={tdBase}>
                   {isEditing ? (
                     <textarea
@@ -215,7 +269,6 @@ export function ParteBEditable({
                   )}
                 </td>
 
-                {/* Horizonte */}
                 <td className={tdBase}>
                   {isEditing ? (
                     <textarea
@@ -228,7 +281,6 @@ export function ParteBEditable({
                   )}
                 </td>
 
-                {/* Intencionalidad */}
                 <td className={tdBase}>
                   {isEditing ? (
                     <textarea
@@ -243,7 +295,6 @@ export function ParteBEditable({
                   )}
                 </td>
 
-                {/* Penetración */}
                 <td className={tdBase}>
                   {isEditing ? (
                     <textarea
@@ -258,7 +309,6 @@ export function ParteBEditable({
                   )}
                 </td>
 
-                {/* Implicación */}
                 <td className={tdBase}>
                   {isEditing ? (
                     <textarea
@@ -273,7 +323,6 @@ export function ParteBEditable({
                   )}
                 </td>
 
-                {/* Gravedad */}
                 <td className={tdBase}>
                   {isEditing ? (
                     <textarea
@@ -286,7 +335,6 @@ export function ParteBEditable({
                   )}
                 </td>
 
-                {/* Probabilidad */}
                 <td className={tdBase}>
                   {isEditing ? (
                     <textarea
@@ -299,7 +347,6 @@ export function ParteBEditable({
                   )}
                 </td>
 
-                {/* Alcance */}
                 <td className={tdBase}>
                   {isEditing ? (
                     <textarea
@@ -312,7 +359,6 @@ export function ParteBEditable({
                   )}
                 </td>
 
-                {/* ESG */}
                 <td className={`${tdBase} font-semibold text-green-700`}>
                   {isEditing ? (
                     <textarea
@@ -331,6 +377,62 @@ export function ParteBEditable({
           </tbody>
         </table>
       </div>
+
+    {userRole === "ADMIN" && showResumenDialog && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+        <div className="w-full max-w-3xl rounded-2xl bg-white shadow-xl border border-gray-200">
+          <div className="flex items-center justify-between px-6 py-4 border-b">
+            <div>
+              <h4 className="text-2xl font-bold text-[#163F6A]">
+                Resúmenes de evaluación
+              </h4>
+              <p className="text-sm text-gray-500 mt-1">
+                Ordenados según la tabla actual de evaluación.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowResumenDialog(false)}
+              className="rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="max-h-[70vh] overflow-y-auto px-6 py-5 space-y-4">
+            {parteBData.map((row, idx) => (
+              <div
+                key={`resumen-${row.tema}-${idx}`}
+                className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+              >
+                <div className="mb-3">
+                  <p className="text-base font-bold text-[#619F44]">
+                    #{idx + 1} — {row.tema || "Sin tema"}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    ESG: {row.materialidad_esg || "-"} · Financiera: {row.materialidad_financiera || "-"}
+                  </p>
+                </div>
+
+                <div className="space-y-2 text-sm leading-6 text-gray-700">
+                  {row.resumen ? (
+                    row.resumen.split(" - ").map((item, i) => (
+                      <div key={i} className="flex gap-2">
+                        <span className="text-[#619F44] font-bold">•</span>
+                        <span>{item}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-gray-400">Sin resumen disponible.</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   )
 }

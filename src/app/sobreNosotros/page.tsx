@@ -295,6 +295,43 @@ export default function EquipoPage() {
                     </Button>
                   </CardContent>
                 </Card>
+
+                <Card className="bg-card border-gray-200 hover:shadow-lg transition-shadow duration-300">
+                  <CardHeader className="text-center">
+                    <div className="w-32 h-32 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <div className="w-32 h-32 rounded-full mx-auto mb-4 overflow-hidden">
+                    <img
+                        src="/foto-lila.jpg"
+                        alt="Foto de Slaven Ilic"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    </div>
+                    <CardTitle className="text-2xl text-primary">Lila Gasca</CardTitle>
+                    <p className="text-primary font-semibold">Consejera - regulación ESG</p>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <p className="text-muted-foreground mb-4 text-pretty">
+                    Directora Pro bono y de Responsible Business México en Hogan Lovells México y Consejera de Latam por México en GAIL
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2 mx-auto bg-transparent"
+                      asChild
+                    >
+                      <Link
+                        href="https://www.linkedin.com/in/lilagasca/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Linkedin className="w-4 h-4" />
+                        LinkedIn
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </div>

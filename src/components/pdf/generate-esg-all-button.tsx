@@ -382,50 +382,97 @@ function addPageWithHeader(opts: {
   pdfDoc: PDFDocument
   font: any
   boldFont: any
-  logo?: any
+  logo: any
   headerInfo: { orgName?: string; orgInd?: string; orgCountry?: string; orgCreation?: string }
-  sectionTitle?: string // ✅ NUEVO
+  sectionTitle?: string
 }) {
   const { pdfDoc, font, boldFont, logo, headerInfo, sectionTitle } = opts
 
-  PAGE_COUNTER += 1
   const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT])
+  PAGE_COUNTER++
 
-  const { headerBottomY } = drawCorporateHeader(page, font, boldFont, logo, headerInfo)
+  const pageWidth = page.getWidth()
+  const pageHeight = page.getHeight()
 
-  // nro página
-  page.drawText(String(PAGE_COUNTER), {
-    x: PAGE_WIDTH - MARGIN_X,
-    y: 25,
-    size: 10,
-    font,
+  const headerTopY = pageHeight - 55
+
+  // Título principal
+  const title = sanitizeText(boldFont, headerInfo.orgName || "Organización")
+  const titleSize = 26
+  const titleWidth = boldFont.widthOfTextAtSize(title, titleSize)
+
+  page.drawText(title, {
+    x: (pageWidth - titleWidth) / 2,
+    y: headerTopY,
+    size: titleSize,
+    font: boldFont,
     color: COLOR_TEXT_PRIMARY,
   })
 
-  // ✅ título de sección (debajo del header, SIEMPRE)
-  let y = headerBottomY - CONTENT_TOP_GAP
+  // Subtítulo
+  const subtitle = sanitizeText(
+    font,
+    `Industria: ${headerInfo.orgInd || "-"} · País: ${headerInfo.orgCountry || "-"} · Creación: ${headerInfo.orgCreation || "-"}`
+  )
+  const subtitleSize = 12
+  const subtitleWidth = font.widthOfTextAtSize(subtitle, subtitleSize)
 
-  if (sectionTitle?.trim()) {
-    page.drawText(sanitizeText(boldFont, sectionTitle.trim()), {
+  page.drawText(subtitle, {
+    x: (pageWidth - subtitleWidth) / 2,
+    y: headerTopY - 28,
+    size: subtitleSize,
+    font,
+    color: rgb(0.35, 0.35, 0.35),
+  })
+
+  // Logo bien a la derecha
+  if (logo) {
+    const logoWidth = 52
+    const logoHeight = 32
+
+    const logoRightMargin = 12 // bajalo a 12 o 10 si lo querés más al borde
+    const logoX = pageWidth - logoRightMargin - logoWidth
+    const logoY = headerTopY - 18
+
+    page.drawImage(logo, {
+      x: logoX,
+      y: logoY,
+      width: logoWidth,
+      height: logoHeight,
+    })
+  }
+
+  // Línea separadora
+  page.drawLine({
+    start: { x: MARGIN_X, y: pageHeight - 95 },
+    end: { x: pageWidth - MARGIN_X, y: pageHeight - 95 },
+    thickness: 1,
+    color: rgb(0.8, 0.8, 0.8),
+  })
+
+  // Título de sección
+  let contentStartY = pageHeight - 130
+
+  if (sectionTitle) {
+    page.drawText(sanitizeText(boldFont, sectionTitle), {
       x: MARGIN_X,
-      y,
-      size: 16,
+      y: contentStartY,
+      size: 22,
       font: boldFont,
       color: COLOR_SECTION_TITLE,
     })
-    y -= 10
 
     page.drawLine({
-      start: { x: MARGIN_X, y },
-      end: { x: PAGE_WIDTH - MARGIN_X, y },
+      start: { x: MARGIN_X, y: contentStartY - 12 },
+      end: { x: pageWidth - MARGIN_X, y: contentStartY - 12 },
       thickness: 2,
       color: COLOR_SECTION_TITLE,
     })
 
-    y -= 18
+    contentStartY -= 28
   }
 
-  return { page, contentStartY: y }
+  return { page, contentStartY }
 }
 /**
  * Wrap que respeta saltos de línea reales.
@@ -529,30 +576,62 @@ function drawTableWithWrapping(opts: {
 }) {
   const { pdfDoc, font, boldFont, logo, headerInfo, title, headers, rows, columnWidths } = opts
 
-  let next = addPageWithHeader({ pdfDoc, font, boldFont, logo, headerInfo, sectionTitle: title })
+  let next = addPageWithHeader({
+    pdfDoc,
+    font,
+    boldFont,
+    logo,
+    headerInfo,
+    sectionTitle: title,
+  })
+
   let currentPage = next.page
   let y = next.contentStartY
 
-  const fontSizeHeader = 10
+  const fontSizeHeader = 8
   const fontSizeRow = 9
   const cellPadding = 4
   const lineHeight = 12
-  const tableWidth = columnWidths.reduce((sum, w) => sum + w, 0)
-
   const headerHeight = lineHeight + cellPadding * 2
   const effectiveBottomMargin = BOTTOM_MARGIN - 10
 
+  const getTableMetrics = () => {
+    const pageWidth = currentPage.getWidth()
+    const availableWidth = pageWidth - MARGIN_X * 2
+
+    const originalTableWidth = columnWidths.reduce((sum, w) => sum + w, 0)
+
+    // Si la tabla no entra, escalamos proporcionalmente
+    const scale = originalTableWidth > availableWidth ? availableWidth / originalTableWidth : 1
+    const scaledColumnWidths = columnWidths.map((w) => w * scale)
+    const tableWidth = scaledColumnWidths.reduce((sum, w) => sum + w, 0)
+
+    // centrada horizontalmente dentro de la página
+    const tableX = (pageWidth - tableWidth) / 2
+
+    return {
+      pageWidth,
+      availableWidth,
+      originalTableWidth,
+      scaledColumnWidths,
+      tableWidth,
+      tableX,
+    }
+  }
+
   const drawHeaderRow = () => {
+    const { scaledColumnWidths, tableWidth, tableX } = getTableMetrics()
+
     currentPage.drawRectangle({
-      x: MARGIN_X,
+      x: tableX,
       y: y - headerHeight + cellPadding,
       width: tableWidth,
       height: headerHeight,
       color: rgb(0.88, 0.88, 0.88),
     })
 
-    let xPos = MARGIN_X
-    columnWidths.forEach((w) => {
+    let xPos = tableX
+    scaledColumnWidths.forEach((w) => {
       currentPage.drawLine({
         start: { x: xPos, y: y + cellPadding },
         end: { x: xPos, y: y - headerHeight + cellPadding },
@@ -561,6 +640,7 @@ function drawTableWithWrapping(opts: {
       })
       xPos += w
     })
+
     currentPage.drawLine({
       start: { x: xPos, y: y + cellPadding },
       end: { x: xPos, y: y - headerHeight + cellPadding },
@@ -568,7 +648,7 @@ function drawTableWithWrapping(opts: {
       color: rgb(0.5, 0.5, 0.5),
     })
 
-    xPos = MARGIN_X
+    xPos = tableX
     headers.forEach((h, i) => {
       currentPage.drawText(sanitizeText(font, h), {
         x: xPos + cellPadding,
@@ -577,13 +657,14 @@ function drawTableWithWrapping(opts: {
         font: boldFont,
         color: COLOR_TEXT_PRIMARY,
       })
-      xPos += columnWidths[i]
+      xPos += scaledColumnWidths[i]
     })
 
     y -= headerHeight
+
     currentPage.drawLine({
-      start: { x: MARGIN_X, y },
-      end: { x: MARGIN_X + tableWidth, y },
+      start: { x: tableX, y },
+      end: { x: tableX + tableWidth, y },
       thickness: 1.5,
       color: COLOR_SECTION_TITLE,
     })
@@ -592,12 +673,19 @@ function drawTableWithWrapping(opts: {
   drawHeaderRow()
 
   rows.forEach((row, rowIndex) => {
+    const { scaledColumnWidths, tableWidth, tableX } = getTableMetrics()
+
     const cellLines: string[][] = []
     let maxLines = 1
 
     row.forEach((cell, colIndex) => {
       const safeCell = sanitizeText(font, String(cell ?? ""))
-      const lines = wrapText(font, safeCell, columnWidths[colIndex] - cellPadding * 2, fontSizeRow)
+      const lines = wrapText(
+        font,
+        safeCell,
+        scaledColumnWidths[colIndex] - cellPadding * 2,
+        fontSizeRow
+      )
       cellLines.push(lines)
       maxLines = Math.max(maxLines, lines.length)
     })
@@ -605,32 +693,36 @@ function drawTableWithWrapping(opts: {
     const rowHeight = maxLines * lineHeight + cellPadding * 2
 
     if (y - rowHeight < effectiveBottomMargin) {
-      // ✅ nueva página con el MISMO título (continuación)
       const n = addPageWithHeader({
         pdfDoc,
         font,
         boldFont,
         logo,
         headerInfo,
-        sectionTitle: `${title}`,
+        sectionTitle: title,
       })
       currentPage = n.page
       y = n.contentStartY
       drawHeaderRow()
     }
 
+    const refreshedMetrics = getTableMetrics()
+    const rowTableX = refreshedMetrics.tableX
+    const rowTableWidth = refreshedMetrics.tableWidth
+    const rowScaledColumnWidths = refreshedMetrics.scaledColumnWidths
+
     if (rowIndex % 2 === 0) {
       currentPage.drawRectangle({
-        x: MARGIN_X,
+        x: rowTableX,
         y: y - rowHeight,
-        width: tableWidth,
+        width: rowTableWidth,
         height: rowHeight,
         color: rgb(0.96, 0.96, 0.96),
       })
     }
 
-    let xPos = MARGIN_X
-    columnWidths.forEach((w) => {
+    let xPos = rowTableX
+    rowScaledColumnWidths.forEach((w) => {
       currentPage.drawLine({
         start: { x: xPos, y },
         end: { x: xPos, y: y - rowHeight },
@@ -639,6 +731,7 @@ function drawTableWithWrapping(opts: {
       })
       xPos += w
     })
+
     currentPage.drawLine({
       start: { x: xPos, y },
       end: { x: xPos, y: y - rowHeight },
@@ -647,13 +740,13 @@ function drawTableWithWrapping(opts: {
     })
 
     currentPage.drawLine({
-      start: { x: MARGIN_X, y },
-      end: { x: MARGIN_X + tableWidth, y },
+      start: { x: rowTableX, y },
+      end: { x: rowTableX + rowTableWidth, y },
       thickness: 0.5,
       color: rgb(0.7, 0.7, 0.7),
     })
 
-    xPos = MARGIN_X
+    xPos = rowTableX
     cellLines.forEach((lines, colIndex) => {
       let cellY = y - cellPadding - lineHeight / 2
       lines.forEach((line) => {
@@ -666,12 +759,12 @@ function drawTableWithWrapping(opts: {
         })
         cellY -= lineHeight
       })
-      xPos += columnWidths[colIndex]
+      xPos += rowScaledColumnWidths[colIndex]
     })
 
     currentPage.drawLine({
-      start: { x: MARGIN_X, y: y - rowHeight },
-      end: { x: MARGIN_X + tableWidth, y: y - rowHeight },
+      start: { x: rowTableX, y: y - rowHeight },
+      end: { x: rowTableX + rowTableWidth, y: y - rowHeight },
       thickness: 0.5,
       color: rgb(0.7, 0.7, 0.7),
     })

@@ -564,24 +564,26 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                               <div className="flex flex-col items-center gap-3">
                                 {org.analysis.map((a: any) => {
                                   const discount = a.discount_percentage ? Number(a.discount_percentage) : 0
+                                  const discountName = a.coupon?.name ?? null
+
                                   return (
                                     <div key={a.id} className="space-y-2">
-                                      <div
-                                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium ${
-                                          discount > 0
-                                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                            : "bg-gray-50 text-gray-500"
+                                    <span
+                                        key={a.id}
+                                        className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium ${
+                                          discount > 0 ? "bg-emerald-50 text-emerald-700" : "bg-gray-50 text-gray-500"
                                         }`}
                                       >
                                         {discount > 0 ? (
                                           <>
-                                            <span className="font-bold mr-1">{discount}%</span>
+                                            <span className="mr-1">{discount}%</span>
                                             <span>descuento</span>
+                                            {discountName ? <span className="ml-1">({discountName})</span> : null}
                                           </>
                                         ) : (
                                           "Sin descuento"
                                         )}
-                                      </div>
+                                    </span>
 
                                       <PaymentStatusSelect
                                         id={a.id}

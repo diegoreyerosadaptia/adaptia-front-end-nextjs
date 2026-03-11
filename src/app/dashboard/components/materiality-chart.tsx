@@ -16,7 +16,7 @@ import {
 ============================ */
 interface MaterialityInput {
   tema?: string
-  temas?: string[]
+  temas?: string | string[]
   materialidad?: string
   materialidad_esg?: number
   x?: number
@@ -71,10 +71,25 @@ export function MaterialityChart({ data }: Props) {
 
     const zone = { baja: 1, media: 3, alta: 5 }
     const individualPoints: IndividualPoint[] = []
+    const normalizeTemas = (item: MaterialityInput): string[] => {
+      if (Array.isArray(item.temas)) {
+        return item.temas.filter((t): t is string => typeof t === "string" && t.trim().length > 0)
+      }
+
+      if (typeof item.temas === "string") {
+        return item.temas.trim() ? [item.temas] : []
+      }
+
+      if (typeof item.tema === "string") {
+        return item.tema.trim() ? [item.tema] : []
+      }
+
+      return []
+    }
 
     // 1️⃣ Construir puntos individuales
     data.forEach((item) => {
-      const temas = item.tema ? [item.tema] : item.temas ?? []
+      const temas = normalizeTemas(item)
       if (!temas.length) return
 
       const matKey = (item.materialidad || "").toLowerCase() as keyof typeof zone
