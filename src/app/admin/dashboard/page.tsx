@@ -15,6 +15,7 @@ import DashboardCouponsList from "./components/cupones/cupon-list"
 import GeneralTable from "./components/general-table"
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { AnalyticsButton } from "./components/analytics-button"
 
 export default async function AdminDashboard({
   searchParams,
@@ -160,7 +161,7 @@ export default async function AdminDashboard({
                 Gestión integral de organizaciones, análisis y cupones de descuento
               </p>
             </div>
-
+            <AnalyticsButton />
             <div className="flex items-center gap-4">
               <div className="hidden lg:flex flex-col items-end">
                 <p className="text-sm font-medium text-[#163F6A]">
