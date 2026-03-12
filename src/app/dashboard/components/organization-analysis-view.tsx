@@ -22,6 +22,9 @@ import { GenerateEsgPdfButton } from "@/components/pdf/generate-esg-button"
 import { getGriByTemas } from "@/services/esg.service"
 import { buildMaterialityChartData } from "@/lib/materiality/build-materiality-chart-data"
 import { GenerateMaterialityChartPdfButton } from "@/components/pdf/generate-materiality-chart-pdf-button"
+import { MatrizDownloadedButton } from "@/components/tracking/matriz-downloaded-button"
+import { ReportDownloadedButton } from "@/components/tracking/report-downloaded-button"
+import { ResumenDownloadedButton } from "@/components/tracking/resumen-downloaded-button"
 
 interface OrganizationAnalysisViewProps {
   organization: Organization
@@ -178,6 +181,10 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                 <section id="materiality-chart">
                   <div className="space-y-10">
                     <div className="flex justify-end mb-5">
+                    <MatrizDownloadedButton
+                      organizationId={organization.id}
+                      organizationName={organization.company}
+                    >
                       <GenerateMaterialityChartPdfButton
                         dataMaterialidad={dataFinal}
                         portada="/Portada_MatrizMaterilida _Adaptia_page-0001.jpg"
@@ -188,6 +195,7 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
                         orgCountry={organization.country}
                         orgCreation={createdAtLabel}
                       />
+                    </MatrizDownloadedButton>
                     </div>
                   </div>
                   <div className=" p-8 rounded-lg border-2 border-green-200 shadow-lg">
@@ -413,33 +421,43 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
 
               {/* PDF Ejecutivo */}
               <div className="h-10 flex items-center">
-              <GenerateEsgPdfButton
-                  contexto={contextoData}
-                  resumen={resumenData}
-                  portada="/Portada-Resumen-Ejecutivo-Adaptia.png"
-                  contraportada="/Contra-Portada-Resumen-Ejecutivo-Adaptia.png"
-                  filename={organization.company}
-                  dataMaterialidad={finalScatterData}
-                  orgName={organization.company}
-                  orgCountry={organization.country}
-                  orgCreation={createdAtLabel}
-                  orgInd={organization.industry}
-                />
+                <ResumenDownloadedButton
+                  organizationId={organization.id}
+                  organizationName={organization.company}
+                >
+                  <GenerateEsgPdfButton
+                    contexto={contextoData}
+                    resumen={resumenData}
+                    portada="/Portada-Resumen-Ejecutivo-Adaptia.png"
+                    contraportada="/Contra-Portada-Resumen-Ejecutivo-Adaptia.png"
+                    filename={organization.company}
+                    dataMaterialidad={finalScatterData}
+                    orgName={organization.company}
+                    orgCountry={organization.country}
+                    orgCreation={createdAtLabel}
+                    orgInd={organization.industry}
+                  />
+                </ResumenDownloadedButton>
               </div>
 
               {/* PDF Completo */}
               <div className="h-10 flex items-center">
-              <GenerateEsgPdfButtonAll
-                  analysisData={analysisData}
+                <ReportDownloadedButton
+                  organizationId={organization.id}
                   organizationName={organization.company}
-                  portada="/portada_analisis_completo_page-0001.jpg"
-                  contraportada="/contraportada_analisis_completo_page-0001.jpg"
-                  griData={griData} 
-                  orgName={organization.company}
-                  orgCountry={organization.country}
-                  orgCreation={createdAtLabel}
-                  orgInd={organization.industry}
-                />
+                >
+                  <GenerateEsgPdfButtonAll
+                    analysisData={analysisData}
+                    organizationName={organization.company}
+                    portada="/portada_analisis_completo_page-0001.jpg"
+                    contraportada="/contraportada_analisis_completo_page-0001.jpg"
+                    griData={griData}
+                    orgName={organization.company}
+                    orgCountry={organization.country}
+                    orgCreation={createdAtLabel}
+                    orgInd={organization.industry}
+                  />
+                </ReportDownloadedButton>
               </div>
             </div>
           </div>

@@ -17,6 +17,7 @@ import { Organization } from "@/types/organization.type"
 import { toast } from "sonner"
 import { createPreferenceAction } from "@/actions/payments/create-preference.action"
 import { supabase } from "@/lib/supabase/client"
+import { getGaClientId } from "@/lib/ga"
 
 
 export function AddOrganizationDialog() {
@@ -40,10 +41,14 @@ export function AddOrganizationDialog() {
       }
 
       // ✅ Crear la preferencia de pago (en tu backend)
+      const gaClientId = await getGaClientId(process.env.NEXT_PUBLIC_GA_ID!)
+
       const paymentResponse = await createPreferenceAction({
         userId: user.id,
-        organizationId: org.id,
+        organizationId: org.id || "",
+        gaClientId: gaClientId ?? undefined,
       })
+
 
       if (!paymentResponse?.success || !paymentResponse?.url) {
         toast.error("Error al generar el link de pago")

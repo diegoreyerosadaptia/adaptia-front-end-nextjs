@@ -7,6 +7,8 @@ import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Menu, X, User } from "lucide-react"
 import { AnalysisDrawer } from "@/components/form-org/analysis-drawer"
+import { RegistroClickButton } from "@/components/tracking/registro-click-button"
+import { CuentaClickButton } from "./tracking/cuenta-click-button"
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -40,7 +42,6 @@ export function Navigation() {
       <nav className="fixed top-0 inset-x-0 z-50 bg-white/90 backdrop-blur-md border-b border-adaptia-gray-light/20 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-16 flex items-center justify-between gap-6">
-            {/* Left: Logo */}
             <Link href="/" className="flex items-center shrink-0 group">
               <Image
                 src="/adaptia-logo.png"
@@ -52,7 +53,6 @@ export function Navigation() {
               />
             </Link>
 
-            {/* Center: Navigation links */}
             <div className="hidden lg:flex items-center gap-2 flex-1 justify-center">
               {navLinks.map((link) => {
                 const active = isActive(link.href)
@@ -85,28 +85,28 @@ export function Navigation() {
               })}
             </div>
 
-            {/* Right: Actions */}
             <div className="hidden md:flex items-center gap-3 shrink-0">
-              <Button
-                asChild
-                variant="outline"
-                className="h-10 px-4 rounded-full border-adaptia-blue-primary text-adaptia-blue-primary hover:bg-adaptia-blue-primary hover:text-white bg-transparent"
-              >
-                <Link href="/auth/login" className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  <span className="font-heading">Log-in</span>
-                </Link>
-              </Button>
+            <CuentaClickButton
+              href="/auth/login"
+              section="navigation_desktop"
+              ctaName="login"
+              variant="outline"
+              className="h-10 px-4 rounded-full border-adaptia-blue-primary text-adaptia-blue-primary hover:bg-adaptia-blue-primary hover:text-white bg-transparent"
+              linkClassName="flex items-center gap-2"
+            >
+              <User className="h-4 w-4" />
+              <span className="font-heading">Log-in</span>
+            </CuentaClickButton>
 
-              <Button
-                onClick={() => setIsDrawerOpen(true)}
+              <RegistroClickButton
+                section="navigation_desktop"
                 className="h-10 px-5 rounded-full bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 text-white font-heading shadow-md hover:shadow-lg transition-all"
+                onClick={() => setIsDrawerOpen(true)}
               >
                 Solicitar análisis
-              </Button>
+              </RegistroClickButton>
             </div>
 
-            {/* Mobile menu button */}
             <div className="lg:hidden shrink-0">
               <Button
                 variant="ghost"
@@ -119,7 +119,6 @@ export function Navigation() {
             </div>
           </div>
 
-          {/* Mobile Navigation */}
           {isOpen && (
             <div className="lg:hidden pb-4">
               <div className="mt-2 rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
@@ -159,15 +158,16 @@ export function Navigation() {
                     </Link>
                   </Button>
 
-                  <Button
+                  <RegistroClickButton
+                    section="navigation_mobile"
+                    className="w-full h-11 rounded-full bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 text-white font-heading"
                     onClick={() => {
                       setIsDrawerOpen(true)
                       setIsOpen(false)
                     }}
-                    className="w-full h-11 rounded-full bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 text-white font-heading"
                   >
                     Solicitar análisis
-                  </Button>
+                  </RegistroClickButton>
                 </div>
               </div>
             </div>

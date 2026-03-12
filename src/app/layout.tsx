@@ -27,7 +27,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <body className={`${montserrat.variable} font-sans`}>
-        {/* ✅ Google Analytics (GA4) */}
         {GA_ID ? (
           <>
             <Script
@@ -38,14 +37,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
+                window.gtag = gtag;
                 gtag('js', new Date());
-
-                // 🔥 importante: desactivar auto page_view
                 gtag('config', '${GA_ID}', { send_page_view: false });
               `}
             </Script>
 
-            {/* ✅ Pageview manual en cada cambio de ruta */}
             <GaPageView gaId={GA_ID} />
           </>
         ) : null}

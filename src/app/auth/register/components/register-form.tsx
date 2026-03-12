@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { registerSchema, type RegisterSchemaType } from "@/schemas/auth/register.schema"
 import { registerAction } from "@/actions/auth/resgiter.actions"
+import { SignupSubmitButton } from "@/components/tracking/signup-submit-button"
+import { trackSignupComplete } from "@/components/tracking/signup-events"
 
 export default function RegisterClient() {
   const [error, setError] = useState<string | null>(null)
@@ -74,6 +76,7 @@ export default function RegisterClient() {
           // ✅ NO redirigir: ocultar form y mostrar cartel
           setSubmittedEmail(values.email)
           setSubmitted(true)
+          trackSignupComplete(values.orgId ? "claim_register" : "manual")
 
           toast({
             title: "Correo de confirmación enviado",
@@ -280,9 +283,9 @@ export default function RegisterClient() {
                     <p className="text-sm text-red-500 bg-red-50 p-3 rounded-md">{error}</p>
                   )}
 
-                  <Button type="submit" disabled={isPending}>
+                  <SignupSubmitButton type="submit" disabled={isPending}>
                     {isPending ? "Creando cuenta..." : "Registrarse"}
-                  </Button>
+                  </SignupSubmitButton>
 
                   <div className="mt-2 text-sm text-center">
                     ¿Ya tenés una cuenta?{" "}

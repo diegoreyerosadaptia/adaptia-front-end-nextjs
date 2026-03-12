@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button"
 import { loginSchema, type LoginSchemaType } from "@/schemas/auth/login.schema"
 import { loginUser } from "@/services/auth.service"
 import { supabase } from "@/lib/supabase/client"
+import { LoginSubmitButton } from "@/components/tracking/login-submit-button"
+import { trackLoginSuccess } from "@/components/tracking/login-events"
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
@@ -49,6 +51,7 @@ export default function LoginPage() {
     startTransition(async () => {
       try {
         const { error } = await supabase.auth.setSession({ access_token, refresh_token })
+        trackLoginSuccess(type === "recovery" ? "auto_recovery" : "auto_confirm")
         if (error) {
           console.error("Error setSession confirm:", error)
           setError("No pudimos iniciar sesión con el link. Intentá loguearte manualmente.")
@@ -86,6 +89,7 @@ export default function LoginPage() {
             access_token,
             refresh_token,
           })
+          trackLoginSuccess("manual")
 
           if (error) {
             console.error("Error al setear sesión:", error)
@@ -225,12 +229,12 @@ export default function LoginPage() {
                   <p className="text-sm text-red-500 bg-red-50 p-3 rounded-md">{error}</p>
                 )}
 
-                <Button
+                <LoginSubmitButton
                   type="submit"
                   className="w-full bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 text-white"
                 >
                   Iniciar Sesión
-                </Button>
+                </LoginSubmitButton>
 
                 <div className="mt-1 text-sm text-center">
                   <Link href="/auth/reset" className="text-adaptia-blue-primary hover:underline">

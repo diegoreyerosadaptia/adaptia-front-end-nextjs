@@ -15,6 +15,7 @@ import {
   Banknote,
   XCircle,
 } from "lucide-react"
+import { PaymentStartedButton } from "../tracking/payment-started-button"
 
 type PaymentSectionProps = {
   showBack?: boolean
@@ -133,8 +134,11 @@ export default function PaymentSection({
 
 {/* 💳 Botón de pago con Mercado Pago */}
 <div className="flex flex-col items-center justify-center text-center mb-10">
-  <Button
+  <PaymentStartedButton
     size="lg"
+    section="payment_section"
+    amountUSD={amountUSD}
+    organizationName={organization?.company}
     className="bg-[#0079FF] cursor-pointer hover:bg-[#0064D1] text-white text-base md:text-lg px-8 py-6 rounded-xl shadow-md flex items-center justify-center gap-2"
     onClick={handlePay}
   >
@@ -142,7 +146,7 @@ export default function PaymentSection({
     <span className="font-medium">
       Realizar pago ahora con <strong>Mercado Pago</strong> — ${amountUSD?.toLocaleString("en-US")} USD
     </span>
-  </Button>
+  </PaymentStartedButton>
 
   <div className="mt-6 text-center text-sm text-gray-600">
     <p>¿Tienes dudas sobre el proceso?</p>

@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabase/client"
 import { useState, useEffect } from "react"
 import { DeleteOrganizationDialog } from "./delete-organzation-dialog"
 import { GenerateEsgPdfButton } from "@/components/pdf/generate-esg-button"
+import { getGaClientId } from "@/lib/ga"
 
 type FilterType = "all" | "completed" | "pending" | "incomplete" | "paymentsCompleted" | "paymentsPending"
 
@@ -64,10 +65,14 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
         return
       }
 
+      const gaClientId = await getGaClientId(process.env.NEXT_PUBLIC_GA_ID!)
+
       const paymentResponse = await createPreferenceAction({
         userId: user.id,
-        organizationId: orgId,
+        organizationId: orgId || "",
+        gaClientId: gaClientId ?? undefined,
       })
+
 
       if (!paymentResponse?.success || !paymentResponse.url) {
         console.error("⚠️ Error al crear preferencia de pago", paymentResponse)

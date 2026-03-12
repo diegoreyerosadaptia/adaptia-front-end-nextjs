@@ -11,16 +11,19 @@ import { HeroSectionDrawer } from "@/components/hero-section-with-drawer"
 import { ScrollToTop } from "@/components/scroll-to-top"
 import { VideoSection } from "@/components/videos-sections"
 import { PricingByEmployeesSection } from "@/components/price-card-section"
+import { LandingViewTracker } from "@/components/tracking/landing-view-tracker"
+import { PricingViewTracker } from "@/components/tracking/pricing-view-tracker"
 
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-white">
+      <LandingViewTracker />
+
       <Navigation />
 
       <HeroSectionDrawer />
 
       <div className="bg-combo-blue-gray-light relative">
-        {/* ✅ NO bloquear scroll/click */}
         <div className="absolute inset-0 bg-brand-pattern opacity-20 pointer-events-none" />
         <div className="relative z-10">
           <VideoSection />
@@ -32,7 +35,6 @@ export default function HomePage() {
       <AnalysisSection />
 
       <div className="bg-combo-blue-gray-light relative">
-        {/* ✅ NO bloquear scroll/click */}
         <div className="absolute inset-0 bg-brand-pattern opacity-20 pointer-events-none" />
         <div className="relative z-10">
           <WhyAdaptiaSection />
@@ -40,7 +42,6 @@ export default function HomePage() {
       </div>
 
       <div className="bg-combo-green-gray-light relative">
-        {/* ✅ NO bloquear scroll/click */}
         <div className="absolute inset-0 bg-brand-pattern opacity-15 pointer-events-none" />
         <div className="relative z-10">
           <ComparisonSection />
@@ -48,22 +49,22 @@ export default function HomePage() {
       </div>
 
       <div className="bg-combo-blue-gray-light relative">
-        {/* ✅ NO bloquear scroll/click */}
         <div className="absolute inset-0 bg-brand-pattern opacity-20 pointer-events-none" />
         <div className="relative z-10">
           <TargetAudienceSection />
         </div>
       </div>
-      
-<div className="bg-combo-green-gray-light relative overflow-x-visible">
-  <div className="absolute inset-0 bg-brand-pattern opacity-15 pointer-events-none" />
-  <div className="relative z-10">
-    <PricingByEmployeesSection />
-  </div>
-</div>
+
+      <PricingViewTracker section="pricing_by_employees">
+        <div className="bg-combo-green-gray-light relative overflow-x-visible">
+          <div className="absolute inset-0 bg-brand-pattern opacity-15 pointer-events-none" />
+          <div className="relative z-10">
+            <PricingByEmployeesSection />
+          </div>
+        </div>
+      </PricingViewTracker>
 
       <div className="bg-white relative">
-        {/* ✅ NO bloquear scroll/click */}
         <div className="absolute inset-0 bg-brand-pattern opacity-10 pointer-events-none" />
         <div className="relative z-10">
           <SupportersSection />

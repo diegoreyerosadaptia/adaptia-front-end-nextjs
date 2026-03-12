@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import { supabase } from "@/lib/supabase/client"
 import { addCouponAnalysisAction } from "@/actions/cupones/add-coupon.action"
 import { createPreferenceAction } from "@/actions/payments/create-preference.action"
+import { getGaClientId } from "@/lib/ga"
 
 const PRICE_BY_EMPLOYEE_RANGE: Record<string, number> = {
   "1-9": 200,
@@ -109,9 +110,12 @@ export function PaymentDrawer({
         return
       }
 
+      const gaClientId = await getGaClientId(process.env.NEXT_PUBLIC_GA_ID!)
+
       const paymentResponse = await createPreferenceAction({
         userId: user.id,
         organizationId: organization.id,
+        gaClientId: gaClientId ?? undefined,
       })
 
       if (paymentResponse?.success && paymentResponse.url) {

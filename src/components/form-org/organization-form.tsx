@@ -28,6 +28,8 @@ import {
 import { CountrySelect } from "./select-country"
 import { toast } from "sonner"
 import { IndustrySelect } from "./Industry-select"
+import { PagoClickButton } from "../tracking/pago-click-button"
+import { getGaClientId } from "@/lib/ga"
 
 /* =========================================
    ✅ Popup (Portal) que sigue el scroll
@@ -271,9 +273,12 @@ export default function OrganizationForm({
         return
       }
 
+      const gaClientId = await getGaClientId(process.env.NEXT_PUBLIC_GA_ID!)
+
       const paymentResponse = await createPreferenceAction({
         userId: user.id,
         organizationId: result.orgId || "",
+        gaClientId: gaClientId ?? undefined,
       })
 
       if (paymentResponse?.success && paymentResponse.url) {
@@ -595,14 +600,15 @@ export default function OrganizationForm({
         </div>
 
         <div className="pt-6 border-t-2 border-gray-200">
-          <Button
-            type="submit"
-            size="lg"
-            disabled={isPending}
-            className="w-full bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
-          >
-            {isPending ? "Procesando..." : "Continuar al pago"}
-          </Button>
+        <PagoClickButton
+          type="submit"
+          size="lg"
+          disabled={isPending}
+          section="organization_form"
+          className="w-full bg-adaptia-blue-primary hover:bg-adaptia-blue-primary/90 h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+        >
+          {isPending ? "Procesando..." : "Continuar al pago"}
+        </PagoClickButton>
         </div>
       </form>
     </div>
