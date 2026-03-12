@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { MessageCircle } from "lucide-react"
 import { Toaster as SonnerToaster } from "@/components/ui/sonner"
 import { GaPageView } from "@/components/ga-page-view"
+import { Suspense } from "react"
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -43,7 +44,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               `}
             </Script>
 
-            <GaPageView gaId={GA_ID} />
+            <Suspense fallback={null}>
+              <GaPageView gaId={GA_ID} />
+            </Suspense>
           </>
         ) : null}
 
