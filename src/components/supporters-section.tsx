@@ -2,28 +2,35 @@ import Image from "next/image"
 
 export function SupportersSection() {
   return (
-    <section className="py-20">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-4xl font-bold text-primary mb-12">Nos apoyan</h2>
-        <div className="flex items-center justify-center gap-12 md:gap-16">
-          <div className="flex-shrink-0">
+    <section className="p-20">
+      <div className="max-w-xs mx-auto px-4">
+        <div className="flex flex-col items-center gap-40">
+
+          {/* CORFO — rotado 90° para que el texto quede en vertical */}
+          <div style={{ transform: "rotate(-90deg)", transformOrigin: "center" }}>
             <Image
-              src="/corfo-logo.png"
+              src="/logo_corfo2024_proyecto_apoyado_azul.jpg"
               alt="CORFO"
-              width={350}
-              height={220}
-              className="h-35 w-auto opacity-80 hover:opacity-100 transition-opacity duration-200"
+              width={150}
+              height={66}
+              className="w-auto duration-200"
             />
           </div>
-          <div className="flex-shrink-0">
+
+          {/* UDD Ventures */}
+          <div style={{ transform: "rotate(-90deg)", transformOrigin: "center" }} className="flex flex-col items-center">
+            <p className="pb-0 text-xs font-medium text-black tracking-wide uppercase">
+              Acompañados por
+            </p>
             <Image
               src="/udd-ventures-logo.webp"
               alt="UDD Ventures"
-              width={180}
-              height={50}
-              className="h-25 w-auto opacity-80 hover:opacity-100 transition-opacity duration-200"
+              width={100}
+              height={40}
+              className="w-auto p-0 duration-200"
             />
           </div>
+
         </div>
       </div>
     </section>

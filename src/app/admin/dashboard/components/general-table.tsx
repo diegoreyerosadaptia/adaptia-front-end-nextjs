@@ -85,6 +85,36 @@ const buildExportRow = (org: any) => {
   const createdAt =
     org.createdAt ? new Date(org.createdAt).toLocaleDateString("es-AR") : ""
 
+  const statusMap: Record<string, string> = {
+    COMPLETED: "Completado",
+    PENDING: "Pendiente",
+    FAILED: "Fallido",
+    PROCESSING: "Procesando",
+    INCOMPLETE: "Incompleto",
+  }
+
+  const paymentMap: Record<string, string> = {
+    COMPLETED: "Pagado",
+    PENDING: "Pendiente",
+  }
+
+  const analysisStatuses = (org.analysis ?? [])
+    .map((a: any) => statusMap[a.status] ?? a.status)
+    .join(" / ")
+
+  const paymentStatuses = (org.analysis ?? [])
+    .map((a: any) => paymentMap[a.payment_status] ?? a.payment_status ?? "—")
+    .join(" / ")
+
+  const discounts = (org.analysis ?? [])
+    .map((a: any) => {
+      const pct = a.discount_percentage ? Number(a.discount_percentage) : 0
+      if (pct <= 0) return "Sin descuento"
+      const coupon = a.coupon?.name ? ` (${a.coupon.name})` : ""
+      return `${pct}%${coupon}`
+    })
+    .join(" / ")
+
   return {
     Nombre: org.name ?? "",
     Apellido: org.lastName ?? "",
@@ -98,6 +128,9 @@ const buildExportRow = (org: any) => {
     Website: website,
     Documento: document,
     FechaCreacion: createdAt,
+    EstadoAnalisis: analysisStatuses || "Sin análisis",
+    Pago: paymentStatuses || "—",
+    Descuento: discounts || "—",
   }
 }
 
@@ -268,6 +301,26 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
     const rows = filteredOrgs.map(buildExportRow) // exporta TODO lo filtrado, no solo la página
     const wb = XLSX.utils.book_new()
     const ws = XLSX.utils.json_to_sheet(rows)
+
+    // Ancho de columnas (wch = caracteres de ancho)
+    ws["!cols"] = [
+      { wch: 20 }, // Nombre
+      { wch: 20 }, // Apellido
+      { wch: 35 }, // Email
+      { wch: 30 }, // Empresa
+      { wch: 18 }, // Pais
+      { wch: 25 }, // Cargo
+      { wch: 25 }, // Industria
+      { wch: 12 }, // Empleados
+      { wch: 18 }, // Telefono
+      { wch: 40 }, // Website
+      { wch: 40 }, // Documento
+      { wch: 16 }, // FechaCreacion
+      { wch: 28 }, // EstadoAnalisis
+      { wch: 18 }, // Pago
+      { wch: 35 }, // Descuento
+    ]
+
     XLSX.utils.book_append_sheet(wb, ws, "Organizaciones")
     XLSX.writeFile(wb, "organizaciones_adaptia.xlsx")
   }

@@ -113,10 +113,15 @@ export default function UpdateOrganizationForm({
       website: organization.website ?? "",
       document: organization.document ?? "",
       ownerId: organization.owner_id ?? "",
+      supportingInfo: organization.supportingInfo ?? "",
+
     },
   })
 
   const documentUrl = form.watch("document")
+  const supportingInfoValue = form.watch("supportingInfo") ?? ""
+  const textareaClass =
+    "w-full border-2 border-adaptia-green-primary/70 rounded-lg px-4 py-3 text-base focus:border-adaptia-blue-primary focus:ring-0 focus-visible:ring-0 transition-colors resize-y min-h-[180px] leading-relaxed"
 
   useEffect(() => {
     const fetchAuth = async () => {
@@ -470,6 +475,22 @@ export default function UpdateOrganizationForm({
               </button>
             </div>
           )}
+        </div>
+
+        <div className="space-y-2 mt-6">
+          <Label htmlFor="supportingInfo" className="text-sm font-semibold text-gray-700">
+            Información de Apoyo
+          </Label>
+
+          <p className="text-sm text-gray-500 leading-relaxed">
+            Si lo deseas, puedes compartir aquí cualquier contexto adicional que consideres importante para tu análisis,
+            como certificaciones existentes, compromisos en sostenibilidad, riesgos clave del negocio o iniciativas ya
+            en marcha. Este campo es opcional y nos ayuda a entender mejor el contexto de sostenibilidad de tu organización.
+          </p>
+
+          <p className="text-xs text-gray-400 text-right">{supportingInfoValue.length}/10000</p>
+
+          <textarea id="supportingInfo" {...form.register("supportingInfo")} className={textareaClass} />
         </div>
       </div>
 

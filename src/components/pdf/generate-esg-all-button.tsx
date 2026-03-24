@@ -1200,12 +1200,22 @@ function drawOdsPage(opts: {
   logo: any
   headerInfo: { orgName?: string; orgInd?: string; orgCountry?: string; orgCreation?: string }
   parteC: ParteCItem[]
+  hiddenCols?: Record<string, boolean>
 }) {
-  const { pdfDoc, font, boldFont, logo, headerInfo, parteC } = opts
+  const { pdfDoc, font, boldFont, logo, headerInfo, parteC, hiddenCols = {} } = opts
 
-  const headers = ["Tema", "ODS", "Meta ODS", "Indicador ODS"]
-  const columnWidths = [150, 80, 150, 135]
-  const rows: (string | number)[][] = parteC.map((r) => [r.tema ?? "", r.ods ?? "", r.meta_ods ?? "", r.indicador_ods ?? ""])
+  const allCols: { header: string; key: keyof ParteCItem; width: number }[] = [
+    { header: "Tema",          key: "tema",          width: 150 },
+    { header: "ODS",           key: "ods",           width: 80  },
+    { header: "Meta ODS",      key: "meta_ods",      width: 150 },
+    { header: "Indicador ODS", key: "indicador_ods", width: 135 },
+  ]
+
+  const visibleCols = allCols.filter((c) => !hiddenCols[c.key])
+
+  const headers = visibleCols.map((c) => c.header)
+  const columnWidths = visibleCols.map((c) => c.width)
+  const rows: (string | number)[][] = parteC.map((r) => visibleCols.map((c) => r[c.key] ?? ""))
 
   drawTableWithWrapping({
     pdfDoc,
@@ -1487,9 +1497,10 @@ export function GenerateEsgPdfButtonAll({
       drawGriPage({ pdfDoc, font, boldFont, logo, headerInfo: HEADER_INFO, temasPrioritarios: temas, griData })
 
       // 8) ODS
-      const parteC: ParteCItem[] =
-        analysisData?.find((p: any) => p?.name?.includes("Prompt 6"))?.response_content?.materiality_table || []
-      drawOdsPage({ pdfDoc, font, boldFont, logo, headerInfo: HEADER_INFO, parteC })
+      const odsSection = analysisData?.find((p: any) => p?.name?.includes("Prompt 6") || p?.name?.includes("ODS"))
+      const parteC: ParteCItem[] = odsSection?.response_content?.materiality_table || []
+      const odsHiddenCols: Record<string, boolean> = odsSection?.response_content?.table_settings?.hiddenCols ?? {}
+      drawOdsPage({ pdfDoc, font, boldFont, logo, headerInfo: HEADER_INFO, parteC, hiddenCols: odsHiddenCols })
 
       // 9) Regulaciones
       const regulacionesData: RegulacionItem[] =
