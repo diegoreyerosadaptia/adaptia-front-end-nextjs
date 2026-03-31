@@ -3,23 +3,23 @@ import Image from "next/image"
 export function SupportersSection() {
   return (
     <section className="p-20">
-      <div className="max-w-xs mx-auto px-4">
-        <div className="flex flex-col items-center gap-40">
-
-          {/* CORFO — rotado 90° para que el texto quede en vertical */}
-          <div style={{ transform: "rotate(-90deg)", transformOrigin: "center" }}>
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="flex flex-row items-center justify-center gap-16 flex-wrap">
+          
+          {/* CORFO */}
+          <div className="flex items-center justify-center">
             <Image
               src="/logo_corfo2024_proyecto_apoyado_azul.jpg"
               alt="CORFO"
               width={150}
               height={66}
-              className="w-auto duration-200"
+              className="w-auto h-auto duration-200"
             />
           </div>
 
           {/* UDD Ventures */}
-          <div style={{ transform: "rotate(-90deg)", transformOrigin: "center" }} className="flex flex-col items-center">
-            <p className="pb-0 text-xs font-medium text-black tracking-wide uppercase">
+          <div className="flex flex-col items-center justify-center">
+            <p className="mb-2 text-lg font-semibold text-black tracking-wide uppercase">
               Acompañados por
             </p>
             <Image
@@ -27,7 +27,7 @@ export function SupportersSection() {
               alt="UDD Ventures"
               width={100}
               height={40}
-              className="w-auto p-0 duration-200"
+              className="w-auto h-auto duration-200"
             />
           </div>
 
