@@ -28,6 +28,7 @@ export default function RetryEsgButton({ org, label }: { org: any; label: string
         organizationId: org.id,
         industry: org.industry,
         document: org.document,
+        supportingInfo: org.supportingInfo
       }
 
       const res = await createEsg(dto, token)
