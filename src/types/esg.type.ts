@@ -7,4 +7,5 @@ export type Esg = {
     organizationId?: string
     industry: string
     document?: string
+    supportingInfo?: string
 }

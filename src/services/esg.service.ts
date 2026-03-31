@@ -10,6 +10,7 @@ const getJsonHeaders = (authToken?: string) => ({
 // ✅ recibe un objeto con los datos de tipo Esg
 export const createEsg = async (data: Esg, authToken?: string) => {
   try {
+    console.log("DATA", data)
     const response = await fetch(`${BASE_URL}/esg-jobs`, {
       method: "POST", // 👈 importante
       headers: getJsonHeaders(authToken),
