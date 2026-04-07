@@ -40,7 +40,7 @@ export function ResetForm() {
       const errMsg =
         typeof result?.error === "string"
           ? result.error
-          : result?.error?.message
+          : result?.error
   
       const okMsg =
         typeof result?.success === "string"

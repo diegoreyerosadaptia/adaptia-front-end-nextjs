@@ -490,7 +490,7 @@ export default function UpdateOrganizationForm({
 
           <p className="text-xs text-gray-400 text-right">{supportingInfoValue.length}/10000</p>
 
-          <textarea id="supportingInfo" {...form.register("supportingInfo")} className={textareaClass} />
+          <textarea id="supportingInfo" {...form.register("supportingInfo")} defaultValue={organization.supportingInfo ?? ""} className={textareaClass} />
         </div>
       </div>
 

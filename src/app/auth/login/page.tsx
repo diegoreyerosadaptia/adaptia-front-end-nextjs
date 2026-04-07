@@ -15,11 +15,12 @@ import { Button } from "@/components/ui/button"
 
 import { loginSchema, type LoginSchemaType } from "@/schemas/auth/login.schema"
 import { loginUser } from "@/services/auth.service"
-import { supabase } from "@/lib/supabase/client"
+import { createClient } from "@/lib/supabase/client"
 import { LoginSubmitButton } from "@/components/tracking/login-submit-button"
 import { trackLoginSuccess } from "@/components/tracking/login-events"
 
 export default function LoginPage() {
+  const supabase = createClient()
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [showPassword, setShowPassword] = useState(false)

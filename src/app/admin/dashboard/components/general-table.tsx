@@ -567,6 +567,25 @@ export default function GeneralTable({ organizations = [], token }: DashboardTab
                                   </HoverCard>
                                 )}
 
+                                {org.supportingInfo && (
+                                  <HoverCard>
+                                    <HoverCardTrigger asChild>
+                                      <button className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700">
+                                        <FileText className="h-3 w-3" />
+                                        <span className="underline decoration-dashed">Info de apoyo</span>
+                                      </button>
+                                    </HoverCardTrigger>
+                                    <HoverCardContent className="w-96">
+                                      <div className="space-y-2">
+                                        <h4 className="text-sm font-semibold">Información de Apoyo</h4>
+                                        <p className="text-xs text-gray-600 whitespace-pre-wrap max-h-60 overflow-y-auto">
+                                          {org.supportingInfo}
+                                        </p>
+                                      </div>
+                                    </HoverCardContent>
+                                  </HoverCard>
+                                )}
+
                                 <div className="text-gray-400 mt-1">Creado: {createdAtLabel}</div>
                               </div>
                             </div>

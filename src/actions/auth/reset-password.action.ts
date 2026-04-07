@@ -14,46 +14,24 @@ export async function resetPasswordAction(values: ResetPasswordSchemaType) {
       return { error: "Email no válido" };
     }
 
-    const { email } = validatedForm.data;
+    const emailNormalized = validatedForm.data.email.trim().toLowerCase();
 
     const supabase = await createClient();
-    if (!supabase) {
-      return { error: { message: "Supabase no configurado" } };
-    }
 
-    // ✅ 1) Chequeo de usuario en tu tabla local
-    const { data: existingUser, error: userErr } = await supabase
-      .from("users")
-      .select("id, email")
-      .eq("email", email)
-      .maybeSingle();
-
-    if (userErr) {
-      console.error("Error buscando usuario local:", userErr);
-      return { error: "Error al verificar el usuario" };
-    }
-
-    if (!existingUser) {
-      return { error: "No se encontró un usuario con ese email" };
-    }
-
-    // ✅ 2) Envío email Supabase
     const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
-
     const redirectTo = `${base}/auth/new-password`;
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(emailNormalized, {
       redirectTo,
     });
 
-
     if (error) {
       console.error("Supabase resetPasswordForEmail error:", error);
-      return { error: "Error al enviar el email de recuperación" };
+      return { error: "Error al procesar la solicitud" };
     }
 
     return {
-      success: "Email de recuperación enviado. Revisa tu bandeja de entrada.",
+      success: "Te enviamos un enlace de recuperación.",
     };
   } catch (error) {
     console.error("Error al resetear la contraseña:", error);
