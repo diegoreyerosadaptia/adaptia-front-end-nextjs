@@ -149,18 +149,24 @@ function PhaseHeader({
 function Prompt11View({ data }: { data: Prompt11Data }) {
   const boxClass = "p-6 rounded-lg border border-[#163F6A]/20 bg-white shadow-sm"
   const labelClass = "text-sm font-semibold text-[#C2DA62] uppercase tracking-wide mb-2"
-  const bodyClass = "text-base text-[#163F6A] leading-relaxed"
+  const bodyClass = "text-sm text-[#163F6A] leading-relaxed"
   const phaseSubClass = "text-sm text-[#163F6A]/60 mb-4 ml-5"
+
+  const phaseTextColor = {
+    emerald: "text-emerald-800",
+    blue: "text-blue-800",
+    purple: "text-purple-800",
+  }
 
   let actionIndex = 1
 
-  const renderAcciones = (items: Accion[]) =>
+  const renderAcciones = (items: Accion[], color: "emerald" | "blue" | "purple") =>
     items.map((item) => {
       const n = actionIndex++
       return (
         <div key={n} className="p-4 rounded-lg border border-[#163F6A]/10 bg-[#F8FAFD]">
-          <p className="text-sm font-bold text-[#163F6A] mb-1">Acción {n}</p>
-          <p className="text-sm text-[#163F6A]/70 mb-0.5">
+          <p className={`text-sm font-bold mb-1 ${phaseTextColor[color]}`}>Acción {n}</p>
+          <p className="text-sm text-[#163F6A] mb-0.5">
             <span className="font-semibold">Tema material al que contribuye:</span>{" "}
             {item.tema}
           </p>
@@ -178,7 +184,7 @@ function Prompt11View({ data }: { data: Prompt11Data }) {
       <div className={boxClass}>
         <SectionHeader title="Enfoque Estratégico" />
 
-        <p className="text-base font-semibold text-[#163F6A] mb-1">
+        <p className="text-sm font-semibold text-[#163F6A] mb-1">
           ¿Dónde enfocar tus esfuerzos de sostenibilidad?
         </p>
         <p className="text-sm text-[#163F6A]/70 mb-6">
@@ -215,14 +221,14 @@ function Prompt11View({ data }: { data: Prompt11Data }) {
         <div className="mb-8">
           <PhaseHeader label="Primeros pasos" period="0–3 meses" color="emerald" />
           <p className={phaseSubClass}>Empezar de forma rápida, enfocada y viable.</p>
-          <div className="space-y-3">{renderAcciones(data.primeros_pasos)}</div>
+          <div className="space-y-3">{renderAcciones(data.primeros_pasos, "emerald")}</div>
         </div>
 
         {/* Fortalecimiento */}
         <div className="mb-8">
           <PhaseHeader label="Fortalecimiento" period="3–12 meses" color="blue" />
           <p className={phaseSubClass}>Dar estructura y mayor formalidad a las acciones iniciales.</p>
-          <div className="space-y-3">{renderAcciones(data.fortalecimiento)}</div>
+          <div className="space-y-3">{renderAcciones(data.fortalecimiento, "blue")}</div>
         </div>
 
         {/* Consolidación */}
@@ -231,7 +237,7 @@ function Prompt11View({ data }: { data: Prompt11Data }) {
           <p className={phaseSubClass}>
             Integrar la sostenibilidad de forma más estratégica en la operación y el modelo de negocio.
           </p>
-          <div className="space-y-3">{renderAcciones(data.consolidacion)}</div>
+          <div className="space-y-3">{renderAcciones(data.consolidacion, "purple")}</div>
         </div>
       </div>
     </div>
