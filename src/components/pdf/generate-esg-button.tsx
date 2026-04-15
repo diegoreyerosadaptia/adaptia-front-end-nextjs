@@ -31,11 +31,15 @@ interface MaterialityInput {
   materialidad_financiera?: string // ✅ por si te llega así desde la tabla
 }
 
-type ResumenType = {
-  parrafo_1: string
-  parrafo_2?: string
-  parrafo_3?: string
-}
+type ResumenType =
+  | { parrafo_1: string; parrafo_2?: string; parrafo_3?: string }
+  | {
+      temas_prioritarios: string[]
+      lectura_estrategica: string
+      primeros_pasos: { tema: string; descripcion: string }[]
+      fortalecimiento: { tema: string; descripcion: string }[]
+      consolidacion: { tema: string; descripcion: string }[]
+    }
 
 interface GenerateEsgPdfButtonProps {
   contexto: ContextoType

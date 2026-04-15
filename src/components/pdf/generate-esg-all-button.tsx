@@ -60,14 +60,22 @@ type ParteCItem = {
 
 type RegulacionItem = {
   tipo_regulacion: string
-  descripcion: string
+  descripcion_corta: string
   vigencia: string
 }
 
-type ResumenData = {
-  parrafo_1: string
-  parrafo_2?: string
-  parrafo_3?: string
+type ResumenData =
+  | { parrafo_1: string; parrafo_2?: string; parrafo_3?: string }
+  | {
+      temas_prioritarios: string[]
+      lectura_estrategica: string
+      primeros_pasos: { tema: string; descripcion: string }[]
+      fortalecimiento: { tema: string; descripcion: string }[]
+      consolidacion: { tema: string; descripcion: string }[]
+    }
+
+function isPrompt11Resumen(r: ResumenData): r is Extract<ResumenData, { temas_prioritarios: string[] }> {
+  return Array.isArray((r as any)?.temas_prioritarios)
 }
 
 type GriContenido = {
@@ -1242,7 +1250,7 @@ function drawRegulacionesPage(opts: {
 
   const headers = ["Tipo regulación", "Descripción", "Vigencia"]
   const columnWidths = [120, 290, 105]
-  const rows = regulaciones.map((r) => [r.tipo_regulacion, r.descripcion, r.vigencia])
+  const rows = regulaciones.map((r) => [r.tipo_regulacion, r.descripcion_corta, r.vigencia])
 
   drawTableWithWrapping({
     pdfDoc,
@@ -1384,9 +1392,110 @@ function drawResumenPage(opts: {
     drawBlocks(blocks)
   }
 
-  if (resumen.parrafo_1?.trim()) drawOne(resumen.parrafo_1)
-  if (resumen.parrafo_2?.trim()) drawOne(resumen.parrafo_2)
-  if (resumen.parrafo_3?.trim()) drawOne(resumen.parrafo_3)
+  if (isPrompt11Resumen(resumen)) {
+    // ── Prompt 11: new structured format ──
+    const COLOR_LABEL = rgb(97 / 255, 159 / 255, 68 / 255) // #619F44
+    const COLOR_BADGE_BG = rgb(194 / 255, 218 / 255, 98 / 255) // #C2DA62
+    const COLOR_ACCION_BG = rgb(0.96, 0.97, 0.99)
+    const COLOR_ACCION_BORDER = rgb(0.85, 0.88, 0.92)
+
+    const ensureSpace = (needed: number) => {
+      if (y - needed < BOTTOM_MARGIN) {
+        const next = addPageWithHeader({ pdfDoc, font, boldFont, logo, headerInfo, sectionTitle: "Ruta de Sostenibilidad" })
+        page = next.page
+        y = next.contentStartY
+      }
+    }
+
+    const drawSectionLabel = (label: string) => {
+      ensureSpace(40)
+      page.drawText(label, { x: MARGIN_X, y, size: 14, font: boldFont, color: COLOR_SECTION_TITLE })
+      y -= 6
+      page.drawLine({ start: { x: MARGIN_X, y }, end: { x: PAGE_WIDTH - MARGIN_X, y }, thickness: 1.5, color: COLOR_SECTION_TITLE })
+      y -= 16
+    }
+
+    const drawSmallLabel = (label: string) => {
+      ensureSpace(18)
+      page.drawText(label.toUpperCase(), { x: MARGIN_X, y, size: 9, font: boldFont, color: COLOR_LABEL })
+      y -= 14
+    }
+
+    const drawBullet = (text: string) => {
+      const safe = sanitizeText(font, text)
+      const lines = wrapText(font, safe, maxWidth - 16, 11)
+      for (let i = 0; i < lines.length; i++) {
+        ensureSpace(15)
+        page.drawText((i === 0 ? "•  " : "   ") + lines[i], { x: MARGIN_X + 4, y, size: 11, font, color: COLOR_TEXT_PRIMARY })
+        y -= 15
+      }
+      y -= 4
+    }
+
+    const drawBody = (text: string) => {
+      const safe = sanitizeText(font, text)
+      const lines = wrapTextPreserveNewlines(font, safe, maxWidth, 11)
+      const r = drawLinesMultiPage({ pdfDoc, page, font, boldFont, logo, headerInfo, sectionTitle: "Ruta de Sostenibilidad", lines, x: MARGIN_X, y, maxWidth, fontSize: 11, lineHeight: 15 })
+      page = r.page
+      y = r.y - 8
+    }
+
+    const drawPhaseHeader = (label: string, period: string) => {
+      ensureSpace(28)
+      const badgeText = `${label}  |  ${period}`
+      const badgeW = Math.min(boldFont.widthOfTextAtSize(badgeText, 11) + 24, maxWidth)
+      const badgeH = 22
+      page.drawRectangle({ x: MARGIN_X, y: y - badgeH, width: badgeW, height: badgeH, color: COLOR_BADGE_BG })
+      page.drawText(label, { x: MARGIN_X + 10, y: y - 15, size: 11, font: boldFont, color: COLOR_SECTION_TITLE })
+      const lw = boldFont.widthOfTextAtSize(label, 11)
+      page.drawText(`  |  ${period}`, { x: MARGIN_X + 10 + lw, y: y - 15, size: 11, font, color: COLOR_SECTION_TITLE })
+      y -= badgeH + 10
+    }
+
+    let actionIndex = 1
+    const drawAccion = (accion: { tema: string; descripcion: string }) => {
+      const n = actionIndex++
+      const temaLines = wrapText(font, sanitizeText(font, `Tema: ${accion.tema}`), maxWidth - 20, 10)
+      const descLines = wrapText(font, sanitizeText(font, `Descripcion: ${accion.descripcion}`), maxWidth - 20, 10)
+      const lineH = 14
+      const padV = 10
+      const headerH = 20
+      const boxH = headerH + padV + (temaLines.length + descLines.length + 1) * lineH + padV
+      ensureSpace(boxH + 10)
+      page.drawRectangle({ x: MARGIN_X, y: y - boxH, width: maxWidth, height: boxH, color: COLOR_ACCION_BG, borderColor: COLOR_ACCION_BORDER, borderWidth: 1 })
+      page.drawText(`Accion ${n}`, { x: MARGIN_X + 10, y: y - 15, size: 10, font: boldFont, color: COLOR_TEXT_PRIMARY })
+      let ty = y - headerH - padV
+      for (const line of temaLines) { page.drawText(line, { x: MARGIN_X + 10, y: ty, size: 10, font, color: COLOR_TEXT_PRIMARY }); ty -= lineH }
+      ty -= 4
+      for (const line of descLines) { page.drawText(line, { x: MARGIN_X + 10, y: ty, size: 10, font, color: COLOR_TEXT_PRIMARY }); ty -= lineH }
+      y -= boxH + 10
+    }
+
+    drawSectionLabel("Enfoque Estrategico")
+    drawSmallLabel("Temas prioritarios")
+    for (const tema of resumen.temas_prioritarios) drawBullet(tema)
+    y -= 4
+    drawSmallLabel("Lectura estrategica del analisis")
+    drawBody(resumen.lectura_estrategica)
+
+    y -= 8
+    drawSectionLabel("Plan de Accion")
+
+    drawPhaseHeader("Primeros pasos", "0-3 meses")
+    for (const a of resumen.primeros_pasos) drawAccion(a)
+    y -= 6
+
+    drawPhaseHeader("Fortalecimiento", "3-12 meses")
+    for (const a of resumen.fortalecimiento) drawAccion(a)
+    y -= 6
+
+    drawPhaseHeader("Consolidacion", "12+ meses")
+    for (const a of resumen.consolidacion) drawAccion(a)
+  } else {
+    if (resumen.parrafo_1?.trim()) drawOne(resumen.parrafo_1)
+    if (resumen.parrafo_2?.trim()) drawOne(resumen.parrafo_2)
+    if (resumen.parrafo_3?.trim()) drawOne(resumen.parrafo_3)
+  }
 }
 
 // ==============================
@@ -1509,7 +1618,9 @@ export function GenerateEsgPdfButtonAll({
 
       // 10) Resumen
       const resumenData: ResumenData =
-        analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || { parrafo_1: "" }
+        analysisData?.find((a: any) => a?.response_content?.temas_prioritarios)?.response_content ||
+        analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content ||
+        { parrafo_1: "" }
       drawResumenPage({ pdfDoc, font, boldFont, logo, headerInfo: HEADER_INFO, resumen: resumenData })
 
       // 11) Contraportada

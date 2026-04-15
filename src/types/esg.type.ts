@@ -8,4 +8,5 @@ export type Esg = {
     industry: string
     document?: string
     supportingInfo?: string
+    employees_number?: string;
 }

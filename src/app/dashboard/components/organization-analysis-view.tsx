@@ -284,7 +284,10 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
       }
 
       case "resumen": {
-        const resumenData = analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
+        const resumenData =
+        analysisData?.find((a: any) => a?.response_content?.temas_prioritarios)?.response_content ||
+        analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content ||
+        {}
 
         return (
           <section id="resumen-section">
@@ -304,7 +307,10 @@ export default function OrganizationAnalysisView({ organization, token, role }: 
     }
   }
 
-  const resumenData = analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content || {}
+  const resumenData =
+        analysisData?.find((a: any) => a?.response_content?.temas_prioritarios)?.response_content ||
+        analysisData?.find((a: any) => a?.response_content?.parrafo_1)?.response_content ||
+        {}
   const contextoData = analysisData?.find((a: any) => a?.response_content?.nombre_empresa)?.response_content || {}
 
   const parteB = [...(analysisData[3]?.response_content?.materiality_table || [])]

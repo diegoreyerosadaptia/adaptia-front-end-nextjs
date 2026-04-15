@@ -5,15 +5,31 @@ import { AnalysisActionsMenu } from "./analysis-actions-menu"
 import { updateAnalysisJsonAction } from "@/actions/analysis/update-analysis-json.action"
 import { toast } from "sonner"
 
+// ─── tipos ───────────────────────────────────────────────
 type ResumenData = {
   parrafo_1: string
   parrafo_2?: string
   parrafo_3?: string
 }
 
-/** =========================
- *  Subtítulos esperados
- *  ========================= */
+type Accion = {
+  tema: string
+  descripcion: string
+}
+
+type Prompt11Data = {
+  temas_prioritarios: string[]
+  lectura_estrategica: string
+  primeros_pasos: Accion[]
+  fortalecimiento: Accion[]
+  consolidacion: Accion[]
+}
+
+function isPrompt11(data: any): data is Prompt11Data {
+  return Array.isArray((data as any)?.temas_prioritarios)
+}
+
+// ─── helpers formato antiguo ──────────────────────────────
 const SUBTITLES = [
   "1. Análisis crítico breve:",
   "2.1 Marco general de la ruta de sostenibilidad:",
@@ -31,18 +47,12 @@ function escapeRegExp(s: string) {
 
 function formatSubtitles(text: string) {
   if (!text) return text
-
   let out = text.trim()
-
   for (const s of SUBTITLES) {
-    // asegura salto antes del subtítulo
     out = out.replaceAll(s, `\n\n${s}`)
-
-    // asegura salto después de ":" si venía texto pegado
     const escaped = escapeRegExp(s)
     out = out.replace(new RegExp(`${escaped}\\s+`, "g"), `${s}\n`)
   }
-
   out = out.replace(/^\n+/, "").trim()
   out = out.replace(/\n{3,}/g, "\n\n")
   return out
@@ -52,22 +62,14 @@ function joinResumen(resumen: ResumenData) {
   const p1 = formatSubtitles(resumen.parrafo_1)
   const p2 = resumen.parrafo_2 ? formatSubtitles(resumen.parrafo_2) : ""
   const p3 = resumen.parrafo_3 ? formatSubtitles(resumen.parrafo_3) : ""
-
-  return [p1, p2, p3]
-    .filter((v) => typeof v === "string" && v.trim().length > 0)
-    .join("\n\n")
+  return [p1, p2, p3].filter((v) => typeof v === "string" && v.trim().length > 0).join("\n\n")
 }
 
 function splitResumen(text: string): ResumenData {
-  const parts = text
-    .split(/\n\s*\n/g)
-    .map((p) => p.trim())
-    .filter(Boolean)
-
+  const parts = text.split(/\n\s*\n/g).map((p) => p.trim()).filter(Boolean)
   const p1 = parts[0] ?? ""
   const p2 = parts[1] ?? ""
   const p3 = parts.slice(2).join("\n\n") ?? ""
-
   return {
     parrafo_1: p1,
     ...(p2 ? { parrafo_2: p2 } : {}),
@@ -75,49 +77,168 @@ function splitResumen(text: string): ResumenData {
   }
 }
 
-/** =========================
- *  Parser: convierte el texto (ya formateado) en secciones:
- *  [{ title, body }]
- *  ========================= */
 function parseSections(fullText: string): Array<{ title: string; body: string }> {
   const text = (fullText ?? "").trim()
   if (!text) return []
-
-  // armamos un regex con todos los subtítulos
   const titles = [...SUBTITLES]
   const pattern = `(${titles.map(escapeRegExp).join("|")})`
   const re = new RegExp(pattern, "g")
-
   const matches: Array<{ title: string; index: number }> = []
   let m: RegExpExecArray | null
-
-  while ((m = re.exec(text)) !== null) {
-    matches.push({ title: m[1], index: m.index })
-  }
-
-  // si no hay títulos conocidos, devolvemos 1 sola sección “Resumen”
-  if (matches.length === 0) {
-    return [{ title: "Resumen", body: text }]
-  }
-
+  while ((m = re.exec(text)) !== null) matches.push({ title: m[1], index: m.index })
+  if (matches.length === 0) return [{ title: "Resumen", body: text }]
   const sections: Array<{ title: string; body: string }> = []
-
   for (let i = 0; i < matches.length; i++) {
     const start = matches[i].index
     const end = i + 1 < matches.length ? matches[i + 1].index : text.length
-
     const chunk = text.slice(start, end).trim()
     const title = matches[i].title
-
-    // body = todo lo que sigue al título
     const body = chunk.slice(title.length).trim().replace(/^\n+/, "").trim()
-
     sections.push({ title, body })
   }
-
   return sections
 }
 
+// ─── sub-componente: vista Prompt 11 ─────────────────────
+function SectionHeader({ title }: { title: string }) {
+  return (
+    <div className="flex items-center gap-3 mb-5 pb-3 border-b-2 border-[#163F6A]/15">
+      <h3 className="text-xl font-heading font-bold text-[#163F6A] tracking-tight">{title}</h3>
+    </div>
+  )
+}
+
+function PhaseHeader({
+  label,
+  period,
+  color,
+}: {
+  label: string
+  period: string
+  color: "emerald" | "blue" | "purple"
+}) {
+  const styles = {
+    emerald: {
+      badge: "bg-emerald-100 text-emerald-800 border-emerald-200",
+      period: "text-emerald-700",
+      bar: "bg-emerald-400",
+    },
+    blue: {
+      badge: "bg-blue-100 text-blue-800 border-blue-200",
+      period: "text-blue-700",
+      bar: "bg-blue-400",
+    },
+    purple: {
+      badge: "bg-purple-100 text-purple-800 border-purple-200",
+      period: "text-purple-700",
+      bar: "bg-purple-400",
+    },
+  }[color]
+
+  return (
+    <div className="flex items-center gap-3 mb-2">
+      <span className={`h-5 w-1.5 rounded-full ${styles.bar}`} />
+      <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-base font-bold border ${styles.badge}`}>
+        {label}
+      </span>
+      <span className={`text-sm font-semibold ${styles.period}`}>{period}</span>
+    </div>
+  )
+}
+
+function Prompt11View({ data }: { data: Prompt11Data }) {
+  const boxClass = "p-6 rounded-lg border border-[#163F6A]/20 bg-white shadow-sm"
+  const labelClass = "text-sm font-semibold text-[#C2DA62] uppercase tracking-wide mb-2"
+  const bodyClass = "text-base text-[#163F6A] leading-relaxed"
+  const phaseSubClass = "text-sm text-[#163F6A]/60 mb-4 ml-5"
+
+  let actionIndex = 1
+
+  const renderAcciones = (items: Accion[]) =>
+    items.map((item) => {
+      const n = actionIndex++
+      return (
+        <div key={n} className="p-4 rounded-lg border border-[#163F6A]/10 bg-[#F8FAFD]">
+          <p className="text-sm font-bold text-[#163F6A] mb-1">Acción {n}</p>
+          <p className="text-sm text-[#163F6A]/70 mb-0.5">
+            <span className="font-semibold">Tema material al que contribuye:</span>{" "}
+            {item.tema}
+          </p>
+          <p className="text-sm text-[#163F6A]">
+            <span className="font-semibold">Descripción:</span>{" "}
+            {item.descripcion}
+          </p>
+        </div>
+      )
+    })
+
+  return (
+    <div className="space-y-6">
+      {/* ── ENFOQUE ESTRATÉGICO ── */}
+      <div className={boxClass}>
+        <SectionHeader title="Enfoque Estratégico" />
+
+        <p className="text-base font-semibold text-[#163F6A] mb-1">
+          ¿Dónde enfocar tus esfuerzos de sostenibilidad?
+        </p>
+        <p className="text-sm text-[#163F6A]/70 mb-6">
+          Te recomendamos priorizar los temas más críticos para tu operación —especialmente
+          aquellos con alta exposición regulatoria, impacto directo en clientes y relevancia
+          reputacional— avanzando de forma progresiva y estructurada.
+        </p>
+
+        {/* Temas prioritarios */}
+        <div className="mb-6">
+          <p className={labelClass}>Temas prioritarios</p>
+          <ul className="space-y-2">
+            {data.temas_prioritarios.map((tema, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#C2DA62]" />
+                <span className={bodyClass}>{tema}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Lectura estratégica */}
+        <div>
+          <p className={labelClass}>Lectura estratégica del análisis</p>
+          <p className={bodyClass}>{data.lectura_estrategica}</p>
+        </div>
+      </div>
+
+      {/* ── PLAN DE ACCIÓN ── */}
+      <div className={boxClass}>
+        <SectionHeader title="Plan de Acción" />
+
+        {/* Primeros pasos */}
+        <div className="mb-8">
+          <PhaseHeader label="Primeros pasos" period="0–3 meses" color="emerald" />
+          <p className={phaseSubClass}>Empezar de forma rápida, enfocada y viable.</p>
+          <div className="space-y-3">{renderAcciones(data.primeros_pasos)}</div>
+        </div>
+
+        {/* Fortalecimiento */}
+        <div className="mb-8">
+          <PhaseHeader label="Fortalecimiento" period="3–12 meses" color="blue" />
+          <p className={phaseSubClass}>Dar estructura y mayor formalidad a las acciones iniciales.</p>
+          <div className="space-y-3">{renderAcciones(data.fortalecimiento)}</div>
+        </div>
+
+        {/* Consolidación */}
+        <div>
+          <PhaseHeader label="Consolidación" period="12+ meses" color="purple" />
+          <p className={phaseSubClass}>
+            Integrar la sostenibilidad de forma más estratégica en la operación y el modelo de negocio.
+          </p>
+          <div className="space-y-3">{renderAcciones(data.consolidacion)}</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── componente principal ─────────────────────────────────
 export function ResumenEditable({
   resumenOriginal,
   lastAnalysisId,
@@ -125,49 +246,47 @@ export function ResumenEditable({
   accessToken,
   userRole,
 }: {
-  resumenOriginal: ResumenData
+  resumenOriginal: ResumenData | Prompt11Data | Record<string, never>
   lastAnalysisId: string
   analysisData: any
   accessToken: string
   userRole: string
 }) {
+  const isNewFormat = isPrompt11(resumenOriginal)
+
+  // ── estado para formato antiguo ──
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-
-  const [resumenPersisted, setResumenPersisted] = useState<ResumenData>(resumenOriginal)
-  const [resumenText, setResumenText] = useState<string>(() => joinResumen(resumenOriginal))
+  const [resumenPersisted, setResumenPersisted] = useState<ResumenData>(
+    isNewFormat ? { parrafo_1: "" } : (resumenOriginal as ResumenData),
+  )
+  const [resumenText, setResumenText] = useState<string>(() =>
+    isNewFormat ? "" : joinResumen(resumenOriginal as ResumenData),
+  )
 
   useEffect(() => {
-    setResumenPersisted(resumenOriginal)
-    if (!isEditing) setResumenText(joinResumen(resumenOriginal))
-  }, [resumenOriginal, isEditing])
+    if (!isNewFormat) {
+      const d = resumenOriginal as ResumenData
+      setResumenPersisted(d)
+      if (!isEditing) setResumenText(joinResumen(d))
+    }
+  }, [resumenOriginal, isEditing, isNewFormat])
 
   const handleSaveChanges = async () => {
     try {
       setIsSaving(true)
-
       const resumenDataToSave = splitResumen(resumenText)
-
       const newJson = Array.isArray(analysisData) ? [...analysisData] : []
       const resumenSection = newJson.find((a: any) => a?.response_content?.parrafo_1)
-
       if (!resumenSection) {
         toast.error("No se encontró la sección de resumen en el JSON del análisis")
         return
       }
-
       resumenSection.response_content = resumenDataToSave
-
       const res = await updateAnalysisJsonAction(lastAnalysisId, newJson as any, accessToken)
-
-      if (res?.error) {
-        toast.error("Error al guardar los cambios")
-        return
-      }
-
+      if (res?.error) { toast.error("Error al guardar los cambios"); return }
       setResumenPersisted(resumenDataToSave)
       setResumenText(joinResumen(resumenDataToSave))
-
       toast.success("Cambios guardados correctamente")
       setIsEditing(false)
     } catch (error) {
@@ -184,38 +303,32 @@ export function ResumenEditable({
     toast.info("Cambios descartados")
   }
 
-  const hasContent = Boolean(resumenPersisted?.parrafo_1?.trim())
+  const hasContent = isNewFormat
+    ? true
+    : Boolean((resumenOriginal as ResumenData)?.parrafo_1?.trim())
 
-  // ==============================
-  // 🎨 Estilos (igual Contexto)
-  // ==============================
   const boxClass = "p-4 rounded-lg border border-[#163F6A]/20 bg-white shadow-sm"
   const labelClass = "text-sm font-medium mb-2 text-[#C2DA62]"
-
   const textareaClass =
     "w-full border border-gray-300 rounded px-2 py-2 text-base focus:ring-1 focus:ring-[#C2DA62] " +
     "resize-y min-h-[220px] text-[#163F6A] bg-white whitespace-pre-line"
-
   const valueClass = "text-base text-[#163F6A] whitespace-pre-line leading-relaxed"
 
-  // ✅ modo lectura: secciones encasilladas
   const sections = useMemo(() => {
-    if (!hasContent) return []
+    if (isNewFormat || !hasContent) return []
     const full = joinResumen(resumenPersisted)
     return parseSections(full)
-  }, [hasContent, resumenPersisted])
+  }, [hasContent, resumenPersisted, isNewFormat])
 
   return (
     <div className="space-y-6 text-[#163F6A]">
       {/* Header */}
       <div className="space-y-3">
-        {/* fila 1: título + menú */}
         <div className="flex items-start justify-between gap-4">
           <h2 className="text-3xl font-heading font-bold leading-tight">
             Ruta de Sostenibilidad
           </h2>
-
-          {userRole === "ADMIN" && (
+          {userRole === "ADMIN" && !isNewFormat && (
             <AnalysisActionsMenu
               isEditing={isEditing}
               isSaving={isSaving}
@@ -225,14 +338,12 @@ export function ResumenEditable({
             />
           )}
         </div>
-
-        {/* fila 2: descripción */}
-        <p className="">
-          Esta sección presenta una ruta de acciones basada en los 10 temas más relevantes identificados en tu análisis. La información se organiza en tres niveles de acción inicial, moderado y estructural alineados con el contexto real y la madurez actual de tu empresa. Puedes utilizar esta ruta como guía estratégica para decidir qué abordar primero, cómo escalar tus esfuerzos en el tiempo y cómo respaldar tus decisiones ante inversionistas, clientes o aliados.
+        <p>
+Esta sección presenta un plan inicial de acción en sostenibilidad basado en los temas más relevantes identificados en tu análisis de doble materialidad ESG. Las acciones han sido priorizadas y ajustadas al contexto actual de tu empresa, considerando su etapa de desarrollo, nivel de madurez y capacidades operativas. El objetivo no es implementar todo de inmediato, sino comenzar con acciones concretas y viables que te permitan avanzar progresivamente hacia una gestión más estructurada de sostenibilidad.
         </p>
       </div>
 
-
+      {/* Contenido */}
       {!hasContent ? (
         <div className={boxClass}>
           <p className={labelClass}>Resumen</p>
@@ -240,8 +351,9 @@ export function ResumenEditable({
             El resumen ejecutivo completo se generará una vez finalizado el análisis.
           </p>
         </div>
+      ) : isNewFormat ? (
+        <Prompt11View data={resumenOriginal as Prompt11Data} />
       ) : isEditing ? (
-        // ✅ edición: 1 textarea como antes
         <div className={boxClass}>
           <p className={labelClass}>Resumen</p>
           <textarea
@@ -252,12 +364,10 @@ export function ResumenEditable({
           />
         </div>
       ) : (
-        // ✅ lectura: títulos en verde + cada sección encasillada con su contenido
         <div className="space-y-4">
           {sections.map((s, i) => (
             <div key={`${s.title}-${i}`} className={boxClass}>
               <p className={labelClass}>{s.title}</p>
-
               {s.body ? (
                 <div className={valueClass}>{s.body}</div>
               ) : (

@@ -7,6 +7,21 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib"
  * - Números de página solo en páginas de contenido
  * - Chart page con el mismo header y sin pisarlo
  */
+type Accion = { tema: string; descripcion: string }
+type ResumenLegacy = { parrafo_1: string; parrafo_2?: string; parrafo_3?: string }
+type ResumenPrompt11 = {
+  temas_prioritarios: string[]
+  lectura_estrategica: string
+  primeros_pasos: Accion[]
+  fortalecimiento: Accion[]
+  consolidacion: Accion[]
+}
+type ResumenInput = ResumenLegacy | ResumenPrompt11
+
+function isPrompt11(r: ResumenInput): r is ResumenPrompt11 {
+  return Array.isArray((r as any)?.temas_prioritarios)
+}
+
 export async function generateEsgPdf({
   contexto,
   resumen,
@@ -30,7 +45,7 @@ export async function generateEsgPdf({
     madurez_esg: string
     stakeholders_relevantes: string
   }
-  resumen: { parrafo_1: string; parrafo_2?: string; parrafo_3?: string }
+  resumen: ResumenInput
   portada?: string
   contraportada?: string
   chartImg?: string // puede venir dataURL o URL (si es URL la embebés con fetch)
@@ -655,9 +670,196 @@ export async function generateEsgPdf({
     }
   }
 
-  addParagraph(resumen.parrafo_1)
-  if (resumen.parrafo_2) addParagraph(resumen.parrafo_2)
-  if (resumen.parrafo_3) addParagraph(resumen.parrafo_3)
+  if (isPrompt11(resumen)) {
+    // ── Prompt 11: new structured format ──
+    const sectionColor = rgb(22 / 255, 63 / 255, 106 / 255) // #163F6A
+    const labelColor = rgb(97 / 255, 159 / 255, 68 / 255) // #619F44 (green)
+    const accionBg = rgb(0.96, 0.97, 0.99)
+    const accionBorder = rgb(0.85, 0.88, 0.92)
+
+    const ensureResumenSpace = (needed: number) => {
+      if (y - needed < BOTTOM_MARGIN) {
+        const next = addContentPage({ sectionTitle: "Ruta de Sostenibilidad" })
+        resumenPage = next.page
+        y = next.y
+      }
+    }
+
+    // draws a bold section divider label (e.g. "Enfoque Estratégico")
+    const drawSectionLabel = (label: string) => {
+      ensureResumenSpace(40)
+      resumenPage.drawText(label, {
+        x: leftMargin,
+        y,
+        size: 14,
+        font: fontBold,
+        color: sectionColor,
+      })
+      y -= 6
+      resumenPage.drawLine({
+        start: { x: leftMargin, y },
+        end: { x: PAGE_WIDTH - leftMargin, y },
+        thickness: 1.5,
+        color: sectionColor,
+      })
+      y -= 16
+    }
+
+    // draws a small colored label (e.g. "Temas prioritarios")
+    const drawLabel = (label: string) => {
+      ensureResumenSpace(20)
+      resumenPage.drawText(label.toUpperCase(), {
+        x: leftMargin,
+        y,
+        size: 9,
+        font: fontBold,
+        color: labelColor,
+      })
+      y -= 14
+    }
+
+    // draws a bullet point text line, wrapping as needed
+    const drawBullet = (text: string) => {
+      const maxW = contentWidth - 20
+      const lines = wrapTextByWidth(text, fontRegular, 11, maxW)
+      for (let i = 0; i < lines.length; i++) {
+        ensureResumenSpace(16)
+        const prefix = i === 0 ? "•  " : "   "
+        resumenPage.drawText(prefix + lines[i], {
+          x: leftMargin + 4,
+          y,
+          size: 11,
+          font: fontRegular,
+          color: textPrimary,
+        })
+        y -= 16
+      }
+      y -= 4
+    }
+
+    // draws a plain body text paragraph, wrapping as needed
+    const drawBodyText = (text: string) => {
+      const lines = wrapTextByWidth(text, fontRegular, 11, contentWidth)
+      for (const line of lines) {
+        ensureResumenSpace(16)
+        resumenPage.drawText(line, {
+          x: leftMargin,
+          y,
+          size: 11,
+          font: fontRegular,
+          color: textPrimary,
+        })
+        y -= 16
+      }
+      y -= 6
+    }
+
+    // draws a phase header badge (e.g. "Primeros pasos — 0–3 meses")
+    const drawPhaseHeader = (label: string, period: string) => {
+      ensureResumenSpace(30)
+      const badgeText = `${label}  |  ${period}`
+      const badgeWidth = Math.min(
+        fontBold.widthOfTextAtSize(badgeText, 11) + 24,
+        contentWidth,
+      )
+      const badgeHeight = 22
+      resumenPage.drawRectangle({
+        x: leftMargin,
+        y: y - badgeHeight,
+        width: badgeWidth,
+        height: badgeHeight,
+        color: boxTitleBg,
+      })
+      resumenPage.drawText(label, {
+        x: leftMargin + 10,
+        y: y - 15,
+        size: 11,
+        font: fontBold,
+        color: sectionColor,
+      })
+      const labelW = fontBold.widthOfTextAtSize(label, 11)
+      resumenPage.drawText(`  |  ${period}`, {
+        x: leftMargin + 10 + labelW,
+        y: y - 15,
+        size: 11,
+        font: fontRegular,
+        color: sectionColor,
+      })
+      y -= badgeHeight + 10
+    }
+
+    // draws a single action box
+    const drawAccion = (n: number, accion: Accion) => {
+      const temaLines = wrapTextByWidth(`Tema: ${accion.tema}`, fontRegular, 10, contentWidth - 20)
+      const descLines = wrapTextByWidth(`Descripcion: ${accion.descripcion}`, fontRegular, 10, contentWidth - 20)
+      const lineH = 14
+      const padV = 10
+      const headerH = 20
+      const boxH = headerH + padV + (temaLines.length + descLines.length + 1) * lineH + padV
+
+      ensureResumenSpace(boxH + 10)
+
+      resumenPage.drawRectangle({
+        x: leftMargin,
+        y: y - boxH,
+        width: contentWidth,
+        height: boxH,
+        color: accionBg,
+        borderColor: accionBorder,
+        borderWidth: 1,
+      })
+      resumenPage.drawText(`Accion ${n}`, {
+        x: leftMargin + 10,
+        y: y - 15,
+        size: 10,
+        font: fontBold,
+        color: sectionColor,
+      })
+
+      let ty = y - headerH - padV
+      for (const line of temaLines) {
+        resumenPage.drawText(line, { x: leftMargin + 10, y: ty, size: 10, font: fontRegular, color: textPrimary })
+        ty -= lineH
+      }
+      ty -= 4
+      for (const line of descLines) {
+        resumenPage.drawText(line, { x: leftMargin + 10, y: ty, size: 10, font: fontRegular, color: textPrimary })
+        ty -= lineH
+      }
+
+      y -= boxH + 10
+    }
+
+    // ── ENFOQUE ESTRATÉGICO ──
+    drawSectionLabel("Enfoque Estrategico")
+    drawLabel("Temas prioritarios")
+    for (const tema of resumen.temas_prioritarios) drawBullet(tema)
+    y -= 4
+    drawLabel("Lectura estrategica del analisis")
+    drawBodyText(resumen.lectura_estrategica)
+
+    // ── PLAN DE ACCIÓN ──
+    y -= 8
+    drawSectionLabel("Plan de Accion")
+
+    let actionIndex = 1
+
+    drawPhaseHeader("Primeros pasos", "0-3 meses")
+    for (const a of resumen.primeros_pasos) drawAccion(actionIndex++, a)
+    y -= 6
+
+    drawPhaseHeader("Fortalecimiento", "3-12 meses")
+    for (const a of resumen.fortalecimiento) drawAccion(actionIndex++, a)
+    y -= 6
+
+    drawPhaseHeader("Consolidacion", "12+ meses")
+    for (const a of resumen.consolidacion) drawAccion(actionIndex++, a)
+  } else {
+    // ── Legacy format: parrafo_1/2/3 ──
+    addParagraph(resumen.parrafo_1)
+    if (resumen.parrafo_2) addParagraph(resumen.parrafo_2)
+    if (resumen.parrafo_3) addParagraph(resumen.parrafo_3)
+  }
 
   // =======================
   // 🖼️ Contraportada

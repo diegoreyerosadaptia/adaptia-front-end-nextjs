@@ -128,133 +128,75 @@ export function MaterialityChart({ data }: Props) {
       realIndex: idx + 1, // bola 1 = primer tema de Parte B, bola 2 = segundo, etc.
     }))
 
-    // 3️⃣ Separación SIN superposición (en pixeles, usando el tamaño real del chart)
-    //    Si aún no tenemos tamaño (primer render), caemos a un offset simple.
-    const separatePointsNoOverlap = (pts: IndividualPoint[]) => {
+    // 3️⃣ Dispersión por zona: dentro de cada zona (baja/media/alta)
+    //    los puntos se ordenan por originalY desc (luego por realIndex asc)
+    //    y se separan verticalmente con un paso mínimo + zigzag horizontal.
+    const spreadPointsByZone = (pts: IndividualPoint[]) => {
       const margin = { top: 30, right: 30, bottom: 30, left: 70 }
-      const xMin = 0
-      const xMax = 6
-
-      const maxY = pts.length ? Math.max(...pts.map((p) => p.originalY), 10) : 10
-      const yMin = 0
-      const yMax = maxY + 1
-
-      // Radio real del punto (tienes r={13})
       const rPx = 13
-      const paddingPx = 4
-      const minDistPx = 2 * rPx + paddingPx // distancia mínima centro-centro
+      const yDomain = Math.max(...pts.map((p) => p.originalY), 10) + 3
 
-      // Fallback si no tenemos size todavía
-      if (!chartSize || chartSize.width < 200 || chartSize.height < 200) {
-        const offsetMap = new Map<string, number>()
-        pts.forEach((p) => {
-          const key = `${p.originalX}-${p.originalY}`
-          const count = offsetMap.get(key) || 0
-          offsetMap.set(key, count + 1)
-          if (count > 0) {
-            const angle = (count * 4 * Math.PI) / 25
-            const radius = 0.6 + count * 0.55
-            p.x = p.originalX + Math.cos(angle) * radius
-            p.y = p.originalY + Math.sin(angle) * radius * 0.95
-          } else {
-            p.x = p.originalX
-            p.y = p.originalY
-          }
-        })
-        return pts
-      }
+      // Separación mínima en unidades de datos (equivale a ~2r + 4px de padding)
+      const innerH = chartSize ? Math.max(1, chartSize.height - margin.top - margin.bottom) : 380
+      const innerW = chartSize ? Math.max(1, chartSize.width - margin.left - margin.right) : 500
+      const yScale = innerH / yDomain
+      const xScale = innerW / 6
+      const minYSep = (2 * rPx + 6) / yScale
+      const xStep = (2 * rPx + 6) / xScale
 
-      const innerW = Math.max(1, chartSize.width - margin.left - margin.right)
-      const innerH = Math.max(1, chartSize.height - margin.top - margin.bottom)
-
-      const xScale = innerW / (xMax - xMin)
-      const yScale = innerH / (yMax - yMin)
-
-      const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v))
-
-      const toPx = (x: number, y: number) => {
-        const px = margin.left + (x - xMin) * xScale
-        const py = margin.top + innerH - (y - yMin) * yScale
-        return { px, py }
-      }
-
-      const toData = (px: number, py: number) => {
-        const x = xMin + (px - margin.left) / xScale
-        const y = yMin + (innerH - (py - margin.top)) / yScale
-        return { x, y }
-      }
-
-      const withinBounds = (px: number, py: number) => {
-        const minX = margin.left + rPx
-        const maxXb = margin.left + innerW - rPx
-        const minYb = margin.top + rPx
-        const maxYb = margin.top + innerH - rPx
-        return px >= minX && px <= maxXb && py >= minYb && py <= maxYb
-      }
-
-      const placed: { px: number; py: number }[] = []
-
-      // Colocamos en orden (realIndex) y buscamos hueco libre en espiral
+      // Agrupar por zona (originalX)
+      const groups = new Map<number, IndividualPoint[]>()
       pts.forEach((p) => {
-        const origin = toPx(p.originalX, p.originalY)
-
-        // Intento 0: el original
-        let chosen = { px: origin.px, py: origin.py }
-
-        const isFree = (cand: { px: number; py: number }) => {
-          for (const q of placed) {
-            const dx = cand.px - q.px
-            const dy = cand.py - q.py
-            const dist = Math.sqrt(dx * dx + dy * dy)
-            if (dist < minDistPx) return false
-          }
-          return true
-        }
-
-        if (!withinBounds(chosen.px, chosen.py) || !isFree(chosen)) {
-          // Espiral: incrementa radio gradualmente
-          const maxTries = 2000
-          const step = minDistPx * 0.5
-
-          let found = false
-          for (let i = 1; i <= maxTries; i++) {
-            const angle = i * 0.45
-            const radius = step * Math.sqrt(i)
-
-            const cand = {
-              px: origin.px + Math.cos(angle) * radius,
-              py: origin.py + Math.sin(angle) * radius,
-            }
-
-            // Mantener dentro del área útil
-            if (!withinBounds(cand.px, cand.py)) continue
-            if (!isFree(cand)) continue
-
-            chosen = cand
-            found = true
-            break
-          }
-
-          // Si por algún motivo extremo no encontró, clamp al área (igual evita salirse)
-          if (!found) {
-            chosen = {
-              px: clamp(origin.px, margin.left + rPx, margin.left + innerW - rPx),
-              py: clamp(origin.py, margin.top + rPx, margin.top + innerH - rPx),
-            }
-          }
-        }
-
-        placed.push(chosen)
-
-        const back = toData(chosen.px, chosen.py)
-        p.x = back.x
-        p.y = back.y
+        if (!groups.has(p.originalX)) groups.set(p.originalX, [])
+        groups.get(p.originalX)!.push(p)
       })
+
+      groups.forEach((zonePts, zoneX) => {
+        // Ordenar: mayor originalY primero; empates → menor realIndex primero
+        zonePts.sort((a, b) => {
+          const dy = b.originalY - a.originalY
+          if (Math.abs(dy) > 0.01) return dy
+          return (a.realIndex ?? 999) - (b.realIndex ?? 999)
+        })
+
+        // Asignar Y respetando separación mínima (siempre hacia abajo)
+        const finalY: number[] = []
+        for (let i = 0; i < zonePts.length; i++) {
+          if (i === 0) {
+            finalY.push(zonePts[i].originalY)
+          } else {
+            finalY.push(Math.min(zonePts[i].originalY, finalY[i - 1] - minYSep))
+          }
+        }
+
+        // Asignar X con patrón en zigzag: 0, +1, -1, +2, -2, ...
+        zonePts.forEach((p, i) => {
+          let xOffset = 0
+          if (i > 0) {
+            const step = Math.ceil(i / 2)
+            xOffset = i % 2 === 1 ? step * xStep : -step * xStep
+          }
+          p.x = zoneX + xOffset
+          p.y = finalY[i]
+        })
+      })
+
+      // 4️⃣ Paso global: garantizar jerarquía entre zonas
+      //    Si un item con número mayor aparece más arriba que uno con número menor, empujarlo hacia abajo.
+      const globalSorted = [...pts].sort((a, b) => (a.realIndex ?? 999) - (b.realIndex ?? 999))
+      const minGlobalStep = minYSep * 0.45
+      for (let i = 1; i < globalSorted.length; i++) {
+        const prev = globalSorted[i - 1]
+        const curr = globalSorted[i]
+        if (curr.y >= prev.y) {
+          curr.y = prev.y - minGlobalStep
+        }
+      }
 
       return pts
     }
 
-    const separated = separatePointsNoOverlap([...ranked])
+    const separated = spreadPointsByZone([...ranked])
     setPoints(separated)
   }, [data, chartSize])
 
@@ -309,6 +251,7 @@ export function MaterialityChart({ data }: Props) {
      GRÁFICO
   ============================= */
   const maxY = points.length ? Math.max(...points.map((p) => p.originalY), 10) : 10
+  const yDomainMax = maxY + 3
   const yTicks = [0, 10, maxY]
 
   const sortedPoints = [...points].sort((a, b) => (a.realIndex ?? 0) - (b.realIndex ?? 0))
@@ -355,7 +298,7 @@ export function MaterialityChart({ data }: Props) {
             <YAxis
               type="number"
               dataKey="y"
-              domain={[0, maxY + 1]}
+              domain={[0, yDomainMax]}
               ticks={yTicks}
               tick={{ fill: "#374151", fontSize: 13, fontWeight: 600 }}
               label={{
