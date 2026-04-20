@@ -61,6 +61,7 @@ type ParteCItem = {
 type RegulacionItem = {
   tipo_regulacion: string
   descripcion_corta: string
+  descripcion?: string
   vigencia: string
 }
 
@@ -1250,7 +1251,7 @@ function drawRegulacionesPage(opts: {
 
   const headers = ["Tipo regulación", "Descripción", "Vigencia"]
   const columnWidths = [120, 290, 105]
-  const rows = regulaciones.map((r) => [r.tipo_regulacion, r.descripcion_corta, r.vigencia])
+  const rows = regulaciones.map((r) => [r.tipo_regulacion, r.descripcion_corta ?? r.descripcion, r.vigencia])
 
   drawTableWithWrapping({
     pdfDoc,

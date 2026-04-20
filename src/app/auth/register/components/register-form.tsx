@@ -34,6 +34,7 @@ export default function RegisterClient() {
   const orgIdQS = params.get("orgId") ?? ""
   const claimQS = params.get("claim") ?? ""
   const emailQS = params.get("email") ?? ""
+  const inviteToken = params.get("inviteToken") ?? ""
 
   const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(registerSchema),
@@ -134,6 +135,13 @@ export default function RegisterClient() {
             </CardHeader>
 
             <CardContent>
+              {/* Banner de invitación */}
+              {inviteToken && !submitted && (
+                <div className="mb-4 rounded-lg border border-[#619F44]/30 bg-[#619F44]/8 px-4 py-3 text-sm text-[#508a38] font-medium" style={{ background: "rgba(97,159,68,0.07)" }}>
+                  🎉 Fuiste invitado a ver una organización en Adaptia. Completá tu registro para acceder.
+                </div>
+              )}
+
               {/* ✅ Pantalla éxito (sin redirigir) */}
             {submitted ? (
               <div className="rounded-xl border border-green-200 bg-green-50 p-2 pt-10 pb-10">

@@ -76,12 +76,12 @@ export function AddOrganizationDialog() {
     <>
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogTrigger asChild>
-          <Button 
-          className=" shadow-lg hover:shadow-xl transition-all"
-          variant="default"
+          <Button
+            size="sm"
+            className="h-8 px-3 text-xs bg-[#163F6A] hover:bg-[#1e5a8f] text-white gap-1.5"
           >
-            <Building2 className="mr-2 h-4 w-4" />
-            Generar nuevo análisis
+            <Building2 className="h-3.5 w-3.5" />
+            Nuevo análisis
           </Button>
         </DialogTrigger>
 

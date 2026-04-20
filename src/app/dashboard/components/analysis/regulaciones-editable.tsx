@@ -7,7 +7,8 @@ import { toast } from "sonner"
 
 type RegulacionItem = {
   tipo_regulacion: string
-  descripcion_corta: string
+  descripcion_corta?: string
+  descripcion?: string
   vigencia: string
 }
 
@@ -32,7 +33,7 @@ export function RegulacionesEditable({
   // 🧩 Crear copia segura y tipada
   const safeOriginal: RegulacionItem[] = (regulacionesOriginal ?? []).map((r) => ({
     tipo_regulacion: r.tipo_regulacion ?? "",
-    descripcion_corta: r.descripcion_corta ?? "",
+    descripcion_corta: r.descripcion_corta ?? r.descripcion,
     vigencia: r.vigencia ?? "",
   }))
 

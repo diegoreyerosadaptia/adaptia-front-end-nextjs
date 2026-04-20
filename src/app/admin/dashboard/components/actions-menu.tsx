@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,6 +14,7 @@ import { Eye, MoreHorizontal, FileText, Mail, RotateCcw } from "lucide-react"
 import { Organization } from "@/types/organization.type"
 import RetryEsgButton from "./retry-esg-button"
 import SendAnalysisButton from "./send-analysis-button"
+import { OrganizationInfoDialog } from "@/app/dashboard/components/organization-details-dialog"
 
 interface ActionsMenuProps {
   org: Organization
@@ -29,8 +29,6 @@ interface MaterialityInput {
   y?: number
 }
 export default function ActionsMenu({ org, authToken }: ActionsMenuProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-
   const lastAnalysis = org.analysis?.length
     ? [...org.analysis].sort(
         (a, b) => new Date(b.createdAt || Date.now()).getTime() - new Date(a.createdAt || Date.now()).getTime(),
@@ -53,6 +51,8 @@ export default function ActionsMenu({ org, authToken }: ActionsMenuProps) {
 
   return (
     <>
+      <OrganizationInfoDialog org={org} isAdmin>
+        {(openDialog) => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button size="icon" variant="ghost" className="hover:bg-blue-50 transition-colors">
@@ -65,7 +65,7 @@ export default function ActionsMenu({ org, authToken }: ActionsMenuProps) {
           <DropdownMenuSeparator className="my-1" />
 
           <DropdownMenuItem
-            onClick={() => setIsDialogOpen(true)}
+            onClick={() => openDialog()}
             className="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors cursor-pointer"
           >
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100">
@@ -116,88 +116,8 @@ export default function ActionsMenu({ org, authToken }: ActionsMenuProps) {
 
         </DropdownMenuContent>
       </DropdownMenu>
-
-      {isDialogOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setIsDialogOpen(false)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-2xl">
-              <h2 className="text-xl font-bold text-gray-900">Detalles de la Organización</h2>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500 font-medium">Empresa</p>
-                  <p className="text-base text-gray-900 font-semibold">{org.company}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 font-medium">Contacto</p>
-                  <p className="text-base text-gray-900">
-                    {org.name} {org.lastName}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 font-medium">Email</p>
-                  <p className="text-base text-gray-900">{org.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 font-medium">Industria</p>
-                  <p className="text-base text-gray-900">{org.industry}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 font-medium">País</p>
-                  <p className="text-base text-gray-900">{org.country}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 font-medium">Empleados</p>
-                  <p className="text-base text-gray-900">{org.employees_number}</p>
-                </div>
-              </div>
-
-              {org.analysis && org.analysis.length > 0 && (
-                <div className="pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-500 font-medium mb-2">Análisis</p>
-                  <div className="space-y-2">
-                    {org.analysis.map((analysis, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm text-gray-700">Análisis #{idx + 1}</span>
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            analysis.status === "COMPLETED"
-                              ? "bg-green-100 text-green-700"
-                              : analysis.status === "PENDING"
-                                ? "bg-yellow-100 text-yellow-700"
-                                : analysis.status === "FAILED"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-gray-100 text-gray-700"
-                          }`}
-                        >
-                          {analysis.status}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200 rounded-b-2xl">
-              <Button
-                onClick={() => setIsDialogOpen(false)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Cerrar
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </OrganizationInfoDialog>
     </>
   )
 }

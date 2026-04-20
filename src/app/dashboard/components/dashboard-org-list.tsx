@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Building2, CheckCircle2, Clock, Eye, Loader2 } from "lucide-react"
+import { Building2, Eye, Loader2 } from "lucide-react"
 import type { Organization } from "@/types/organization.type"
 import { OrganizationInfoDialog } from "./organization-details-dialog"
 import { createPreferenceAction } from "@/actions/payments/create-preference.action"
@@ -14,7 +14,15 @@ import { getGaClientId } from "@/lib/ga"
 
 type FilterType = "all" | "completed" | "pending" | "incomplete" | "paymentsCompleted" | "paymentsPending"
 
-export default function DashboardOrgList({ organizations }: { organizations: Organization[] }) {
+export default function DashboardOrgList({
+  organizations,
+  isAdmin = false,
+  userId,
+}: {
+  organizations: Organization[]
+  isAdmin?: boolean
+  userId?: string
+}) {
   const [loadingPaymentId, setLoadingPaymentId] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<FilterType>("all")
   const router = useRouter()
@@ -115,52 +123,58 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {filteredOrganizations.map((org) => (
         <div
           key={org.id}
-          className="group relative bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200"
+          className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-gray-300 transition-colors duration-150"
         >
-          {/* Header mejorado con diseño profesional */}
-          <div className="flex justify-between items-start mb-5 pb-5 border-b border-gray-100">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#163F6A] to-[#1e5a8f] flex items-center justify-center flex-shrink-0">
-                <Building2 className="h-6 w-6 text-white" />
+          {/* Header org */}
+          <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-[#163F6A]/8 flex items-center justify-center flex-shrink-0" style={{ background: "rgba(22,63,106,0.07)" }}>
+                <Building2 className="h-4.5 w-4.5 text-[#163F6A]" style={{ width: 18, height: 18 }} />
               </div>
               <div>
-                <h3 className="font-semibold text-xl text-[#163F6A] mb-1">{org.company}</h3>
-                <p className="text-sm text-gray-600">
-                  {org.industry} • {org.country}
-                </p>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-[15px] text-gray-900 leading-tight">{org.company}</h3>
+                  {userId && org.owner?.id !== userId && org.owner_id !== userId && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                      Compartido
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-gray-400 mt-0.5">{org.industry} · {org.country}</p>
               </div>
             </div>
 
-            {/* Botones de acción con mejor diseño */}
             <div className="flex items-center gap-2">
-              <OrganizationInfoDialog org={org}>
+              <OrganizationInfoDialog org={org} isAdmin={isAdmin} isOwner={!userId || org.owner?.id === userId || org.owner_id === userId}>
                 {(openDialog) => (
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="border-[#163F6A] text-[#163F6A] hover:bg-[#163F6A] hover:text-white transition-colors bg-transparent"
+                    variant="ghost"
+                    className="h-8 px-3 text-xs text-gray-500 hover:text-[#163F6A] hover:bg-[#163F6A]/5 gap-1.5"
                     onClick={(e) => {
                       e.stopPropagation()
                       openDialog()
                     }}
                   >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Ver Detalles
+                    <Eye className="h-3.5 w-3.5" />
+                    Detalles
                   </Button>
                 )}
               </OrganizationInfoDialog>
 
-              <DeleteOrganizationDialog organization={org} />
+              {(!userId || org.owner?.id === userId || org.owner_id === userId) && (
+                <DeleteOrganizationDialog organization={org} />
+              )}
             </div>
           </div>
 
-          {/* Lista de análisis con diseño mejorado */}
+          {/* Análisis */}
           {org.analysis && org.analysis.length > 0 ? (
-            <div className="space-y-3">
+            <div className="divide-y divide-gray-50">
               {org.analysis.map((analysis) => {
                 const isPendingPay = analysis.payment_status === "PENDING"
                 const isCompleted =
@@ -171,67 +185,54 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
                 return (
                   <div
                     key={analysis.id}
-                    className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-white rounded-lg border border-gray-200 hover:border-[#163F6A]/30 transition-all duration-200"
+                    className="flex items-center justify-between px-5 py-3.5"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="flex items-center gap-3">
-                      {/* Iconos con fondos de color */}
                       <div
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                          isPendingPay ? "bg-blue-100" : isCompleted ? "bg-green-100" : "bg-yellow-100"
+                        className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                          isPendingPay ? "bg-blue-400" : isCompleted ? "bg-emerald-400" : "bg-amber-400"
                         }`}
-                      >
-                        {isPendingPay && <Building2 className="h-5 w-5 text-blue-600" />}
-                        {analysis.payment_status === "COMPLETED" && analysis.status === "PENDING" && (
-                          <Clock className="h-5 w-5 text-yellow-600" />
-                        )}
-                        {isCompleted && <CheckCircle2 className="h-5 w-5 text-green-600" />}
-                      </div>
-
+                      />
                       <div>
-                        {isCompleted ? (
-                          <p className="text-sm font-medium text-[#163F6A]">Análisis completado para: {org.company}</p>
-                        ) : (
-                          <p className="text-sm font-medium text-gray-700">
-                            {isPendingPay ? "Pago pendiente para este análisis" : "El análisis está en proceso"}
-                          </p>
-                        )}
-                        <p className="text-xs text-gray-500">
-                          Creado: {new Date(analysis.createdAt).toLocaleDateString("es-ES")}
+                        <p className="text-sm text-gray-700 font-medium">
+                          {isCompleted
+                            ? "Análisis completado"
+                            : isPendingPay
+                            ? "Pago pendiente"
+                            : "En proceso"}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {new Date(analysis.createdAt).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      {/* Badge mejorado */}
+                    <div className="flex items-center gap-2">
                       <span
-                        className={`text-xs px-3 py-1.5 rounded-full font-medium ${
+                        className={`text-[11px] px-2.5 py-1 rounded-full font-medium ${
                           isPendingPay
-                            ? "bg-blue-100 text-blue-700"
+                            ? "bg-blue-50 text-blue-600"
                             : isCompleted
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
+                              ? "bg-emerald-50 text-emerald-600"
+                              : "bg-amber-50 text-amber-600"
                         }`}
                       >
                         {isPendingPay ? "Pago pendiente" : isCompleted ? "Completado" : "En proceso"}
                       </span>
 
-                      {/* Botón de pago con mejor diseño */}
                       {isPendingPay && (
                         <Button
                           size="sm"
                           disabled={loadingPaymentId === analysis.id}
-                          className="bg-[#163F6A] hover:bg-[#1e5a8f] text-white"
+                          className="h-8 px-3 text-xs bg-[#163F6A] hover:bg-[#1e5a8f] text-white"
                           onClick={(e) => {
                             e.stopPropagation()
                             handlePayment(org.id, analysis.id, org)
                           }}
                         >
                           {loadingPaymentId === analysis.id ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                              Generando...
-                            </>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
                           ) : (
                             "Completar Pago"
                           )}
@@ -239,20 +240,18 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
                       )}
 
                       {isCompleted && (
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-[#163F6A] text-[#163F6A] hover:bg-[#163F6A] hover:text-white bg-transparent"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              router.push(`/dashboard/organization/${org.id}`)
-                            }}
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            Ver Análisis
-                          </Button>
-                        </div>
+                        <Button
+                          size="sm"
+                          className="h-8 px-3 text-xs bg-[#163F6A] hover:bg-[#1e5a8f] text-white gap-1.5"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            router.push(`/dashboard/organization/${org.id}`)
+                          }}
+                        >
+                          <Eye className="h-3.5 w-3.5 mr-1.5" />
+                          Ver Análisis
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -261,13 +260,13 @@ export default function DashboardOrgList({ organizations }: { organizations: Org
             </div>
           ) : (
             <div
-              className="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200"
+              className="flex justify-between items-center px-5 py-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <p className="text-sm text-gray-600">No hay análisis registrados para esta organización.</p>
+              <p className="text-sm text-gray-400">Sin análisis registrados</p>
               <Button
                 size="sm"
-                className="bg-[#163F6A] hover:bg-[#1e5a8f] text-white"
+                className="h-8 px-3 text-xs bg-[#163F6A] hover:bg-[#1e5a8f] text-white"
                 onClick={() => handlePayment(org.id)}
               >
                 Solicitar Análisis

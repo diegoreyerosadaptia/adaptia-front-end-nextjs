@@ -257,6 +257,62 @@ export const claimOrg = async (
 
 
 
+export const removeMemberFromOrg = async (orgId: string, userId: string, authToken?: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/organizations/${orgId}/members/${userId}`, {
+      method: "DELETE",
+      headers: getJsonHeaders(authToken),
+    })
+    const data = await response.json()
+    if (response.ok) {
+      revalidateTag(getCacheTag("organizations", "all"))
+      return data
+    }
+    console.error("Error en removeMemberFromOrg:", data)
+    return null
+  } catch (error) {
+    console.error("Error en removeMemberFromOrg:", error)
+    return null
+  }
+}
+
+export const addMemberToOrg = async (orgId: string, userId: string, authToken?: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/organizations/${orgId}/members`, {
+      method: "POST",
+      headers: getJsonHeaders(authToken),
+      body: JSON.stringify({ userId }),
+    })
+    const data = await response.json()
+    if (response.ok) {
+      revalidateTag(getCacheTag("organizations", "all"))
+      return data
+    }
+    console.error("Error en addMemberToOrg:", data)
+    return null
+  } catch (error) {
+    console.error("Error en addMemberToOrg:", error)
+    return null
+  }
+}
+
+export const inviteMemberByEmail = async (orgId: string, email: string, authToken?: string) => {
+  try {
+    const response = await fetch(`${BASE_URL}/organizations/${orgId}/invite`, {
+      method: "POST",
+      headers: getJsonHeaders(authToken),
+      body: JSON.stringify({ email }),
+    })
+    const data = await response.json()
+    if (response.ok) return data
+    console.error("Error en inviteMemberByEmail:", data)
+    return null
+  } catch (error) {
+    console.error("Error en inviteMemberByEmail:", error)
+    return null
+  }
+}
+
 export const applyCoupon = async (
   idAnalysis: string,
   couponName: string,

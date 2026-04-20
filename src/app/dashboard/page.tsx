@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation"
 import Image from "next/image"
-import { LogOut } from "lucide-react"
+import { LogOut, User } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
 import { getOrganizationsAll } from "@/services/organization.get" // ✅ GET SAFE (sin revalidateTag)
@@ -110,93 +109,71 @@ export default async function ClientDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#163F6A]/5 to-green-50">
-      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200/30 sticky top-0 z-50">
-        <div className="w-full px-6 lg:px-12 py-6">
-          <div className="flex items-center justify-between">
-            {/* IZQUIERDA: Logo */}
-            <div className="flex items-center gap-4">
-              <Image
-                src="/adaptia-logo.png"
-                alt="Adaptia Logo"
-                width={150}
-                height={45}
-                className="object-contain"
-              />
-            </div>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            <Image
+              src="/adaptia-logo.png"
+              alt="Adaptia Logo"
+              width={130}
+              height={40}
+              className="object-contain"
+            />
 
-            {/* CENTRO */}
-            <div className="hidden md:flex flex-col items-center text-center">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#163F6A] to-[#163F6A]/80 bg-clip-text text-transparent">
-                Panel de Control
-              </h1>
-            </div>
-
-            {/* DERECHA */}
-            <div className="flex items-center gap-4">
-              <div className="hidden lg:flex flex-col items-end">
-                <p className="text-sm font-medium text-[#163F6A]">
-                  {userPostgres.name} {userPostgres.surname}
-                </p>
-                <p className="text-xs text-gray-600/70">{userPostgres.email}</p>
+            <div className="flex items-center gap-2">
+              {/* Avatar + info */}
+              <div className="hidden sm:flex items-center gap-2.5 pl-2">
+                <div className="w-9 h-9 rounded-full bg-[#163F6A]/8 border border-[#163F6A]/20 flex items-center justify-center flex-shrink-0" style={{ background: "rgba(22,63,106,0.07)" }}>
+                  <User className="h-4.5 w-4.5 text-[#163F6A]" style={{ width: 18, height: 18 }} />
+                </div>
+                <div className="flex flex-col">
+                  <p className="text-sm font-medium text-gray-800 leading-tight">
+                    {userPostgres.name} {userPostgres.surname}
+                  </p>
+                  <p className="text-[11px] text-gray-400">{userPostgres.email}</p>
+                </div>
               </div>
+
+              <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block" />
 
               <form action={handleSignOut}>
                 <Button
-                  variant="outline"
-                  size="lg"
-                  className="
-                    border-[#163F6A]/30
-                    text-[#163F6A]
-                    hover:bg-[#163F6A]
-                    hover:text-white
-                    hover:border-[#163F6A]
-                    bg-white/50
-                    backdrop-blur-sm
-                    rounded-lg px-6 py-2.5 flex gap-2 items-center
-                    transition-all duration-200
-                    shadow-sm hover:shadow-md
-                  "
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-400 hover:text-gray-700 hover:bg-gray-50 gap-1.5 px-2.5"
                 >
-                  <LogOut className="h-4 w-4" />
-                  <span className="hidden sm:inline">Cerrar Sesión</span>
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline text-xs font-medium">Salir</span>
                 </Button>
               </form>
             </div>
           </div>
-
-          {/* Título móvil */}
-          <div className="md:hidden mt-4 text-center">
-            <h1 className="text-xl font-heading font-bold text-[#163F6A]">Panel de Control</h1>
-          </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <DashboardPaymentGate openByDefault={hasPendingPayment} token={token || ""}>
+          <div className="mb-6">
+            <h1 className="text-lg font-semibold text-gray-800">Panel de Control</h1>
+            <p className="text-xs text-gray-400 mt-0.5">Gestiona tus organizaciones y análisis ESG</p>
+          </div>
+
           <DashboardStats stats={stats} />
 
-          <Card className="border-slate-200 shadow-sm">
-            <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-[#163F6A]/5">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <CardTitle className="text-2xl font-bold bg-gradient-to-r from-[#163F6A] to-[#163F6A]/80 bg-clip-text text-transparent">
-                    Mis Organizaciones
-                  </CardTitle>
-                  <CardDescription className="text-slate-600 mt-1">
-                    Gestiona tus organizaciones y análisis de doble materialidad ESG.
-                  </CardDescription>
-                </div>
-
-                <AddOrganizationDialog />
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <div>
+                <h2 className="text-[15px] font-semibold text-gray-900">Mis Organizaciones</h2>
+                <p className="text-xs text-gray-400 mt-0.5">Doble materialidad ESG</p>
               </div>
-            </CardHeader>
+              <AddOrganizationDialog />
+            </div>
 
-            <CardContent className="pt-6">
-              <DashboardOrgList organizations={organizations ?? []} />
-            </CardContent>
-          </Card>
+            <div className="p-5">
+              <DashboardOrgList organizations={organizations ?? []} userId={userPostgres.id} />
+            </div>
+          </div>
         </DashboardPaymentGate>
       </main>
     </div>

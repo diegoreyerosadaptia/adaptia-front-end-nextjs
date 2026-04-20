@@ -12,6 +12,14 @@ export const EMPLOYEE_RANGE = [
 
 export type EmployeeRange = (typeof EMPLOYEE_RANGE)[number]
 
+export type OrgMember = {
+  id: string
+  email: string
+  firstName?: string
+  lastName?: string
+  role: 'USER' | 'ADMIN'
+}
+
 export type Organization = {
   id: string
   email: string;
@@ -27,8 +35,10 @@ export type Organization = {
   document: string
   supportingInfo: string
   owner_id: string
+  owner?: { id: string; email?: string }
   analysis?: Analysis[]
   esgAnalysis: EsgAnalysis[];
+  members?: OrgMember[];
   createdAt: Date;
 }
 

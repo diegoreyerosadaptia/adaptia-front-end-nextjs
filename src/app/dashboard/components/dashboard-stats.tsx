@@ -1,6 +1,5 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Building2, CheckCircle2, Clock, DollarSign, TrendingUp } from "lucide-react"
 import { useState } from "react"
 
@@ -24,20 +23,18 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 
   const handleFilterChange = (filter: FilterType) => {
     setActiveFilter(filter)
-    // Dispatch custom event for table filtering
     window.dispatchEvent(new CustomEvent("filterChange", { detail: { filter } }))
   }
 
   const cardData = [
     {
-      title: "Total Organizaciones",
+      title: "Organizaciones",
       value: stats.totalOrganizations,
-      description: "Registradas en el sistema",
+      description: "Registradas",
       icon: Building2,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      hoverColor: "hover:bg-blue-100",
-      borderColor: "border-blue-200",
+      accent: "bg-[#163F6A]",
+      activeText: "text-[#163F6A]",
+      activeBorder: "border-[#163F6A]",
       filter: "all" as FilterType,
     },
     {
@@ -45,32 +42,29 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
       value: stats.completedAnalysis,
       description: `${stats.totalAnalysis > 0 ? Math.round((stats.completedAnalysis / stats.totalAnalysis) * 100) : 0}% del total`,
       icon: CheckCircle2,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      hoverColor: "hover:bg-green-100",
-      borderColor: "border-green-200",
+      accent: "bg-emerald-500",
+      activeText: "text-emerald-600",
+      activeBorder: "border-emerald-500",
       filter: "completed" as FilterType,
     },
     {
-      title: "Pendientes",
+      title: "En Proceso",
       value: stats.pendingAnalysis,
-      description: "En proceso",
+      description: "Análisis activos",
       icon: Clock,
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-50",
-      hoverColor: "hover:bg-yellow-100",
-      borderColor: "border-yellow-200",
+      accent: "bg-amber-400",
+      activeText: "text-amber-600",
+      activeBorder: "border-amber-400",
       filter: "pending" as FilterType,
     },
     {
-      title: "Pagos Completados",
+      title: "Pagos OK",
       value: stats.completedPayments,
-      description: "Pagos confirmados",
+      description: "Confirmados",
       icon: DollarSign,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      hoverColor: "hover:bg-green-100",
-      borderColor: "border-green-200",
+      accent: "bg-emerald-500",
+      activeText: "text-emerald-600",
+      activeBorder: "border-emerald-500",
       filter: "paymentsCompleted" as FilterType,
     },
     {
@@ -78,16 +72,15 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
       value: stats.pendingPayments,
       description: "Por confirmar",
       icon: TrendingUp,
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-50",
-      hoverColor: "hover:bg-yellow-100",
-      borderColor: "border-yellow-200",
+      accent: "bg-amber-400",
+      activeText: "text-amber-600",
+      activeBorder: "border-amber-400",
       filter: "paymentsPending" as FilterType,
     },
   ]
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
       {cardData.map((card) => {
         const Icon = card.icon
         const isActive = activeFilter === card.filter
@@ -97,30 +90,26 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
             key={card.filter}
             onClick={() => handleFilterChange(card.filter)}
             className={`
-              text-left transition-all duration-200 
-              ${isActive ? "scale-105 shadow-xl" : "shadow-md hover:shadow-lg"}
+              text-left rounded-xl border bg-white p-4 transition-all duration-150
+              ${isActive
+                ? `${card.activeBorder} border-[1.5px]`
+                : "border-gray-200 hover:border-gray-300"
+              }
             `}
           >
-            <Card
-              className={`
-                h-full border-2 
-                ${isActive ? `${card.borderColor} ring-2 ring-offset-2` : "border-gray-200/20"}
-                ${card.hoverColor}
-                transition-all duration-200
-              `}
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
-                <CardTitle className="text-xs font-medium text-gray-600">{card.title}</CardTitle>
-                <div className={`${card.bgColor} p-2 rounded-lg`}>
-                  <Icon className={`h-4 w-4 ${card.color}`} />
-                </div>
-              </CardHeader>
-              <CardContent className="px-4 pb-4">
-                <div className={`text-2xl font-bold ${card.color}`}>{card.value}</div>
-                <p className="text-[10px] text-gray-600 mt-1">{card.description}</p>
-                {isActive && <div className="mt-2 text-[10px] font-medium text-blue-600">✓ Filtro activo</div>}
-              </CardContent>
-            </Card>
+            <div className="flex items-center justify-between mb-3">
+              <div className={`w-8 h-8 rounded-lg ${card.accent} flex items-center justify-center`}>
+                <Icon className="h-4 w-4 text-white" />
+              </div>
+              {isActive && (
+                <span className={`text-[10px] font-semibold ${card.activeText}`}>activo</span>
+              )}
+            </div>
+            <div className={`text-2xl font-bold tracking-tight ${isActive ? card.activeText : "text-gray-900"}`}>
+              {card.value}
+            </div>
+            <p className="text-xs text-gray-500 mt-0.5 font-medium">{card.title}</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">{card.description}</p>
           </button>
         )
       })}
