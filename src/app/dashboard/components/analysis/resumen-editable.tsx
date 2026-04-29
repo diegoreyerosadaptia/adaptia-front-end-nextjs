@@ -99,6 +99,101 @@ function parseSections(fullText: string): Array<{ title: string; body: string }>
   return sections
 }
 
+// ─── sub-componente: edición Prompt 11 ───────────────────
+function Prompt11EditView({
+  data,
+  onChange,
+}: {
+  data: Prompt11Data
+  onChange: (updated: Prompt11Data) => void
+}) {
+  const inputClass =
+    "w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-[#C2DA62] resize-y min-h-[50px] text-[#163F6A] bg-white"
+  const labelClass = "text-xs font-semibold text-[#C2DA62] uppercase tracking-wide mb-1"
+  const boxClass = "p-6 rounded-lg border border-[#163F6A]/20 bg-white shadow-sm space-y-4"
+
+  const updateAccion = (
+    phase: "primeros_pasos" | "fortalecimiento" | "consolidacion",
+    index: number,
+    field: keyof Accion,
+    value: string,
+  ) => {
+    const updated = [...data[phase]]
+    updated[index] = { ...updated[index], [field]: value }
+    onChange({ ...data, [phase]: updated })
+  }
+
+  const renderAccionesEdit = (
+    items: Accion[],
+    phase: "primeros_pasos" | "fortalecimiento" | "consolidacion",
+  ) =>
+    items.map((item, i) => (
+      <div key={i} className="p-4 rounded-lg border border-[#163F6A]/10 bg-[#F8FAFD] space-y-2">
+        <p className="text-xs font-bold text-[#163F6A]/60">Acción {i + 1}</p>
+        <div>
+          <p className={labelClass}>Tema material</p>
+          <textarea
+            value={item.tema}
+            onChange={(e) => updateAccion(phase, i, "tema", e.target.value)}
+            className={inputClass}
+          />
+        </div>
+        <div>
+          <p className={labelClass}>Descripción</p>
+          <textarea
+            value={item.descripcion}
+            onChange={(e) => updateAccion(phase, i, "descripcion", e.target.value)}
+            className={inputClass}
+          />
+        </div>
+      </div>
+    ))
+
+  return (
+    <div className="space-y-6">
+      <div className={boxClass}>
+        <p className="text-sm font-bold text-[#163F6A]">Enfoque Estratégico</p>
+        <div>
+          <p className={labelClass}>Temas prioritarios (uno por línea)</p>
+          <textarea
+            value={data.temas_prioritarios.join("\n")}
+            onChange={(e) =>
+              onChange({
+                ...data,
+                temas_prioritarios: e.target.value.split("\n").map((s) => s.trim()).filter(Boolean),
+              })
+            }
+            className={`${inputClass} min-h-[100px]`}
+          />
+        </div>
+        <div>
+          <p className={labelClass}>Lectura estratégica</p>
+          <textarea
+            value={data.lectura_estrategica}
+            onChange={(e) => onChange({ ...data, lectura_estrategica: e.target.value })}
+            className={`${inputClass} min-h-[80px]`}
+          />
+        </div>
+      </div>
+
+      <div className={boxClass}>
+        <p className="text-sm font-bold text-[#163F6A]">Plan de Acción — Primeros pasos (0–3 meses)</p>
+        <div className="space-y-3">{renderAccionesEdit(data.primeros_pasos, "primeros_pasos")}</div>
+      </div>
+
+      <div className={boxClass}>
+        <p className="text-sm font-bold text-[#163F6A]">Plan de Acción — Fortalecimiento (3–12 meses)</p>
+        <div className="space-y-3">{renderAccionesEdit(data.fortalecimiento, "fortalecimiento")}</div>
+      </div>
+
+      <div className={boxClass}>
+        <p className="text-sm font-bold text-[#163F6A]">Plan de Acción — Consolidación (12+ meses)</p>
+        <div className="space-y-3">{renderAccionesEdit(data.consolidacion, "consolidacion")}</div>
+      </div>
+    </div>
+  )
+}
+
 // ─── sub-componente: vista Prompt 11 ─────────────────────
 function SectionHeader({ title }: { title: string }) {
   return (
@@ -260,14 +355,23 @@ export function ResumenEditable({
 }) {
   const isNewFormat = isPrompt11(resumenOriginal)
 
-  // ── estado para formato antiguo ──
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+
+  // ── estado formato antiguo ──
   const [resumenPersisted, setResumenPersisted] = useState<ResumenData>(
     isNewFormat ? { parrafo_1: "" } : (resumenOriginal as ResumenData),
   )
   const [resumenText, setResumenText] = useState<string>(() =>
     isNewFormat ? "" : joinResumen(resumenOriginal as ResumenData),
+  )
+
+  // ── estado formato nuevo (Prompt11) ──
+  const [prompt11Persisted, setPrompt11Persisted] = useState<Prompt11Data>(
+    isNewFormat ? (resumenOriginal as Prompt11Data) : ({} as Prompt11Data),
+  )
+  const [prompt11Draft, setPrompt11Draft] = useState<Prompt11Data>(
+    isNewFormat ? (resumenOriginal as Prompt11Data) : ({} as Prompt11Data),
   )
 
   useEffect(() => {
@@ -281,20 +385,37 @@ export function ResumenEditable({
   const handleSaveChanges = async () => {
     try {
       setIsSaving(true)
-      const resumenDataToSave = splitResumen(resumenText)
       const newJson = Array.isArray(analysisData) ? [...analysisData] : []
-      const resumenSection = newJson.find((a: any) => a?.response_content?.parrafo_1)
-      if (!resumenSection) {
-        toast.error("No se encontró la sección de resumen en el JSON del análisis")
-        return
+
+      if (isNewFormat) {
+        const section = newJson.find((a: any) =>
+          Array.isArray(a?.response_content?.temas_prioritarios),
+        )
+        if (!section) {
+          toast.error("No se encontró la sección de resumen en el JSON del análisis")
+          return
+        }
+        section.response_content = prompt11Draft
+        const res = await updateAnalysisJsonAction(lastAnalysisId, newJson as any, accessToken)
+        if (res?.error) { toast.error("Error al guardar los cambios"); return }
+        setPrompt11Persisted(prompt11Draft)
+        toast.success("Cambios guardados correctamente")
+        setIsEditing(false)
+      } else {
+        const resumenDataToSave = splitResumen(resumenText)
+        const resumenSection = newJson.find((a: any) => a?.response_content?.parrafo_1)
+        if (!resumenSection) {
+          toast.error("No se encontró la sección de resumen en el JSON del análisis")
+          return
+        }
+        resumenSection.response_content = resumenDataToSave
+        const res = await updateAnalysisJsonAction(lastAnalysisId, newJson as any, accessToken)
+        if (res?.error) { toast.error("Error al guardar los cambios"); return }
+        setResumenPersisted(resumenDataToSave)
+        setResumenText(joinResumen(resumenDataToSave))
+        toast.success("Cambios guardados correctamente")
+        setIsEditing(false)
       }
-      resumenSection.response_content = resumenDataToSave
-      const res = await updateAnalysisJsonAction(lastAnalysisId, newJson as any, accessToken)
-      if (res?.error) { toast.error("Error al guardar los cambios"); return }
-      setResumenPersisted(resumenDataToSave)
-      setResumenText(joinResumen(resumenDataToSave))
-      toast.success("Cambios guardados correctamente")
-      setIsEditing(false)
     } catch (error) {
       console.error(error)
       toast.error("❌ Error inesperado al guardar")
@@ -304,7 +425,11 @@ export function ResumenEditable({
   }
 
   const handleCancel = () => {
-    setResumenText(joinResumen(resumenPersisted))
+    if (isNewFormat) {
+      setPrompt11Draft(prompt11Persisted)
+    } else {
+      setResumenText(joinResumen(resumenPersisted))
+    }
     setIsEditing(false)
     toast.info("Cambios descartados")
   }
@@ -334,7 +459,7 @@ export function ResumenEditable({
           <h2 className="text-3xl font-heading font-bold leading-tight">
             Ruta de Sostenibilidad
           </h2>
-          {userRole === "ADMIN" && !isNewFormat && (
+          {userRole === "ADMIN" && (
             <AnalysisActionsMenu
               isEditing={isEditing}
               isSaving={isSaving}
@@ -358,7 +483,11 @@ Esta sección presenta un plan inicial de acción en sostenibilidad basado en lo
           </p>
         </div>
       ) : isNewFormat ? (
-        <Prompt11View data={resumenOriginal as Prompt11Data} />
+        isEditing ? (
+          <Prompt11EditView data={prompt11Draft} onChange={setPrompt11Draft} />
+        ) : (
+          <Prompt11View data={prompt11Persisted} />
+        )
       ) : isEditing ? (
         <div className={boxClass}>
           <p className={labelClass}>Resumen</p>
