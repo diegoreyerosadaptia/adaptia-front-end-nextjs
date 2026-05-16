@@ -1,0 +1,60 @@
+[    6225ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/compiled/react-dom/cjs/react-dom-client.development.js:24914
+[  230715ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tpn4e0h5:0
+[  235849ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tpr34j88:0
+[  242156ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tpvy7b5k:0
+[  249526ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tq1mcsu0:0
+[  256891ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tq7bfqe6:0
+[  264254ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tqd08hhy:0
+[  274020ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tqkjnle8:0
+[  278334ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tqnvf6ql:0
+[  284608ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tqspd00e:0
+[  291982ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tqydm0ar:0
+[  299340ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tr42fwhd:0
+[  306702ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tr9qxsa9:0
+[  314059ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=trff998w:0
+[  321392ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=trl3tt0w:0
+[  328742ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=trqre2lh:0
+[  336089ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=trwfmqbu:0
+[  343448ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=ts23o19g:0
+[  350810ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=ts7s0y53:0
+[  358156ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tsdgh5ei:0
+[  365513ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tsj4uk9h:0
+[  372863ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tsosztzj:0
+[  380233ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tsuhaqvm:0
+[  387594ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tt0652qe:0
+[  394948ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tt5ui9wx:0
+[  402300ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=ttbijth3:0
+[  409643ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tth71qvd:0
+[  417004ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=ttmuyvoq:0
+[  424364ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=ttsjfm0h:0
+[  431733ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tty7wop5:0
+[  439108ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tu3wpjsq:0
+[  446481ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tu9llcqi:0
+[  453842ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tufa67lp:0
+[  461206ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tukys9se:0
+[  464702ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:241
+[  465330ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:241
+[  465374ms] [LOG] [Fast Refresh] done in 43ms @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:73
+[  466795ms] [LOG] [Fast Refresh] done in 1465ms @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:73
+[  468572ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tuqnbiv1:0
+[  469206ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:241
+[  469545ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:241
+[  469740ms] [LOG] [Fast Refresh] done in 195ms @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:73
+[  470179ms] [LOG] [Fast Refresh] done in 635ms @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:73
+[  475932ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tuwbzzxc:0
+[  483288ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tv204fva:0
+[  488788ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:241
+[  489300ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:241
+[  489557ms] [LOG] [Fast Refresh] done in 256ms @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:73
+[  490047ms] [LOG] [Fast Refresh] done in 746ms @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:73
+[  490633ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tv7ohgtq:0
+[  497967ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tvdchot9:0
+[  505326ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tvj0eseq:0
+[  512702ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tvoorjll:0
+[  520074ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tvudw84r:0
+[  522860ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:241
+[  523351ms] [LOG] [Fast Refresh] rebuilding @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:241
+[  523378ms] [LOG] [Fast Refresh] done in 27ms @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:73
+[  525888ms] [LOG] [Fast Refresh] done in 2537ms @ webpack-internal:///(app-pages-browser)/./node_modules/.pnpm/next@15.2.8_react-dom@19.2.1_react@19.2.1__react@19.2.1/node_modules/next/dist/client/components/react-dev-overlay/app/hot-reloader-client.js:73
+[  527437ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tw037ycs:0
+[  534785ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:3030/socket.io/?EIO=4&transport=polling&t=tw5r0e10:0

@@ -139,6 +139,7 @@ export default async function ClientDashboard() {
 
               <form action={handleSignOut}>
                 <Button
+                  type="submit"
                   variant="ghost"
                   size="sm"
                   className="text-gray-400 hover:text-gray-700 hover:bg-gray-50 gap-1.5 px-2.5"

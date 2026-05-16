@@ -1,18 +1,20 @@
 import { redirect } from "next/navigation"
 import Image from "next/image"
-import { LogOut } from "lucide-react"
+import { LogOut, Building2, Tag, ClipboardList, Users } from "lucide-react"
 
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 
 import { getOrganizationsAll, getOrganizationsPage } from "@/services/organization.service"
-import { getUserById } from "@/services/users.service"
+import { getUserById, getUsers } from "@/services/users.service"
 import { getCoupons } from "@/services/cupon.service"
+import { User } from "@/types/user.type"
 
 import DashboardStats from "./components/dashboard-stats"
 import DashboardTable from "./components/dashboard-table"
 import DashboardCouponsList from "./components/cupones/cupon-list"
 import GeneralTable from "./components/general-table"
+import UsersTable from "./components/users-table"
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { AnalyticsButton } from "./components/analytics-button"
@@ -58,12 +60,14 @@ export default async function AdminDashboard({
   }
 
 
-  // ✅ Paralelo: paginado para tabla + all para stats
-  const [orgPage, orgAll, cupones] = await Promise.all([
-    getOrganizationsPage(token, { page, limit }), // ✅ tabla (15)
-    getOrganizationsAll(token),                  // ✅ stats / registers / coupons
+  const [orgPage, orgAll, cupones, usersRaw] = await Promise.all([
+    getOrganizationsPage(token, { page, limit }),
+    getOrganizationsAll(token),
     getCoupons(token),
+    getUsers(token),
   ])
+
+  const usersList = (usersRaw as unknown as User[]) ?? []
 
   if (!orgPage) redirect("/error")
 
@@ -206,45 +210,80 @@ export default async function AdminDashboard({
         <DashboardStats stats={stats} />
 
         <section className="mt-10">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="px-4 pt-4 pb-2 border-b border-gray-100">
-              <Tabs defaultValue="organizations" className="w-full">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                  <TabsList className="bg-slate-50">
-                    <TabsTrigger value="organizations" className="px-4">
-                      Organizaciones
-                    </TabsTrigger>
-                    <TabsTrigger value="coupons" className="px-4">
-                      Cupones
-                    </TabsTrigger>
-                    <TabsTrigger value="registers" className="px-4">
-                      Registros
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
+          <Tabs defaultValue="organizations" className="w-full">
+            {/* Tab nav */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 mb-4">
+              <TabsList className="bg-transparent p-0 h-auto gap-2 flex-wrap justify-start">
+                <TabsTrigger
+                  value="organizations"
+                  className="group flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-transparent bg-gray-50 text-gray-600 hover:bg-gray-100 data-[state=active]:bg-[#163F6A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                >
+                  <Building2 className="h-4 w-4" />
+                  <span>Organizaciones</span>
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full tabular-nums bg-[#163F6A]/10 text-[#163F6A] group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
+                    {totalOrganizations}
+                  </span>
+                </TabsTrigger>
 
-                <TabsContent value="organizations" className="pt-4">
-                  {/* ✅ SOLO PAGINADO */}
-                  <DashboardTable
-                    organizations={organizationsForTable}
-                    meta={orgPage}
-                    token={token}
-                  />
-                </TabsContent>
+                <TabsTrigger
+                  value="coupons"
+                  className="group flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-transparent bg-gray-50 text-gray-600 hover:bg-gray-100 data-[state=active]:bg-[#163F6A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                >
+                  <Tag className="h-4 w-4" />
+                  <span>Cupones</span>
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full tabular-nums bg-[#163F6A]/10 text-[#163F6A] group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
+                    {(cupones ?? []).length}
+                  </span>
+                </TabsTrigger>
 
-                <TabsContent value="coupons" className="pt-4">
-                  <DashboardCouponsList
-                    coupons={cupones ?? []}
-                    organizations={organizationsForStats}
-                  />
-                </TabsContent>
+                <TabsTrigger
+                  value="registers"
+                  className="group flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-transparent bg-gray-50 text-gray-600 hover:bg-gray-100 data-[state=active]:bg-[#163F6A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                >
+                  <ClipboardList className="h-4 w-4" />
+                  <span>Registros</span>
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full tabular-nums bg-[#163F6A]/10 text-[#163F6A] group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
+                    {totalAnalysis}
+                  </span>
+                </TabsTrigger>
 
-                <TabsContent value="registers" className="pt-4">
-                  <GeneralTable organizations={organizationsForStats} token={token} />
-                </TabsContent>
-              </Tabs>
+                <TabsTrigger
+                  value="users"
+                  className="group flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-transparent bg-gray-50 text-gray-600 hover:bg-gray-100 data-[state=active]:bg-[#163F6A] data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                >
+                  <Users className="h-4 w-4" />
+                  <span>Usuarios</span>
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full tabular-nums bg-[#163F6A]/10 text-[#163F6A] group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
+                    {usersList.length}
+                  </span>
+                </TabsTrigger>
+              </TabsList>
             </div>
-          </div>
+
+            {/* Tab contents */}
+            <TabsContent value="organizations" className="mt-0">
+              <DashboardTable
+                organizations={organizationsForTable}
+                meta={orgPage}
+                token={token}
+              />
+            </TabsContent>
+
+            <TabsContent value="coupons" className="mt-0">
+              <DashboardCouponsList
+                coupons={cupones ?? []}
+                organizations={organizationsForStats}
+              />
+            </TabsContent>
+
+            <TabsContent value="registers" className="mt-0">
+              <GeneralTable organizations={organizationsForStats} token={token} />
+            </TabsContent>
+
+            <TabsContent value="users" className="mt-0">
+              <UsersTable initialUsers={usersList} />
+            </TabsContent>
+          </Tabs>
         </section>
       </main>
     </div>

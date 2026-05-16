@@ -1,0 +1,676 @@
+- generic [ref=e1]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - img "Adaptia Logo" [ref=e7]
+        - generic [ref=e8]:
+          - heading "Panel de Administrador" [level=1] [ref=e9]
+          - paragraph [ref=e10]: Gestión integral de organizaciones, análisis y cupones de descuento
+        - link "Ver Analytics" [ref=e11] [cursor=pointer]:
+          - /url: https://analytics.google.com/analytics/web/#/a384550060p524633962/reports/explorer?params=_u..nav%3Dmaui%26_r.explorerCard..startRow%3D0%26_r.explorerCard..rowsPerPage%3D50&ruid=top-events,business-objectives,examine-user-behavior&collectionId=business-objectives&r=top-events
+          - img
+          - generic [ref=e12]: Ver Analytics
+        - generic [ref=e13]:
+          - generic [ref=e14]:
+            - paragraph
+            - paragraph [ref=e15]: nachitogaute@gmail.com
+          - button "Cerrar Sesión" [ref=e17]:
+            - img
+            - generic [ref=e18]: Cerrar Sesión
+    - main [ref=e19]:
+      - generic [ref=e20]:
+        - button "Total Organizaciones 53 Registradas en el sistema ✓ Filtro activo" [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - generic [ref=e24]: Total Organizaciones
+              - img [ref=e26]
+            - generic [ref=e30]:
+              - generic [ref=e31]: "53"
+              - paragraph [ref=e32]: Registradas en el sistema
+              - generic [ref=e33]: ✓ Filtro activo
+        - button "Completados 47 89% del total" [ref=e34]:
+          - generic [ref=e35]:
+            - generic [ref=e36]:
+              - generic [ref=e37]: Completados
+              - img [ref=e39]
+            - generic [ref=e42]:
+              - generic [ref=e43]: "47"
+              - paragraph [ref=e44]: 89% del total
+        - button "Pendientes 6 En proceso" [ref=e45]:
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - generic [ref=e48]: Pendientes
+              - img [ref=e50]
+            - generic [ref=e53]:
+              - generic [ref=e54]: "6"
+              - paragraph [ref=e55]: En proceso
+        - button "Pagos Completados 48 Pagos confirmados" [ref=e56]:
+          - generic [ref=e57]:
+            - generic [ref=e58]:
+              - generic [ref=e59]: Pagos Completados
+              - img [ref=e61]
+            - generic [ref=e63]:
+              - generic [ref=e64]: "48"
+              - paragraph [ref=e65]: Pagos confirmados
+        - button "Pagos Pendientes 5 Por confirmar" [ref=e66]:
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69]: Pagos Pendientes
+              - img [ref=e71]
+            - generic [ref=e74]:
+              - generic [ref=e75]: "5"
+              - paragraph [ref=e76]: Por confirmar
+      - generic [ref=e78]:
+        - tablist [ref=e80]:
+          - tab "Organizaciones 53" [ref=e81]:
+            - img
+            - generic [ref=e82]: Organizaciones
+            - generic [ref=e83]: "53"
+          - tab "Cupones 13" [ref=e84]:
+            - img
+            - generic [ref=e85]: Cupones
+            - generic [ref=e86]: "13"
+          - tab "Registros 53" [ref=e87]:
+            - img
+            - generic [ref=e88]: Registros
+            - generic [ref=e89]: "53"
+          - tab "Usuarios 43" [active] [selected] [ref=e90]:
+            - img
+            - generic [ref=e91]: Usuarios
+            - generic [ref=e92]: "43"
+        - tabpanel "Usuarios 43" [ref=e510]:
+          - generic [ref=e511]:
+            - generic [ref=e513]:
+              - generic [ref=e514]:
+                - generic [ref=e515]: Usuarios registrados
+                - generic [ref=e517]: 43 usuarios encontrados
+              - generic [ref=e518]:
+                - generic [ref=e519]:
+                  - button "Todos 43" [ref=e520]:
+                    - text: Todos
+                    - generic [ref=e521]: "43"
+                  - button "Admins 3" [ref=e522]:
+                    - text: Admins
+                    - generic [ref=e523]: "3"
+                  - button "Usuarios 40" [ref=e524]:
+                    - text: Usuarios
+                    - generic [ref=e525]: "40"
+                - generic [ref=e526]:
+                  - img [ref=e527]
+                  - textbox "Buscar por nombre o email..." [ref=e530]
+            - table [ref=e533]:
+              - rowgroup [ref=e534]:
+                - row "Usuario Email Rol Registrado" [ref=e535]:
+                  - columnheader "Usuario" [ref=e536]
+                  - columnheader "Email" [ref=e537]
+                  - columnheader "Rol" [ref=e538]
+                  - columnheader "Registrado" [ref=e539]
+              - rowgroup [ref=e540]:
+                - row "M mmricardez@gmail.com mmricardez@gmail.com Usuario —" [ref=e541]:
+                  - cell "M mmricardez@gmail.com" [ref=e542]:
+                    - generic [ref=e543]:
+                      - generic [ref=e545]: M
+                      - paragraph [ref=e546]: mmricardez@gmail.com
+                  - cell "mmricardez@gmail.com" [ref=e547]:
+                    - paragraph [ref=e548]: mmricardez@gmail.com
+                  - cell "Usuario" [ref=e549]:
+                    - generic [ref=e550]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e551]:
+                    - paragraph [ref=e552]: —
+                - row "M mariana.moreno@nyce.org.mx mariana.moreno@nyce.org.mx Usuario —" [ref=e553]:
+                  - cell "M mariana.moreno@nyce.org.mx" [ref=e554]:
+                    - generic [ref=e555]:
+                      - generic [ref=e557]: M
+                      - paragraph [ref=e558]: mariana.moreno@nyce.org.mx
+                  - cell "mariana.moreno@nyce.org.mx" [ref=e559]:
+                    - paragraph [ref=e560]: mariana.moreno@nyce.org.mx
+                  - cell "Usuario" [ref=e561]:
+                    - generic [ref=e562]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e563]:
+                    - paragraph [ref=e564]: —
+                - row "L locogaute22@gmail.com locogaute22@gmail.com Usuario —" [ref=e565]:
+                  - cell "L locogaute22@gmail.com" [ref=e566]:
+                    - generic [ref=e567]:
+                      - generic [ref=e569]: L
+                      - paragraph [ref=e570]: locogaute22@gmail.com
+                  - cell "locogaute22@gmail.com" [ref=e571]:
+                    - paragraph [ref=e572]: locogaute22@gmail.com
+                  - cell "Usuario" [ref=e573]:
+                    - generic [ref=e574]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e575]:
+                    - paragraph [ref=e576]: —
+                - row "J jessica.escobar@kueponi.com jessica.escobar@kueponi.com Usuario —" [ref=e577]:
+                  - cell "J jessica.escobar@kueponi.com" [ref=e578]:
+                    - generic [ref=e579]:
+                      - generic [ref=e581]: J
+                      - paragraph [ref=e582]: jessica.escobar@kueponi.com
+                  - cell "jessica.escobar@kueponi.com" [ref=e583]:
+                    - paragraph [ref=e584]: jessica.escobar@kueponi.com
+                  - cell "Usuario" [ref=e585]:
+                    - generic [ref=e586]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e587]:
+                    - paragraph [ref=e588]: —
+                - row "M managerLGM@ibio.cl managerLGM@ibio.cl Usuario —" [ref=e589]:
+                  - cell "M managerLGM@ibio.cl" [ref=e590]:
+                    - generic [ref=e591]:
+                      - generic [ref=e593]: M
+                      - paragraph [ref=e594]: managerLGM@ibio.cl
+                  - cell "managerLGM@ibio.cl" [ref=e595]:
+                    - paragraph [ref=e596]: managerLGM@ibio.cl
+                  - cell "Usuario" [ref=e597]:
+                    - generic [ref=e598]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e599]:
+                    - paragraph [ref=e600]: —
+                - row "A andrea.ayala@fidseguros.cl andrea.ayala@fidseguros.cl Usuario —" [ref=e601]:
+                  - cell "A andrea.ayala@fidseguros.cl" [ref=e602]:
+                    - generic [ref=e603]:
+                      - generic [ref=e605]: A
+                      - paragraph [ref=e606]: andrea.ayala@fidseguros.cl
+                  - cell "andrea.ayala@fidseguros.cl" [ref=e607]:
+                    - paragraph [ref=e608]: andrea.ayala@fidseguros.cl
+                  - cell "Usuario" [ref=e609]:
+                    - generic [ref=e610]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e611]:
+                    - paragraph [ref=e612]: —
+                - row "L locogaute@gmail.com locogaute@gmail.com Usuario —" [ref=e613]:
+                  - cell "L locogaute@gmail.com" [ref=e614]:
+                    - generic [ref=e615]:
+                      - generic [ref=e617]: L
+                      - paragraph [ref=e618]: locogaute@gmail.com
+                  - cell "locogaute@gmail.com" [ref=e619]:
+                    - paragraph [ref=e620]: locogaute@gmail.com
+                  - cell "Usuario" [ref=e621]:
+                    - generic [ref=e622]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e623]:
+                    - paragraph [ref=e624]: —
+                - row "T test1234@gmail.com test1234@gmail.com Usuario —" [ref=e625]:
+                  - cell "T test1234@gmail.com" [ref=e626]:
+                    - generic [ref=e627]:
+                      - generic [ref=e629]: T
+                      - paragraph [ref=e630]: test1234@gmail.com
+                  - cell "test1234@gmail.com" [ref=e631]:
+                    - paragraph [ref=e632]: test1234@gmail.com
+                  - cell "Usuario" [ref=e633]:
+                    - generic [ref=e634]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e635]:
+                    - paragraph [ref=e636]: —
+                - row "P pabloandres1865@gmail.com pabloandres1865@gmail.com Usuario —" [ref=e637]:
+                  - cell "P pabloandres1865@gmail.com" [ref=e638]:
+                    - generic [ref=e639]:
+                      - generic [ref=e641]: P
+                      - paragraph [ref=e642]: pabloandres1865@gmail.com
+                  - cell "pabloandres1865@gmail.com" [ref=e643]:
+                    - paragraph [ref=e644]: pabloandres1865@gmail.com
+                  - cell "Usuario" [ref=e645]:
+                    - generic [ref=e646]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e647]:
+                    - paragraph [ref=e648]: —
+                - row "D d.reyeros@wascompany.com d.reyeros@wascompany.com Usuario —" [ref=e649]:
+                  - cell "D d.reyeros@wascompany.com" [ref=e650]:
+                    - generic [ref=e651]:
+                      - generic [ref=e653]: D
+                      - paragraph [ref=e654]: d.reyeros@wascompany.com
+                  - cell "d.reyeros@wascompany.com" [ref=e655]:
+                    - paragraph [ref=e656]: d.reyeros@wascompany.com
+                  - cell "Usuario" [ref=e657]:
+                    - generic [ref=e658]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e659]:
+                    - paragraph [ref=e660]: —
+                - row "J jimena.reyeros@gmail.com jimena.reyeros@gmail.com Usuario —" [ref=e661]:
+                  - cell "J jimena.reyeros@gmail.com" [ref=e662]:
+                    - generic [ref=e663]:
+                      - generic [ref=e665]: J
+                      - paragraph [ref=e666]: jimena.reyeros@gmail.com
+                  - cell "jimena.reyeros@gmail.com" [ref=e667]:
+                    - paragraph [ref=e668]: jimena.reyeros@gmail.com
+                  - cell "Usuario" [ref=e669]:
+                    - generic [ref=e670]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e671]:
+                    - paragraph [ref=e672]: —
+                - row "V vsanchez@sumaimpacto.cl vsanchez@sumaimpacto.cl Usuario —" [ref=e673]:
+                  - cell "V vsanchez@sumaimpacto.cl" [ref=e674]:
+                    - generic [ref=e675]:
+                      - generic [ref=e677]: V
+                      - paragraph [ref=e678]: vsanchez@sumaimpacto.cl
+                  - cell "vsanchez@sumaimpacto.cl" [ref=e679]:
+                    - paragraph [ref=e680]: vsanchez@sumaimpacto.cl
+                  - cell "Usuario" [ref=e681]:
+                    - generic [ref=e682]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e683]:
+                    - paragraph [ref=e684]: —
+                - row "A aeyzaguirre@drcompany.cl aeyzaguirre@drcompany.cl Usuario —" [ref=e685]:
+                  - cell "A aeyzaguirre@drcompany.cl" [ref=e686]:
+                    - generic [ref=e687]:
+                      - generic [ref=e689]: A
+                      - paragraph [ref=e690]: aeyzaguirre@drcompany.cl
+                  - cell "aeyzaguirre@drcompany.cl" [ref=e691]:
+                    - paragraph [ref=e692]: aeyzaguirre@drcompany.cl
+                  - cell "Usuario" [ref=e693]:
+                    - generic [ref=e694]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e695]:
+                    - paragraph [ref=e696]: —
+                - row "A adriana@agileimpacts.com adriana@agileimpacts.com Usuario —" [ref=e697]:
+                  - cell "A adriana@agileimpacts.com" [ref=e698]:
+                    - generic [ref=e699]:
+                      - generic [ref=e701]: A
+                      - paragraph [ref=e702]: adriana@agileimpacts.com
+                  - cell "adriana@agileimpacts.com" [ref=e703]:
+                    - paragraph [ref=e704]: adriana@agileimpacts.com
+                  - cell "Usuario" [ref=e705]:
+                    - generic [ref=e706]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e707]:
+                    - paragraph [ref=e708]: —
+                - row "N nachitogaute@gmail.com nachitogaute@gmail.com Admin —" [ref=e709]:
+                  - cell "N nachitogaute@gmail.com" [ref=e710]:
+                    - generic [ref=e711]:
+                      - generic [ref=e713]: "N"
+                      - paragraph [ref=e714]: nachitogaute@gmail.com
+                  - cell "nachitogaute@gmail.com" [ref=e715]:
+                    - paragraph [ref=e716]: nachitogaute@gmail.com
+                  - cell "Admin" [ref=e717]:
+                    - generic [ref=e718]:
+                      - img
+                      - text: Admin
+                  - cell "—" [ref=e719]:
+                    - paragraph [ref=e720]: —
+                - row "A apino@southblu.cl apino@southblu.cl Usuario —" [ref=e721]:
+                  - cell "A apino@southblu.cl" [ref=e722]:
+                    - generic [ref=e723]:
+                      - generic [ref=e725]: A
+                      - paragraph [ref=e726]: apino@southblu.cl
+                  - cell "apino@southblu.cl" [ref=e727]:
+                    - paragraph [ref=e728]: apino@southblu.cl
+                  - cell "Usuario" [ref=e729]:
+                    - generic [ref=e730]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e731]:
+                    - paragraph [ref=e732]: —
+                - row "K karla@responsable.net karla@responsable.net Usuario —" [ref=e733]:
+                  - cell "K karla@responsable.net" [ref=e734]:
+                    - generic [ref=e735]:
+                      - generic [ref=e737]: K
+                      - paragraph [ref=e738]: karla@responsable.net
+                  - cell "karla@responsable.net" [ref=e739]:
+                    - paragraph [ref=e740]: karla@responsable.net
+                  - cell "Usuario" [ref=e741]:
+                    - generic [ref=e742]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e743]:
+                    - paragraph [ref=e744]: —
+                - row "D dany@jaipp.com dany@jaipp.com Usuario —" [ref=e745]:
+                  - cell "D dany@jaipp.com" [ref=e746]:
+                    - generic [ref=e747]:
+                      - generic [ref=e749]: D
+                      - paragraph [ref=e750]: dany@jaipp.com
+                  - cell "dany@jaipp.com" [ref=e751]:
+                    - paragraph [ref=e752]: dany@jaipp.com
+                  - cell "Usuario" [ref=e753]:
+                    - generic [ref=e754]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e755]:
+                    - paragraph [ref=e756]: —
+                - row "N natalia.poblete830@gmail.com natalia.poblete830@gmail.com Usuario —" [ref=e757]:
+                  - cell "N natalia.poblete830@gmail.com" [ref=e758]:
+                    - generic [ref=e759]:
+                      - generic [ref=e761]: "N"
+                      - paragraph [ref=e762]: natalia.poblete830@gmail.com
+                  - cell "natalia.poblete830@gmail.com" [ref=e763]:
+                    - paragraph [ref=e764]: natalia.poblete830@gmail.com
+                  - cell "Usuario" [ref=e765]:
+                    - generic [ref=e766]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e767]:
+                    - paragraph [ref=e768]: —
+                - row "L laura@estrategiasustentable.com.mx laura@estrategiasustentable.com.mx Usuario —" [ref=e769]:
+                  - cell "L laura@estrategiasustentable.com.mx" [ref=e770]:
+                    - generic [ref=e771]:
+                      - generic [ref=e773]: L
+                      - paragraph [ref=e774]: laura@estrategiasustentable.com.mx
+                  - cell "laura@estrategiasustentable.com.mx" [ref=e775]:
+                    - paragraph [ref=e776]: laura@estrategiasustentable.com.mx
+                  - cell "Usuario" [ref=e777]:
+                    - generic [ref=e778]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e779]:
+                    - paragraph [ref=e780]: —
+                - row "N natyriquelmer@gmail.com natyriquelmer@gmail.com Usuario —" [ref=e781]:
+                  - cell "N natyriquelmer@gmail.com" [ref=e782]:
+                    - generic [ref=e783]:
+                      - generic [ref=e785]: "N"
+                      - paragraph [ref=e786]: natyriquelmer@gmail.com
+                  - cell "natyriquelmer@gmail.com" [ref=e787]:
+                    - paragraph [ref=e788]: natyriquelmer@gmail.com
+                  - cell "Usuario" [ref=e789]:
+                    - generic [ref=e790]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e791]:
+                    - paragraph [ref=e792]: —
+                - row "S s.schumacherd@gmail.com s.schumacherd@gmail.com Usuario —" [ref=e793]:
+                  - cell "S s.schumacherd@gmail.com" [ref=e794]:
+                    - generic [ref=e795]:
+                      - generic [ref=e797]: S
+                      - paragraph [ref=e798]: s.schumacherd@gmail.com
+                  - cell "s.schumacherd@gmail.com" [ref=e799]:
+                    - paragraph [ref=e800]: s.schumacherd@gmail.com
+                  - cell "Usuario" [ref=e801]:
+                    - generic [ref=e802]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e803]:
+                    - paragraph [ref=e804]: —
+                - row "S sirtomas@omia.cl sirtomas@omia.cl Usuario —" [ref=e805]:
+                  - cell "S sirtomas@omia.cl" [ref=e806]:
+                    - generic [ref=e807]:
+                      - generic [ref=e809]: S
+                      - paragraph [ref=e810]: sirtomas@omia.cl
+                  - cell "sirtomas@omia.cl" [ref=e811]:
+                    - paragraph [ref=e812]: sirtomas@omia.cl
+                  - cell "Usuario" [ref=e813]:
+                    - generic [ref=e814]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e815]:
+                    - paragraph [ref=e816]: —
+                - row "X ximena.marin@bamas.com.co ximena.marin@bamas.com.co Usuario —" [ref=e817]:
+                  - cell "X ximena.marin@bamas.com.co" [ref=e818]:
+                    - generic [ref=e819]:
+                      - generic [ref=e821]: X
+                      - paragraph [ref=e822]: ximena.marin@bamas.com.co
+                  - cell "ximena.marin@bamas.com.co" [ref=e823]:
+                    - paragraph [ref=e824]: ximena.marin@bamas.com.co
+                  - cell "Usuario" [ref=e825]:
+                    - generic [ref=e826]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e827]:
+                    - paragraph [ref=e828]: —
+                - row "V vizcaya.abdo@gmail.com vizcaya.abdo@gmail.com Usuario —" [ref=e829]:
+                  - cell "V vizcaya.abdo@gmail.com" [ref=e830]:
+                    - generic [ref=e831]:
+                      - generic [ref=e833]: V
+                      - paragraph [ref=e834]: vizcaya.abdo@gmail.com
+                  - cell "vizcaya.abdo@gmail.com" [ref=e835]:
+                    - paragraph [ref=e836]: vizcaya.abdo@gmail.com
+                  - cell "Usuario" [ref=e837]:
+                    - generic [ref=e838]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e839]:
+                    - paragraph [ref=e840]: —
+                - row "A adriz00@yahoo.com.mx adriz00@yahoo.com.mx Usuario —" [ref=e841]:
+                  - cell "A adriz00@yahoo.com.mx" [ref=e842]:
+                    - generic [ref=e843]:
+                      - generic [ref=e845]: A
+                      - paragraph [ref=e846]: adriz00@yahoo.com.mx
+                  - cell "adriz00@yahoo.com.mx" [ref=e847]:
+                    - paragraph [ref=e848]: adriz00@yahoo.com.mx
+                  - cell "Usuario" [ref=e849]:
+                    - generic [ref=e850]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e851]:
+                    - paragraph [ref=e852]: —
+                - row "C camila.cabreraz@gmail.com camila.cabreraz@gmail.com Usuario —" [ref=e853]:
+                  - cell "C camila.cabreraz@gmail.com" [ref=e854]:
+                    - generic [ref=e855]:
+                      - generic [ref=e857]: C
+                      - paragraph [ref=e858]: camila.cabreraz@gmail.com
+                  - cell "camila.cabreraz@gmail.com" [ref=e859]:
+                    - paragraph [ref=e860]: camila.cabreraz@gmail.com
+                  - cell "Usuario" [ref=e861]:
+                    - generic [ref=e862]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e863]:
+                    - paragraph [ref=e864]: —
+                - row "P pmaciasr@chevez.com.mx pmaciasr@chevez.com.mx Usuario —" [ref=e865]:
+                  - cell "P pmaciasr@chevez.com.mx" [ref=e866]:
+                    - generic [ref=e867]:
+                      - generic [ref=e869]: P
+                      - paragraph [ref=e870]: pmaciasr@chevez.com.mx
+                  - cell "pmaciasr@chevez.com.mx" [ref=e871]:
+                    - paragraph [ref=e872]: pmaciasr@chevez.com.mx
+                  - cell "Usuario" [ref=e873]:
+                    - generic [ref=e874]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e875]:
+                    - paragraph [ref=e876]: —
+                - row "A arce.adriana1@gmail.com arce.adriana1@gmail.com Usuario —" [ref=e877]:
+                  - cell "A arce.adriana1@gmail.com" [ref=e878]:
+                    - generic [ref=e879]:
+                      - generic [ref=e881]: A
+                      - paragraph [ref=e882]: arce.adriana1@gmail.com
+                  - cell "arce.adriana1@gmail.com" [ref=e883]:
+                    - paragraph [ref=e884]: arce.adriana1@gmail.com
+                  - cell "Usuario" [ref=e885]:
+                    - generic [ref=e886]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e887]:
+                    - paragraph [ref=e888]: —
+                - row "S slavenilicv@gmail.com slavenilicv@gmail.com Usuario —" [ref=e889]:
+                  - cell "S slavenilicv@gmail.com" [ref=e890]:
+                    - generic [ref=e891]:
+                      - generic [ref=e893]: S
+                      - paragraph [ref=e894]: slavenilicv@gmail.com
+                  - cell "slavenilicv@gmail.com" [ref=e895]:
+                    - paragraph [ref=e896]: slavenilicv@gmail.com
+                  - cell "Usuario" [ref=e897]:
+                    - generic [ref=e898]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e899]:
+                    - paragraph [ref=e900]: —
+                - row "A andrea@serenestudio.com.mx andrea@serenestudio.com.mx Usuario —" [ref=e901]:
+                  - cell "A andrea@serenestudio.com.mx" [ref=e902]:
+                    - generic [ref=e903]:
+                      - generic [ref=e905]: A
+                      - paragraph [ref=e906]: andrea@serenestudio.com.mx
+                  - cell "andrea@serenestudio.com.mx" [ref=e907]:
+                    - paragraph [ref=e908]: andrea@serenestudio.com.mx
+                  - cell "Usuario" [ref=e909]:
+                    - generic [ref=e910]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e911]:
+                    - paragraph [ref=e912]: —
+                - row "T teree0204@gmail.com teree0204@gmail.com Usuario —" [ref=e913]:
+                  - cell "T teree0204@gmail.com" [ref=e914]:
+                    - generic [ref=e915]:
+                      - generic [ref=e917]: T
+                      - paragraph [ref=e918]: teree0204@gmail.com
+                  - cell "teree0204@gmail.com" [ref=e919]:
+                    - paragraph [ref=e920]: teree0204@gmail.com
+                  - cell "Usuario" [ref=e921]:
+                    - generic [ref=e922]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e923]:
+                    - paragraph [ref=e924]: —
+                - row "K katongatemanau@gmail.com katongatemanau@gmail.com Usuario —" [ref=e925]:
+                  - cell "K katongatemanau@gmail.com" [ref=e926]:
+                    - generic [ref=e927]:
+                      - generic [ref=e929]: K
+                      - paragraph [ref=e930]: katongatemanau@gmail.com
+                  - cell "katongatemanau@gmail.com" [ref=e931]:
+                    - paragraph [ref=e932]: katongatemanau@gmail.com
+                  - cell "Usuario" [ref=e933]:
+                    - generic [ref=e934]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e935]:
+                    - paragraph [ref=e936]: —
+                - row "N nwensioe@herodynamics.cl nwensioe@herodynamics.cl Usuario —" [ref=e937]:
+                  - cell "N nwensioe@herodynamics.cl" [ref=e938]:
+                    - generic [ref=e939]:
+                      - generic [ref=e941]: "N"
+                      - paragraph [ref=e942]: nwensioe@herodynamics.cl
+                  - cell "nwensioe@herodynamics.cl" [ref=e943]:
+                    - paragraph [ref=e944]: nwensioe@herodynamics.cl
+                  - cell "Usuario" [ref=e945]:
+                    - generic [ref=e946]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e947]:
+                    - paragraph [ref=e948]: —
+                - row "F francisco@isrbio.com francisco@isrbio.com Usuario —" [ref=e949]:
+                  - cell "F francisco@isrbio.com" [ref=e950]:
+                    - generic [ref=e951]:
+                      - generic [ref=e953]: F
+                      - paragraph [ref=e954]: francisco@isrbio.com
+                  - cell "francisco@isrbio.com" [ref=e955]:
+                    - paragraph [ref=e956]: francisco@isrbio.com
+                  - cell "Usuario" [ref=e957]:
+                    - generic [ref=e958]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e959]:
+                    - paragraph [ref=e960]: —
+                - row "V vicente.cerda.a@gmail.com vicente.cerda.a@gmail.com Usuario —" [ref=e961]:
+                  - cell "V vicente.cerda.a@gmail.com" [ref=e962]:
+                    - generic [ref=e963]:
+                      - generic [ref=e965]: V
+                      - paragraph [ref=e966]: vicente.cerda.a@gmail.com
+                  - cell "vicente.cerda.a@gmail.com" [ref=e967]:
+                    - paragraph [ref=e968]: vicente.cerda.a@gmail.com
+                  - cell "Usuario" [ref=e969]:
+                    - generic [ref=e970]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e971]:
+                    - paragraph [ref=e972]: —
+                - row "G gloobacl@gmail.com gloobacl@gmail.com Usuario —" [ref=e973]:
+                  - cell "G gloobacl@gmail.com" [ref=e974]:
+                    - generic [ref=e975]:
+                      - generic [ref=e977]: G
+                      - paragraph [ref=e978]: gloobacl@gmail.com
+                  - cell "gloobacl@gmail.com" [ref=e979]:
+                    - paragraph [ref=e980]: gloobacl@gmail.com
+                  - cell "Usuario" [ref=e981]:
+                    - generic [ref=e982]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e983]:
+                    - paragraph [ref=e984]: —
+                - row "V valeilic@gmail.com valeilic@gmail.com Usuario —" [ref=e985]:
+                  - cell "V valeilic@gmail.com" [ref=e986]:
+                    - generic [ref=e987]:
+                      - generic [ref=e989]: V
+                      - paragraph [ref=e990]: valeilic@gmail.com
+                  - cell "valeilic@gmail.com" [ref=e991]:
+                    - paragraph [ref=e992]: valeilic@gmail.com
+                  - cell "Usuario" [ref=e993]:
+                    - generic [ref=e994]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e995]:
+                    - paragraph [ref=e996]: —
+                - row "D diegors30@me.com diegors30@me.com Usuario —" [ref=e997]:
+                  - cell "D diegors30@me.com" [ref=e998]:
+                    - generic [ref=e999]:
+                      - generic [ref=e1001]: D
+                      - paragraph [ref=e1002]: diegors30@me.com
+                  - cell "diegors30@me.com" [ref=e1003]:
+                    - paragraph [ref=e1004]: diegors30@me.com
+                  - cell "Usuario" [ref=e1005]:
+                    - generic [ref=e1006]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e1007]:
+                    - paragraph [ref=e1008]: —
+                - row "J joussettef.ch@gmail.com joussettef.ch@gmail.com Admin —" [ref=e1009]:
+                  - cell "J joussettef.ch@gmail.com" [ref=e1010]:
+                    - generic [ref=e1011]:
+                      - generic [ref=e1013]: J
+                      - paragraph [ref=e1014]: joussettef.ch@gmail.com
+                  - cell "joussettef.ch@gmail.com" [ref=e1015]:
+                    - paragraph [ref=e1016]: joussettef.ch@gmail.com
+                  - cell "Admin" [ref=e1017]:
+                    - generic [ref=e1018]:
+                      - img
+                      - text: Admin
+                  - cell "—" [ref=e1019]:
+                    - paragraph [ref=e1020]: —
+                - row "D diego.reyeros@ecolana.com.mx diego.reyeros@ecolana.com.mx Usuario —" [ref=e1021]:
+                  - cell "D diego.reyeros@ecolana.com.mx" [ref=e1022]:
+                    - generic [ref=e1023]:
+                      - generic [ref=e1025]: D
+                      - paragraph [ref=e1026]: diego.reyeros@ecolana.com.mx
+                  - cell "diego.reyeros@ecolana.com.mx" [ref=e1027]:
+                    - paragraph [ref=e1028]: diego.reyeros@ecolana.com.mx
+                  - cell "Usuario" [ref=e1029]:
+                    - generic [ref=e1030]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e1031]:
+                    - paragraph [ref=e1032]: —
+                - row "D diego.reyeros@gmail.com diego.reyeros@gmail.com Usuario —" [ref=e1033]:
+                  - cell "D diego.reyeros@gmail.com" [ref=e1034]:
+                    - generic [ref=e1035]:
+                      - generic [ref=e1037]: D
+                      - paragraph [ref=e1038]: diego.reyeros@gmail.com
+                  - cell "diego.reyeros@gmail.com" [ref=e1039]:
+                    - paragraph [ref=e1040]: diego.reyeros@gmail.com
+                  - cell "Usuario" [ref=e1041]:
+                    - generic [ref=e1042]:
+                      - img
+                      - text: Usuario
+                  - cell "—" [ref=e1043]:
+                    - paragraph [ref=e1044]: —
+                - row "D diego@adaptianow.com diego@adaptianow.com Admin —" [ref=e1045]:
+                  - cell "D diego@adaptianow.com" [ref=e1046]:
+                    - generic [ref=e1047]:
+                      - generic [ref=e1049]: D
+                      - paragraph [ref=e1050]: diego@adaptianow.com
+                  - cell "diego@adaptianow.com" [ref=e1051]:
+                    - paragraph [ref=e1052]: diego@adaptianow.com
+                  - cell "Admin" [ref=e1053]:
+                    - generic [ref=e1054]:
+                      - img
+                      - text: Admin
+                  - cell "—" [ref=e1055]:
+                    - paragraph [ref=e1056]: —
+  - region "Notifications alt+T"
+  - link [ref=e507] [cursor=pointer]:
+    - /url: https://wa.me/56935027636
+    - img [ref=e508]
+  - button "Open Next.js Dev Tools" [ref=e1062] [cursor=pointer]:
+    - img [ref=e1063]
+  - alert [ref=e1066]

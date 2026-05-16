@@ -133,3 +133,30 @@ export const deleteUser = async (id: string, authToken?: string) => {
   }
 };
 
+export const adminResetUserPassword = async (
+  userId: string,
+  newPassword: string,
+  repeatNewPassword: string,
+  authToken?: string,
+) => {
+  try {
+    const response = await fetch(`${BASE_URL}/users/${userId}/admin-reset-password`, {
+      method: 'PATCH',
+      headers: getJsonHeaders(authToken),
+      body: JSON.stringify({ newPassword, repeatNewPassword }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return { success: true };
+    } else {
+      console.error(data);
+      return { error: data.message || 'Error al restablecer la contraseña' };
+    }
+  } catch (error) {
+    console.error(error);
+    return { error: 'Error al conectar con el servidor' };
+  }
+};
+

@@ -1,0 +1,493 @@
+- generic [active] [ref=e1]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - img "Adaptia Logo" [ref=e7]
+        - generic [ref=e8]:
+          - heading "Panel de Administrador" [level=1] [ref=e9]
+          - paragraph [ref=e10]: Gestión integral de organizaciones, análisis y cupones de descuento
+        - link "Ver Analytics" [ref=e11] [cursor=pointer]:
+          - /url: https://analytics.google.com/analytics/web/#/a384550060p524633962/reports/explorer?params=_u..nav%3Dmaui%26_r.explorerCard..startRow%3D0%26_r.explorerCard..rowsPerPage%3D50&ruid=top-events,business-objectives,examine-user-behavior&collectionId=business-objectives&r=top-events
+          - img
+          - generic [ref=e12]: Ver Analytics
+        - generic [ref=e13]:
+          - generic [ref=e14]:
+            - paragraph
+            - paragraph [ref=e15]: nachitogaute@gmail.com
+          - button "Cerrar Sesión" [ref=e17]:
+            - img
+            - generic [ref=e18]: Cerrar Sesión
+    - main [ref=e19]:
+      - generic [ref=e20]:
+        - button "Total Organizaciones 53 Registradas en el sistema ✓ Filtro activo" [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - generic [ref=e24]: Total Organizaciones
+              - img [ref=e26]
+            - generic [ref=e30]:
+              - generic [ref=e31]: "53"
+              - paragraph [ref=e32]: Registradas en el sistema
+              - generic [ref=e33]: ✓ Filtro activo
+        - button "Completados 47 89% del total" [ref=e34]:
+          - generic [ref=e35]:
+            - generic [ref=e36]:
+              - generic [ref=e37]: Completados
+              - img [ref=e39]
+            - generic [ref=e42]:
+              - generic [ref=e43]: "47"
+              - paragraph [ref=e44]: 89% del total
+        - button "Pendientes 6 En proceso" [ref=e45]:
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - generic [ref=e48]: Pendientes
+              - img [ref=e50]
+            - generic [ref=e53]:
+              - generic [ref=e54]: "6"
+              - paragraph [ref=e55]: En proceso
+        - button "Pagos Completados 48 Pagos confirmados" [ref=e56]:
+          - generic [ref=e57]:
+            - generic [ref=e58]:
+              - generic [ref=e59]: Pagos Completados
+              - img [ref=e61]
+            - generic [ref=e63]:
+              - generic [ref=e64]: "48"
+              - paragraph [ref=e65]: Pagos confirmados
+        - button "Pagos Pendientes 5 Por confirmar" [ref=e66]:
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69]: Pagos Pendientes
+              - img [ref=e71]
+            - generic [ref=e74]:
+              - generic [ref=e75]: "5"
+              - paragraph [ref=e76]: Por confirmar
+      - generic [ref=e78]:
+        - tablist [ref=e80]:
+          - tab "Organizaciones 53" [selected] [ref=e81]:
+            - img
+            - generic [ref=e82]: Organizaciones
+            - generic [ref=e83]: "53"
+          - tab "Cupones 13" [ref=e84]:
+            - img
+            - generic [ref=e85]: Cupones
+            - generic [ref=e86]: "13"
+          - tab "Registros 53" [ref=e87]:
+            - img
+            - generic [ref=e88]: Registros
+            - generic [ref=e89]: "53"
+          - tab "Usuarios 43" [ref=e90]:
+            - img
+            - generic [ref=e91]: Usuarios
+            - generic [ref=e92]: "43"
+        - tabpanel "Organizaciones 53" [ref=e93]:
+          - generic [ref=e94]:
+            - generic [ref=e96]:
+              - generic [ref=e97]:
+                - generic [ref=e98]: Organizaciones y Análisis
+                - generic [ref=e101]: Vista detallada de todas las organizaciones y sus métricas
+              - generic [ref=e102]:
+                - img [ref=e103]
+                - textbox "Buscar organización..." [ref=e106]
+            - generic [ref=e107]:
+              - table [ref=e110]:
+                - rowgroup [ref=e111]:
+                  - row "Organización Industria País Empleados Estado Análisis Descuento Estado Pago Acciones" [ref=e112]:
+                    - columnheader "Organización" [ref=e113]
+                    - columnheader "Industria" [ref=e114]
+                    - columnheader "País" [ref=e115]
+                    - columnheader "Empleados" [ref=e116]
+                    - columnheader "Estado Análisis" [ref=e117]
+                    - columnheader "Descuento" [ref=e118]
+                    - columnheader "Estado Pago" [ref=e119]
+                    - columnheader "Acciones" [ref=e120]
+                - rowgroup [ref=e121]:
+                  - row "Panam Sports Diego Reyeros diego.reyeros@gmail.com Ocio Chile 10-99 Completado 10% descuento" [ref=e122]:
+                    - cell "Panam Sports Diego Reyeros diego.reyeros@gmail.com" [ref=e123]:
+                      - paragraph [ref=e124]: Panam Sports
+                      - paragraph [ref=e125]: Diego Reyeros
+                      - paragraph [ref=e126]: diego.reyeros@gmail.com
+                    - cell "Ocio" [ref=e127]:
+                      - paragraph [ref=e128]: Ocio
+                    - cell "Chile" [ref=e129]:
+                      - paragraph [ref=e130]: Chile
+                    - cell "10-99" [ref=e131]:
+                      - paragraph [ref=e132]: 10-99
+                    - cell "Completado" [ref=e133]:
+                      - generic [ref=e135]:
+                        - img
+                        - text: Completado
+                    - cell "10% descuento" [ref=e136]:
+                      - generic [ref=e138]:
+                        - generic [ref=e139]: 10%
+                        - generic [ref=e140]: descuento
+                    - cell [ref=e141]:
+                      - combobox [ref=e142]:
+                        - img [ref=e143]
+                      - combobox [ref=e145]
+                    - cell [ref=e146]:
+                      - button [ref=e147]:
+                        - img
+                  - row "Normalización y Certificación NYCE Mariana Moreno mariana.moreno@nyce.org.mx Servicios empresariales México 100-499 Completado Sin descuento" [ref=e148]:
+                    - cell "Normalización y Certificación NYCE Mariana Moreno mariana.moreno@nyce.org.mx" [ref=e149]:
+                      - paragraph [ref=e150]: Normalización y Certificación NYCE
+                      - paragraph [ref=e151]: Mariana Moreno
+                      - paragraph [ref=e152]: mariana.moreno@nyce.org.mx
+                    - cell "Servicios empresariales" [ref=e153]:
+                      - paragraph [ref=e154]: Servicios empresariales
+                    - cell "México" [ref=e155]:
+                      - paragraph [ref=e156]: México
+                    - cell "100-499" [ref=e157]:
+                      - paragraph [ref=e158]: 100-499
+                    - cell "Completado" [ref=e159]:
+                      - generic [ref=e161]:
+                        - img
+                        - text: Completado
+                    - cell "Sin descuento" [ref=e162]:
+                      - generic [ref=e164]: Sin descuento
+                    - cell [ref=e165]:
+                      - combobox [ref=e166]:
+                        - img [ref=e167]
+                      - combobox [ref=e169]
+                    - cell [ref=e170]:
+                      - button [ref=e171]:
+                        - img
+                  - row "Michelin México Jessica Escobar Dávila jessica.escobar@kueponi.com Productos de consumo - No alimenticios México 500-999 Completado Sin descuento" [ref=e172]:
+                    - cell "Michelin México Jessica Escobar Dávila jessica.escobar@kueponi.com" [ref=e173]:
+                      - paragraph [ref=e174]: Michelin México
+                      - paragraph [ref=e175]: Jessica Escobar Dávila
+                      - paragraph [ref=e176]: jessica.escobar@kueponi.com
+                    - cell "Productos de consumo - No alimenticios" [ref=e177]:
+                      - paragraph [ref=e178]: Productos de consumo - No alimenticios
+                    - cell "México" [ref=e179]:
+                      - paragraph [ref=e180]: México
+                    - cell "500-999" [ref=e181]:
+                      - paragraph [ref=e182]: 500-999
+                    - cell "Completado" [ref=e183]:
+                      - generic [ref=e185]:
+                        - img
+                        - text: Completado
+                    - cell "Sin descuento" [ref=e186]:
+                      - generic [ref=e188]: Sin descuento
+                    - cell [ref=e189]:
+                      - combobox [ref=e190]:
+                        - img [ref=e191]
+                      - combobox [ref=e193]
+                    - cell [ref=e194]:
+                      - button [ref=e195]:
+                        - img
+                  - row "Nothofagus Spirits SpA Valentina Abarca managerLGM@ibio.cl Productos de consumo - No alimenticios Chile 1-9 Completado 30% descuento (INICIA26)" [ref=e196]:
+                    - cell "Nothofagus Spirits SpA Valentina Abarca managerLGM@ibio.cl" [ref=e197]:
+                      - paragraph [ref=e198]: Nothofagus Spirits SpA
+                      - paragraph [ref=e199]: Valentina Abarca
+                      - paragraph [ref=e200]: managerLGM@ibio.cl
+                    - cell "Productos de consumo - No alimenticios" [ref=e201]:
+                      - paragraph [ref=e202]: Productos de consumo - No alimenticios
+                    - cell "Chile" [ref=e203]:
+                      - paragraph [ref=e204]: Chile
+                    - cell "1-9" [ref=e205]:
+                      - paragraph [ref=e206]: 1-9
+                    - cell "Completado" [ref=e207]:
+                      - generic [ref=e209]:
+                        - img
+                        - text: Completado
+                    - cell "30% descuento (INICIA26)" [ref=e210]:
+                      - generic [ref=e212]:
+                        - generic [ref=e213]: 30%
+                        - generic [ref=e214]: descuento
+                        - generic [ref=e215]: (INICIA26)
+                    - cell [ref=e216]:
+                      - combobox [ref=e217]:
+                        - img [ref=e218]
+                      - combobox [ref=e220]
+                    - cell [ref=e221]:
+                      - button [ref=e222]:
+                        - img
+                  - row "TEst test test test@test.org Aeroespacial y defensa Brasil 100-499 Pendiente Sin descuento" [ref=e223]:
+                    - cell "TEst test test test@test.org" [ref=e224]:
+                      - paragraph [ref=e225]: TEst
+                      - paragraph [ref=e226]: test test
+                      - paragraph [ref=e227]: test@test.org
+                    - cell "Aeroespacial y defensa" [ref=e228]:
+                      - paragraph [ref=e229]: Aeroespacial y defensa
+                    - cell "Brasil" [ref=e230]:
+                      - paragraph [ref=e231]: Brasil
+                    - cell "100-499" [ref=e232]:
+                      - paragraph [ref=e233]: 100-499
+                    - cell "Pendiente" [ref=e234]:
+                      - generic [ref=e236]:
+                        - img
+                        - text: Pendiente
+                    - cell "Sin descuento" [ref=e237]:
+                      - generic [ref=e239]: Sin descuento
+                    - cell [ref=e240]:
+                      - combobox [ref=e241]:
+                        - img [ref=e242]
+                      - combobox [ref=e244]
+                    - cell [ref=e245]:
+                      - button [ref=e246]:
+                        - img
+                  - row "FID Seguros Andrea Ayala S. andrea.ayala@fidseguros.cl Seguros Chile 100-499 Pendiente 30% descuento (INICIA26)" [ref=e247]:
+                    - cell "FID Seguros Andrea Ayala S. andrea.ayala@fidseguros.cl" [ref=e248]:
+                      - paragraph [ref=e249]: FID Seguros
+                      - paragraph [ref=e250]: Andrea Ayala S.
+                      - paragraph [ref=e251]: andrea.ayala@fidseguros.cl
+                    - cell "Seguros" [ref=e252]:
+                      - paragraph [ref=e253]: Seguros
+                    - cell "Chile" [ref=e254]:
+                      - paragraph [ref=e255]: Chile
+                    - cell "100-499" [ref=e256]:
+                      - paragraph [ref=e257]: 100-499
+                    - cell "Pendiente" [ref=e258]:
+                      - generic [ref=e260]:
+                        - img
+                        - text: Pendiente
+                    - cell "30% descuento (INICIA26)" [ref=e261]:
+                      - generic [ref=e263]:
+                        - generic [ref=e264]: 30%
+                        - generic [ref=e265]: descuento
+                        - generic [ref=e266]: (INICIA26)
+                    - cell [ref=e267]:
+                      - combobox [ref=e268]:
+                        - img [ref=e269]
+                      - combobox [ref=e271]
+                    - cell [ref=e272]:
+                      - button [ref=e273]:
+                        - img
+                  - row "América Móvil Diego Reyeros diego.reyeros@gmail.com Telecomunicaciones México +10000 Completado 10% descuento" [ref=e274]:
+                    - cell "América Móvil Diego Reyeros diego.reyeros@gmail.com" [ref=e275]:
+                      - paragraph [ref=e276]: América Móvil
+                      - paragraph [ref=e277]: Diego Reyeros
+                      - paragraph [ref=e278]: diego.reyeros@gmail.com
+                    - cell "Telecomunicaciones" [ref=e279]:
+                      - paragraph [ref=e280]: Telecomunicaciones
+                    - cell "México" [ref=e281]:
+                      - paragraph [ref=e282]: México
+                    - cell "+10000" [ref=e283]:
+                      - paragraph [ref=e284]: "+10000"
+                    - cell "Completado" [ref=e285]:
+                      - generic [ref=e287]:
+                        - img
+                        - text: Completado
+                    - cell "10% descuento" [ref=e288]:
+                      - generic [ref=e290]:
+                        - generic [ref=e291]: 10%
+                        - generic [ref=e292]: descuento
+                    - cell [ref=e293]:
+                      - combobox [ref=e294]:
+                        - img [ref=e295]
+                      - combobox [ref=e297]
+                    - cell [ref=e298]:
+                      - button [ref=e299]:
+                        - img
+                  - row "Office Depot México Diego Reyeros diego.reyeros@gmail.com Venta minorista - No alimenticios México 5000-9999 Completado 10% descuento" [ref=e300]:
+                    - cell "Office Depot México Diego Reyeros diego.reyeros@gmail.com" [ref=e301]:
+                      - paragraph [ref=e302]: Office Depot México
+                      - paragraph [ref=e303]: Diego Reyeros
+                      - paragraph [ref=e304]: diego.reyeros@gmail.com
+                    - cell "Venta minorista - No alimenticios" [ref=e305]:
+                      - paragraph [ref=e306]: Venta minorista - No alimenticios
+                    - cell "México" [ref=e307]:
+                      - paragraph [ref=e308]: México
+                    - cell "5000-9999" [ref=e309]:
+                      - paragraph [ref=e310]: 5000-9999
+                    - cell "Completado" [ref=e311]:
+                      - generic [ref=e313]:
+                        - img
+                        - text: Completado
+                    - cell "10% descuento" [ref=e314]:
+                      - generic [ref=e316]:
+                        - generic [ref=e317]: 10%
+                        - generic [ref=e318]: descuento
+                    - cell [ref=e319]:
+                      - combobox [ref=e320]:
+                        - img [ref=e321]
+                      - combobox [ref=e323]
+                    - cell [ref=e324]:
+                      - button [ref=e325]:
+                        - img
+                  - row "Grupo Marzam Diego Reyeros diego.reyeros@gmail.com Farmacéuticos México 1000-4999 Completado 10% descuento" [ref=e326]:
+                    - cell "Grupo Marzam Diego Reyeros diego.reyeros@gmail.com" [ref=e327]:
+                      - paragraph [ref=e328]: Grupo Marzam
+                      - paragraph [ref=e329]: Diego Reyeros
+                      - paragraph [ref=e330]: diego.reyeros@gmail.com
+                    - cell "Farmacéuticos" [ref=e331]:
+                      - paragraph [ref=e332]: Farmacéuticos
+                    - cell "México" [ref=e333]:
+                      - paragraph [ref=e334]: México
+                    - cell "1000-4999" [ref=e335]:
+                      - paragraph [ref=e336]: 1000-4999
+                    - cell "Completado" [ref=e337]:
+                      - generic [ref=e339]:
+                        - img
+                        - text: Completado
+                    - cell "10% descuento" [ref=e340]:
+                      - generic [ref=e342]:
+                        - generic [ref=e343]: 10%
+                        - generic [ref=e344]: descuento
+                    - cell [ref=e345]:
+                      - combobox [ref=e346]:
+                        - img [ref=e347]
+                      - combobox [ref=e349]
+                    - cell [ref=e350]:
+                      - button [ref=e351]:
+                        - img
+                  - row "Cencosud Diego Reyeros diego.reyeros@gmail.com Productos de consumo - No alimenticios Chile +10000 Completado 10% descuento" [ref=e352]:
+                    - cell "Cencosud Diego Reyeros diego.reyeros@gmail.com" [ref=e353]:
+                      - paragraph [ref=e354]: Cencosud
+                      - paragraph [ref=e355]: Diego Reyeros
+                      - paragraph [ref=e356]: diego.reyeros@gmail.com
+                    - cell "Productos de consumo - No alimenticios" [ref=e357]:
+                      - paragraph [ref=e358]: Productos de consumo - No alimenticios
+                    - cell "Chile" [ref=e359]:
+                      - paragraph [ref=e360]: Chile
+                    - cell "+10000" [ref=e361]:
+                      - paragraph [ref=e362]: "+10000"
+                    - cell "Completado" [ref=e363]:
+                      - generic [ref=e365]:
+                        - img
+                        - text: Completado
+                    - cell "10% descuento" [ref=e366]:
+                      - generic [ref=e368]:
+                        - generic [ref=e369]: 10%
+                        - generic [ref=e370]: descuento
+                    - cell [ref=e371]:
+                      - combobox [ref=e372]:
+                        - img [ref=e373]
+                      - combobox [ref=e375]
+                    - cell [ref=e376]:
+                      - button [ref=e377]:
+                        - img
+                  - row "Construmart Diego Reyeros diego.reyeros@gmail.com Materiales de construcción Chile 1000-4999 Completado Sin descuento" [ref=e378]:
+                    - cell "Construmart Diego Reyeros diego.reyeros@gmail.com" [ref=e379]:
+                      - paragraph [ref=e380]: Construmart
+                      - paragraph [ref=e381]: Diego Reyeros
+                      - paragraph [ref=e382]: diego.reyeros@gmail.com
+                    - cell "Materiales de construcción" [ref=e383]:
+                      - paragraph [ref=e384]: Materiales de construcción
+                    - cell "Chile" [ref=e385]:
+                      - paragraph [ref=e386]: Chile
+                    - cell "1000-4999" [ref=e387]:
+                      - paragraph [ref=e388]: 1000-4999
+                    - cell "Completado" [ref=e389]:
+                      - generic [ref=e391]:
+                        - img
+                        - text: Completado
+                    - cell "Sin descuento" [ref=e392]:
+                      - generic [ref=e394]: Sin descuento
+                    - cell [ref=e395]:
+                      - combobox [ref=e396]:
+                        - img [ref=e397]
+                      - combobox [ref=e399]
+                    - cell [ref=e400]:
+                      - button [ref=e401]:
+                        - img
+                  - row "PF alimentos Diego Reyeros diego.reyeros@gmail.com Agroindustria Chile 1000-4999 Completado Sin descuento" [ref=e402]:
+                    - cell "PF alimentos Diego Reyeros diego.reyeros@gmail.com" [ref=e403]:
+                      - paragraph [ref=e404]: PF alimentos
+                      - paragraph [ref=e405]: Diego Reyeros
+                      - paragraph [ref=e406]: diego.reyeros@gmail.com
+                    - cell "Agroindustria" [ref=e407]:
+                      - paragraph [ref=e408]: Agroindustria
+                    - cell "Chile" [ref=e409]:
+                      - paragraph [ref=e410]: Chile
+                    - cell "1000-4999" [ref=e411]:
+                      - paragraph [ref=e412]: 1000-4999
+                    - cell "Completado" [ref=e413]:
+                      - generic [ref=e415]:
+                        - img
+                        - text: Completado
+                    - cell "Sin descuento" [ref=e416]:
+                      - generic [ref=e418]: Sin descuento
+                    - cell [ref=e419]:
+                      - combobox [ref=e420]:
+                        - img [ref=e421]
+                      - combobox [ref=e423]
+                    - cell [ref=e424]:
+                      - button [ref=e425]:
+                        - img
+                  - row "TEST Ignacio Gaute locogaute@gmail.com Aerolíneas Chile 10-99 Pendiente Sin descuento" [ref=e426]:
+                    - cell "TEST Ignacio Gaute locogaute@gmail.com" [ref=e427]:
+                      - paragraph [ref=e428]: TEST
+                      - paragraph [ref=e429]: Ignacio Gaute
+                      - paragraph [ref=e430]: locogaute@gmail.com
+                    - cell "Aerolíneas" [ref=e431]:
+                      - paragraph [ref=e432]: Aerolíneas
+                    - cell "Chile" [ref=e433]:
+                      - paragraph [ref=e434]: Chile
+                    - cell "10-99" [ref=e435]:
+                      - paragraph [ref=e436]: 10-99
+                    - cell "Pendiente" [ref=e437]:
+                      - generic [ref=e439]:
+                        - img
+                        - text: Pendiente
+                    - cell "Sin descuento" [ref=e440]:
+                      - generic [ref=e442]: Sin descuento
+                    - cell [ref=e443]:
+                      - combobox [ref=e444]:
+                        - img [ref=e445]
+                      - combobox [ref=e447]
+                    - cell [ref=e448]:
+                      - button [ref=e449]:
+                        - img
+                  - row "Adaptia Diego Reyeros diego.reyeros@gmail.com Software y servicios tecnológicos Chile 1-9 Completado Sin descuento" [ref=e450]:
+                    - cell "Adaptia Diego Reyeros diego.reyeros@gmail.com" [ref=e451]:
+                      - paragraph [ref=e452]: Adaptia
+                      - paragraph [ref=e453]: Diego Reyeros
+                      - paragraph [ref=e454]: diego.reyeros@gmail.com
+                    - cell "Software y servicios tecnológicos" [ref=e455]:
+                      - paragraph [ref=e456]: Software y servicios tecnológicos
+                    - cell "Chile" [ref=e457]:
+                      - paragraph [ref=e458]: Chile
+                    - cell "1-9" [ref=e459]:
+                      - paragraph [ref=e460]: 1-9
+                    - cell "Completado" [ref=e461]:
+                      - generic [ref=e463]:
+                        - img
+                        - text: Completado
+                    - cell "Sin descuento" [ref=e464]:
+                      - generic [ref=e466]: Sin descuento
+                    - cell [ref=e467]:
+                      - combobox [ref=e468]:
+                        - img [ref=e469]
+                      - combobox [ref=e471]
+                    - cell [ref=e472]:
+                      - button [ref=e473]:
+                        - img
+                  - row "circular Pablo Cayo pabloandres1865@gmail.com Transporte Chile 1-9 Pendiente Sin descuento" [ref=e474]:
+                    - cell "circular Pablo Cayo pabloandres1865@gmail.com" [ref=e475]:
+                      - paragraph [ref=e476]: circular
+                      - paragraph [ref=e477]: Pablo Cayo
+                      - paragraph [ref=e478]: pabloandres1865@gmail.com
+                    - cell "Transporte" [ref=e479]:
+                      - paragraph [ref=e480]: Transporte
+                    - cell "Chile" [ref=e481]:
+                      - paragraph [ref=e482]: Chile
+                    - cell "1-9" [ref=e483]:
+                      - paragraph [ref=e484]: 1-9
+                    - cell "Pendiente" [ref=e485]:
+                      - generic [ref=e487]:
+                        - img
+                        - text: Pendiente
+                    - cell "Sin descuento" [ref=e488]:
+                      - generic [ref=e490]: Sin descuento
+                    - cell [ref=e491]:
+                      - combobox [ref=e492]:
+                        - img [ref=e493]
+                      - combobox [ref=e495]
+                    - cell [ref=e496]:
+                      - button [ref=e497]:
+                        - img
+              - generic [ref=e498]:
+                - generic [ref=e499]: Página 1 de 4 · Total 53
+                - generic [ref=e500]:
+                  - button "Anterior" [disabled] [ref=e501]:
+                    - img [ref=e502]
+                    - text: Anterior
+                  - button "Siguiente" [ref=e504]:
+                    - text: Siguiente
+                    - img [ref=e505]
+  - region "Notifications alt+T"
+  - link [ref=e507] [cursor=pointer]:
+    - /url: https://wa.me/56935027636
+    - img [ref=e508]

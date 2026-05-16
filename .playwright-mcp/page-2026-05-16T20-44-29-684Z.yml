@@ -1,0 +1,36 @@
+- generic [active] [ref=e1]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e4]:
+    - link "Volver al inicio" [ref=e5] [cursor=pointer]:
+      - /url: /
+      - img [ref=e6]
+      - generic [ref=e8]: Volver al inicio
+    - img "Adaptia" [ref=e10]
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]: Iniciar Sesión
+        - generic [ref=e14]: Ingresa tus credenciales para acceder a tu cuenta
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: Email
+          - textbox "Email" [ref=e19]:
+            - /placeholder: tu@email.com
+        - generic [ref=e20]:
+          - generic [ref=e21]: Contraseña
+          - generic [ref=e22]:
+            - textbox "Contraseña" [ref=e23]:
+              - /placeholder: "********"
+            - button "Mostrar contraseña" [ref=e24]:
+              - img [ref=e25]
+        - button "Iniciar Sesión" [ref=e28] [cursor=pointer]
+        - link "¿Olvidaste tu contraseña?" [ref=e30] [cursor=pointer]:
+          - /url: /auth/reset
+        - generic [ref=e31]:
+          - text: ¿No tienes una cuenta?
+          - link "Registrarse" [ref=e32] [cursor=pointer]:
+            - /url: /auth/register
+  - region "Notifications alt+T"
+  - link [ref=e33] [cursor=pointer]:
+    - /url: https://wa.me/56935027636
+    - img [ref=e34]

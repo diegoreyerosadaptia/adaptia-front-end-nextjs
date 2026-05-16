@@ -1,0 +1,633 @@
+- generic [ref=e1]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - img "Adaptia Logo" [ref=e7]
+        - generic [ref=e8]:
+          - heading "Panel de Administrador" [level=1] [ref=e9]
+          - paragraph [ref=e10]: Gestión integral de organizaciones, análisis y cupones de descuento
+        - link "Ver Analytics" [ref=e11] [cursor=pointer]:
+          - /url: https://analytics.google.com/analytics/web/#/a384550060p524633962/reports/explorer?params=_u..nav%3Dmaui%26_r.explorerCard..startRow%3D0%26_r.explorerCard..rowsPerPage%3D50&ruid=top-events,business-objectives,examine-user-behavior&collectionId=business-objectives&r=top-events
+          - img
+          - generic [ref=e12]: Ver Analytics
+        - generic [ref=e13]:
+          - generic [ref=e14]:
+            - paragraph
+            - paragraph [ref=e15]: nachitogaute@gmail.com
+          - button "Cerrar Sesión" [ref=e17]:
+            - img
+            - generic [ref=e18]: Cerrar Sesión
+    - main [ref=e19]:
+      - generic [ref=e20]:
+        - button "Total Organizaciones 53 Registradas en el sistema ✓ Filtro activo" [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - generic [ref=e24]: Total Organizaciones
+              - img [ref=e26]
+            - generic [ref=e30]:
+              - generic [ref=e31]: "53"
+              - paragraph [ref=e32]: Registradas en el sistema
+              - generic [ref=e33]: ✓ Filtro activo
+        - button "Completados 47 89% del total" [ref=e34]:
+          - generic [ref=e35]:
+            - generic [ref=e36]:
+              - generic [ref=e37]: Completados
+              - img [ref=e39]
+            - generic [ref=e42]:
+              - generic [ref=e43]: "47"
+              - paragraph [ref=e44]: 89% del total
+        - button "Pendientes 6 En proceso" [ref=e45]:
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - generic [ref=e48]: Pendientes
+              - img [ref=e50]
+            - generic [ref=e53]:
+              - generic [ref=e54]: "6"
+              - paragraph [ref=e55]: En proceso
+        - button "Pagos Completados 48 Pagos confirmados" [ref=e56]:
+          - generic [ref=e57]:
+            - generic [ref=e58]:
+              - generic [ref=e59]: Pagos Completados
+              - img [ref=e61]
+            - generic [ref=e63]:
+              - generic [ref=e64]: "48"
+              - paragraph [ref=e65]: Pagos confirmados
+        - button "Pagos Pendientes 5 Por confirmar" [ref=e66]:
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69]: Pagos Pendientes
+              - img [ref=e71]
+            - generic [ref=e74]:
+              - generic [ref=e75]: "5"
+              - paragraph [ref=e76]: Por confirmar
+      - generic [ref=e78]:
+        - tablist [ref=e80]:
+          - tab "Organizaciones 53" [ref=e81]:
+            - img
+            - generic [ref=e82]: Organizaciones
+            - generic [ref=e83]: "53"
+          - tab "Cupones 13" [ref=e84]:
+            - img
+            - generic [ref=e85]: Cupones
+            - generic [ref=e86]: "13"
+          - tab "Registros 53" [ref=e87]:
+            - img
+            - generic [ref=e88]: Registros
+            - generic [ref=e89]: "53"
+          - tab "Usuarios 43" [active] [selected] [ref=e90]:
+            - img
+            - generic [ref=e91]: Usuarios
+            - generic [ref=e92]: "43"
+        - tabpanel "Usuarios 43" [ref=e520]:
+          - generic [ref=e521]:
+            - generic [ref=e523]:
+              - generic [ref=e524]:
+                - generic [ref=e525]: Usuarios registrados
+                - generic [ref=e527]: 43 usuarios encontrados
+              - generic [ref=e528]:
+                - generic [ref=e529]:
+                  - button "Todos 43" [ref=e530]:
+                    - text: Todos
+                    - generic [ref=e531]: "43"
+                  - button "Admins 3" [ref=e532]:
+                    - text: Admins
+                    - generic [ref=e533]: "3"
+                  - button "Usuarios 40" [ref=e534]:
+                    - text: Usuarios
+                    - generic [ref=e535]: "40"
+                - generic [ref=e536]:
+                  - img [ref=e537]
+                  - textbox "Buscar por nombre o email..." [ref=e540]
+            - table [ref=e543]:
+              - rowgroup [ref=e544]:
+                - row "Usuario Email Rol Registrado" [ref=e545]:
+                  - columnheader "Usuario" [ref=e546]
+                  - columnheader "Email" [ref=e547]
+                  - columnheader "Rol" [ref=e548]
+                  - columnheader "Registrado" [ref=e549]
+              - rowgroup [ref=e550]:
+                - row "mmricardez@gmail.com Usuario Invalid Date" [ref=e551]:
+                  - cell [ref=e552]:
+                    - generic [ref=e553]:
+                      - paragraph
+                  - cell "mmricardez@gmail.com" [ref=e555]:
+                    - paragraph [ref=e556]: mmricardez@gmail.com
+                  - cell "Usuario" [ref=e557]:
+                    - generic [ref=e558]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e559]:
+                    - paragraph [ref=e560]: Invalid Date
+                - row "mariana.moreno@nyce.org.mx Usuario Invalid Date" [ref=e561]:
+                  - cell [ref=e562]:
+                    - generic [ref=e563]:
+                      - paragraph
+                  - cell "mariana.moreno@nyce.org.mx" [ref=e565]:
+                    - paragraph [ref=e566]: mariana.moreno@nyce.org.mx
+                  - cell "Usuario" [ref=e567]:
+                    - generic [ref=e568]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e569]:
+                    - paragraph [ref=e570]: Invalid Date
+                - row "locogaute22@gmail.com Usuario Invalid Date" [ref=e571]:
+                  - cell [ref=e572]:
+                    - generic [ref=e573]:
+                      - paragraph
+                  - cell "locogaute22@gmail.com" [ref=e575]:
+                    - paragraph [ref=e576]: locogaute22@gmail.com
+                  - cell "Usuario" [ref=e577]:
+                    - generic [ref=e578]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e579]:
+                    - paragraph [ref=e580]: Invalid Date
+                - row "jessica.escobar@kueponi.com Usuario Invalid Date" [ref=e581]:
+                  - cell [ref=e582]:
+                    - generic [ref=e583]:
+                      - paragraph
+                  - cell "jessica.escobar@kueponi.com" [ref=e585]:
+                    - paragraph [ref=e586]: jessica.escobar@kueponi.com
+                  - cell "Usuario" [ref=e587]:
+                    - generic [ref=e588]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e589]:
+                    - paragraph [ref=e590]: Invalid Date
+                - row "managerLGM@ibio.cl Usuario Invalid Date" [ref=e591]:
+                  - cell [ref=e592]:
+                    - generic [ref=e593]:
+                      - paragraph
+                  - cell "managerLGM@ibio.cl" [ref=e595]:
+                    - paragraph [ref=e596]: managerLGM@ibio.cl
+                  - cell "Usuario" [ref=e597]:
+                    - generic [ref=e598]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e599]:
+                    - paragraph [ref=e600]: Invalid Date
+                - row "andrea.ayala@fidseguros.cl Usuario Invalid Date" [ref=e601]:
+                  - cell [ref=e602]:
+                    - generic [ref=e603]:
+                      - paragraph
+                  - cell "andrea.ayala@fidseguros.cl" [ref=e605]:
+                    - paragraph [ref=e606]: andrea.ayala@fidseguros.cl
+                  - cell "Usuario" [ref=e607]:
+                    - generic [ref=e608]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e609]:
+                    - paragraph [ref=e610]: Invalid Date
+                - row "locogaute@gmail.com Usuario Invalid Date" [ref=e611]:
+                  - cell [ref=e612]:
+                    - generic [ref=e613]:
+                      - paragraph
+                  - cell "locogaute@gmail.com" [ref=e615]:
+                    - paragraph [ref=e616]: locogaute@gmail.com
+                  - cell "Usuario" [ref=e617]:
+                    - generic [ref=e618]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e619]:
+                    - paragraph [ref=e620]: Invalid Date
+                - row "test1234@gmail.com Usuario Invalid Date" [ref=e621]:
+                  - cell [ref=e622]:
+                    - generic [ref=e623]:
+                      - paragraph
+                  - cell "test1234@gmail.com" [ref=e625]:
+                    - paragraph [ref=e626]: test1234@gmail.com
+                  - cell "Usuario" [ref=e627]:
+                    - generic [ref=e628]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e629]:
+                    - paragraph [ref=e630]: Invalid Date
+                - row "pabloandres1865@gmail.com Usuario Invalid Date" [ref=e631]:
+                  - cell [ref=e632]:
+                    - generic [ref=e633]:
+                      - paragraph
+                  - cell "pabloandres1865@gmail.com" [ref=e635]:
+                    - paragraph [ref=e636]: pabloandres1865@gmail.com
+                  - cell "Usuario" [ref=e637]:
+                    - generic [ref=e638]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e639]:
+                    - paragraph [ref=e640]: Invalid Date
+                - row "d.reyeros@wascompany.com Usuario Invalid Date" [ref=e641]:
+                  - cell [ref=e642]:
+                    - generic [ref=e643]:
+                      - paragraph
+                  - cell "d.reyeros@wascompany.com" [ref=e645]:
+                    - paragraph [ref=e646]: d.reyeros@wascompany.com
+                  - cell "Usuario" [ref=e647]:
+                    - generic [ref=e648]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e649]:
+                    - paragraph [ref=e650]: Invalid Date
+                - row "jimena.reyeros@gmail.com Usuario Invalid Date" [ref=e651]:
+                  - cell [ref=e652]:
+                    - generic [ref=e653]:
+                      - paragraph
+                  - cell "jimena.reyeros@gmail.com" [ref=e655]:
+                    - paragraph [ref=e656]: jimena.reyeros@gmail.com
+                  - cell "Usuario" [ref=e657]:
+                    - generic [ref=e658]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e659]:
+                    - paragraph [ref=e660]: Invalid Date
+                - row "vsanchez@sumaimpacto.cl Usuario Invalid Date" [ref=e661]:
+                  - cell [ref=e662]:
+                    - generic [ref=e663]:
+                      - paragraph
+                  - cell "vsanchez@sumaimpacto.cl" [ref=e665]:
+                    - paragraph [ref=e666]: vsanchez@sumaimpacto.cl
+                  - cell "Usuario" [ref=e667]:
+                    - generic [ref=e668]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e669]:
+                    - paragraph [ref=e670]: Invalid Date
+                - row "aeyzaguirre@drcompany.cl Usuario Invalid Date" [ref=e671]:
+                  - cell [ref=e672]:
+                    - generic [ref=e673]:
+                      - paragraph
+                  - cell "aeyzaguirre@drcompany.cl" [ref=e675]:
+                    - paragraph [ref=e676]: aeyzaguirre@drcompany.cl
+                  - cell "Usuario" [ref=e677]:
+                    - generic [ref=e678]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e679]:
+                    - paragraph [ref=e680]: Invalid Date
+                - row "adriana@agileimpacts.com Usuario Invalid Date" [ref=e681]:
+                  - cell [ref=e682]:
+                    - generic [ref=e683]:
+                      - paragraph
+                  - cell "adriana@agileimpacts.com" [ref=e685]:
+                    - paragraph [ref=e686]: adriana@agileimpacts.com
+                  - cell "Usuario" [ref=e687]:
+                    - generic [ref=e688]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e689]:
+                    - paragraph [ref=e690]: Invalid Date
+                - row "nachitogaute@gmail.com Admin Invalid Date" [ref=e691]:
+                  - cell [ref=e692]:
+                    - generic [ref=e693]:
+                      - paragraph
+                  - cell "nachitogaute@gmail.com" [ref=e695]:
+                    - paragraph [ref=e696]: nachitogaute@gmail.com
+                  - cell "Admin" [ref=e697]:
+                    - generic [ref=e698]:
+                      - img
+                      - text: Admin
+                  - cell "Invalid Date" [ref=e699]:
+                    - paragraph [ref=e700]: Invalid Date
+                - row "apino@southblu.cl Usuario Invalid Date" [ref=e701]:
+                  - cell [ref=e702]:
+                    - generic [ref=e703]:
+                      - paragraph
+                  - cell "apino@southblu.cl" [ref=e705]:
+                    - paragraph [ref=e706]: apino@southblu.cl
+                  - cell "Usuario" [ref=e707]:
+                    - generic [ref=e708]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e709]:
+                    - paragraph [ref=e710]: Invalid Date
+                - row "karla@responsable.net Usuario Invalid Date" [ref=e711]:
+                  - cell [ref=e712]:
+                    - generic [ref=e713]:
+                      - paragraph
+                  - cell "karla@responsable.net" [ref=e715]:
+                    - paragraph [ref=e716]: karla@responsable.net
+                  - cell "Usuario" [ref=e717]:
+                    - generic [ref=e718]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e719]:
+                    - paragraph [ref=e720]: Invalid Date
+                - row "dany@jaipp.com Usuario Invalid Date" [ref=e721]:
+                  - cell [ref=e722]:
+                    - generic [ref=e723]:
+                      - paragraph
+                  - cell "dany@jaipp.com" [ref=e725]:
+                    - paragraph [ref=e726]: dany@jaipp.com
+                  - cell "Usuario" [ref=e727]:
+                    - generic [ref=e728]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e729]:
+                    - paragraph [ref=e730]: Invalid Date
+                - row "natalia.poblete830@gmail.com Usuario Invalid Date" [ref=e731]:
+                  - cell [ref=e732]:
+                    - generic [ref=e733]:
+                      - paragraph
+                  - cell "natalia.poblete830@gmail.com" [ref=e735]:
+                    - paragraph [ref=e736]: natalia.poblete830@gmail.com
+                  - cell "Usuario" [ref=e737]:
+                    - generic [ref=e738]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e739]:
+                    - paragraph [ref=e740]: Invalid Date
+                - row "laura@estrategiasustentable.com.mx Usuario Invalid Date" [ref=e741]:
+                  - cell [ref=e742]:
+                    - generic [ref=e743]:
+                      - paragraph
+                  - cell "laura@estrategiasustentable.com.mx" [ref=e745]:
+                    - paragraph [ref=e746]: laura@estrategiasustentable.com.mx
+                  - cell "Usuario" [ref=e747]:
+                    - generic [ref=e748]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e749]:
+                    - paragraph [ref=e750]: Invalid Date
+                - row "natyriquelmer@gmail.com Usuario Invalid Date" [ref=e751]:
+                  - cell [ref=e752]:
+                    - generic [ref=e753]:
+                      - paragraph
+                  - cell "natyriquelmer@gmail.com" [ref=e755]:
+                    - paragraph [ref=e756]: natyriquelmer@gmail.com
+                  - cell "Usuario" [ref=e757]:
+                    - generic [ref=e758]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e759]:
+                    - paragraph [ref=e760]: Invalid Date
+                - row "s.schumacherd@gmail.com Usuario Invalid Date" [ref=e761]:
+                  - cell [ref=e762]:
+                    - generic [ref=e763]:
+                      - paragraph
+                  - cell "s.schumacherd@gmail.com" [ref=e765]:
+                    - paragraph [ref=e766]: s.schumacherd@gmail.com
+                  - cell "Usuario" [ref=e767]:
+                    - generic [ref=e768]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e769]:
+                    - paragraph [ref=e770]: Invalid Date
+                - row "sirtomas@omia.cl Usuario Invalid Date" [ref=e771]:
+                  - cell [ref=e772]:
+                    - generic [ref=e773]:
+                      - paragraph
+                  - cell "sirtomas@omia.cl" [ref=e775]:
+                    - paragraph [ref=e776]: sirtomas@omia.cl
+                  - cell "Usuario" [ref=e777]:
+                    - generic [ref=e778]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e779]:
+                    - paragraph [ref=e780]: Invalid Date
+                - row "ximena.marin@bamas.com.co Usuario Invalid Date" [ref=e781]:
+                  - cell [ref=e782]:
+                    - generic [ref=e783]:
+                      - paragraph
+                  - cell "ximena.marin@bamas.com.co" [ref=e785]:
+                    - paragraph [ref=e786]: ximena.marin@bamas.com.co
+                  - cell "Usuario" [ref=e787]:
+                    - generic [ref=e788]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e789]:
+                    - paragraph [ref=e790]: Invalid Date
+                - row "vizcaya.abdo@gmail.com Usuario Invalid Date" [ref=e791]:
+                  - cell [ref=e792]:
+                    - generic [ref=e793]:
+                      - paragraph
+                  - cell "vizcaya.abdo@gmail.com" [ref=e795]:
+                    - paragraph [ref=e796]: vizcaya.abdo@gmail.com
+                  - cell "Usuario" [ref=e797]:
+                    - generic [ref=e798]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e799]:
+                    - paragraph [ref=e800]: Invalid Date
+                - row "adriz00@yahoo.com.mx Usuario Invalid Date" [ref=e801]:
+                  - cell [ref=e802]:
+                    - generic [ref=e803]:
+                      - paragraph
+                  - cell "adriz00@yahoo.com.mx" [ref=e805]:
+                    - paragraph [ref=e806]: adriz00@yahoo.com.mx
+                  - cell "Usuario" [ref=e807]:
+                    - generic [ref=e808]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e809]:
+                    - paragraph [ref=e810]: Invalid Date
+                - row "camila.cabreraz@gmail.com Usuario Invalid Date" [ref=e811]:
+                  - cell [ref=e812]:
+                    - generic [ref=e813]:
+                      - paragraph
+                  - cell "camila.cabreraz@gmail.com" [ref=e815]:
+                    - paragraph [ref=e816]: camila.cabreraz@gmail.com
+                  - cell "Usuario" [ref=e817]:
+                    - generic [ref=e818]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e819]:
+                    - paragraph [ref=e820]: Invalid Date
+                - row "pmaciasr@chevez.com.mx Usuario Invalid Date" [ref=e821]:
+                  - cell [ref=e822]:
+                    - generic [ref=e823]:
+                      - paragraph
+                  - cell "pmaciasr@chevez.com.mx" [ref=e825]:
+                    - paragraph [ref=e826]: pmaciasr@chevez.com.mx
+                  - cell "Usuario" [ref=e827]:
+                    - generic [ref=e828]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e829]:
+                    - paragraph [ref=e830]: Invalid Date
+                - row "arce.adriana1@gmail.com Usuario Invalid Date" [ref=e831]:
+                  - cell [ref=e832]:
+                    - generic [ref=e833]:
+                      - paragraph
+                  - cell "arce.adriana1@gmail.com" [ref=e835]:
+                    - paragraph [ref=e836]: arce.adriana1@gmail.com
+                  - cell "Usuario" [ref=e837]:
+                    - generic [ref=e838]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e839]:
+                    - paragraph [ref=e840]: Invalid Date
+                - row "slavenilicv@gmail.com Usuario Invalid Date" [ref=e841]:
+                  - cell [ref=e842]:
+                    - generic [ref=e843]:
+                      - paragraph
+                  - cell "slavenilicv@gmail.com" [ref=e845]:
+                    - paragraph [ref=e846]: slavenilicv@gmail.com
+                  - cell "Usuario" [ref=e847]:
+                    - generic [ref=e848]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e849]:
+                    - paragraph [ref=e850]: Invalid Date
+                - row "andrea@serenestudio.com.mx Usuario Invalid Date" [ref=e851]:
+                  - cell [ref=e852]:
+                    - generic [ref=e853]:
+                      - paragraph
+                  - cell "andrea@serenestudio.com.mx" [ref=e855]:
+                    - paragraph [ref=e856]: andrea@serenestudio.com.mx
+                  - cell "Usuario" [ref=e857]:
+                    - generic [ref=e858]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e859]:
+                    - paragraph [ref=e860]: Invalid Date
+                - row "teree0204@gmail.com Usuario Invalid Date" [ref=e861]:
+                  - cell [ref=e862]:
+                    - generic [ref=e863]:
+                      - paragraph
+                  - cell "teree0204@gmail.com" [ref=e865]:
+                    - paragraph [ref=e866]: teree0204@gmail.com
+                  - cell "Usuario" [ref=e867]:
+                    - generic [ref=e868]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e869]:
+                    - paragraph [ref=e870]: Invalid Date
+                - row "katongatemanau@gmail.com Usuario Invalid Date" [ref=e871]:
+                  - cell [ref=e872]:
+                    - generic [ref=e873]:
+                      - paragraph
+                  - cell "katongatemanau@gmail.com" [ref=e875]:
+                    - paragraph [ref=e876]: katongatemanau@gmail.com
+                  - cell "Usuario" [ref=e877]:
+                    - generic [ref=e878]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e879]:
+                    - paragraph [ref=e880]: Invalid Date
+                - row "nwensioe@herodynamics.cl Usuario Invalid Date" [ref=e881]:
+                  - cell [ref=e882]:
+                    - generic [ref=e883]:
+                      - paragraph
+                  - cell "nwensioe@herodynamics.cl" [ref=e885]:
+                    - paragraph [ref=e886]: nwensioe@herodynamics.cl
+                  - cell "Usuario" [ref=e887]:
+                    - generic [ref=e888]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e889]:
+                    - paragraph [ref=e890]: Invalid Date
+                - row "francisco@isrbio.com Usuario Invalid Date" [ref=e891]:
+                  - cell [ref=e892]:
+                    - generic [ref=e893]:
+                      - paragraph
+                  - cell "francisco@isrbio.com" [ref=e895]:
+                    - paragraph [ref=e896]: francisco@isrbio.com
+                  - cell "Usuario" [ref=e897]:
+                    - generic [ref=e898]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e899]:
+                    - paragraph [ref=e900]: Invalid Date
+                - row "vicente.cerda.a@gmail.com Usuario Invalid Date" [ref=e901]:
+                  - cell [ref=e902]:
+                    - generic [ref=e903]:
+                      - paragraph
+                  - cell "vicente.cerda.a@gmail.com" [ref=e905]:
+                    - paragraph [ref=e906]: vicente.cerda.a@gmail.com
+                  - cell "Usuario" [ref=e907]:
+                    - generic [ref=e908]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e909]:
+                    - paragraph [ref=e910]: Invalid Date
+                - row "gloobacl@gmail.com Usuario Invalid Date" [ref=e911]:
+                  - cell [ref=e912]:
+                    - generic [ref=e913]:
+                      - paragraph
+                  - cell "gloobacl@gmail.com" [ref=e915]:
+                    - paragraph [ref=e916]: gloobacl@gmail.com
+                  - cell "Usuario" [ref=e917]:
+                    - generic [ref=e918]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e919]:
+                    - paragraph [ref=e920]: Invalid Date
+                - row "valeilic@gmail.com Usuario Invalid Date" [ref=e921]:
+                  - cell [ref=e922]:
+                    - generic [ref=e923]:
+                      - paragraph
+                  - cell "valeilic@gmail.com" [ref=e925]:
+                    - paragraph [ref=e926]: valeilic@gmail.com
+                  - cell "Usuario" [ref=e927]:
+                    - generic [ref=e928]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e929]:
+                    - paragraph [ref=e930]: Invalid Date
+                - row "diegors30@me.com Usuario Invalid Date" [ref=e931]:
+                  - cell [ref=e932]:
+                    - generic [ref=e933]:
+                      - paragraph
+                  - cell "diegors30@me.com" [ref=e935]:
+                    - paragraph [ref=e936]: diegors30@me.com
+                  - cell "Usuario" [ref=e937]:
+                    - generic [ref=e938]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e939]:
+                    - paragraph [ref=e940]: Invalid Date
+                - row "joussettef.ch@gmail.com Admin Invalid Date" [ref=e941]:
+                  - cell [ref=e942]:
+                    - generic [ref=e943]:
+                      - paragraph
+                  - cell "joussettef.ch@gmail.com" [ref=e945]:
+                    - paragraph [ref=e946]: joussettef.ch@gmail.com
+                  - cell "Admin" [ref=e947]:
+                    - generic [ref=e948]:
+                      - img
+                      - text: Admin
+                  - cell "Invalid Date" [ref=e949]:
+                    - paragraph [ref=e950]: Invalid Date
+                - row "diego.reyeros@ecolana.com.mx Usuario Invalid Date" [ref=e951]:
+                  - cell [ref=e952]:
+                    - generic [ref=e953]:
+                      - paragraph
+                  - cell "diego.reyeros@ecolana.com.mx" [ref=e955]:
+                    - paragraph [ref=e956]: diego.reyeros@ecolana.com.mx
+                  - cell "Usuario" [ref=e957]:
+                    - generic [ref=e958]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e959]:
+                    - paragraph [ref=e960]: Invalid Date
+                - row "diego.reyeros@gmail.com Usuario Invalid Date" [ref=e961]:
+                  - cell [ref=e962]:
+                    - generic [ref=e963]:
+                      - paragraph
+                  - cell "diego.reyeros@gmail.com" [ref=e965]:
+                    - paragraph [ref=e966]: diego.reyeros@gmail.com
+                  - cell "Usuario" [ref=e967]:
+                    - generic [ref=e968]:
+                      - img
+                      - text: Usuario
+                  - cell "Invalid Date" [ref=e969]:
+                    - paragraph [ref=e970]: Invalid Date
+                - row "diego@adaptianow.com Admin Invalid Date" [ref=e971]:
+                  - cell [ref=e972]:
+                    - generic [ref=e973]:
+                      - paragraph
+                  - cell "diego@adaptianow.com" [ref=e975]:
+                    - paragraph [ref=e976]: diego@adaptianow.com
+                  - cell "Admin" [ref=e977]:
+                    - generic [ref=e978]:
+                      - img
+                      - text: Admin
+                  - cell "Invalid Date" [ref=e979]:
+                    - paragraph [ref=e980]: Invalid Date
+  - region "Notifications alt+T"
+  - link [ref=e507] [cursor=pointer]:
+    - /url: https://wa.me/56935027636
+    - img [ref=e508]
+  - button "Open Next.js Dev Tools" [ref=e515] [cursor=pointer]:
+    - img [ref=e516]
+  - alert [ref=e519]

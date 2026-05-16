@@ -1,0 +1,316 @@
+- generic [active] [ref=e1]:
+  - region "Notifications (F8)":
+    - list
+  - main [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e5]:
+        - link "Adaptia" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "Adaptia" [ref=e7]
+        - generic [ref=e8]:
+          - link "Inicio" [ref=e9] [cursor=pointer]:
+            - /url: /
+            - text: Inicio
+          - link "Sobre nosotros" [ref=e11] [cursor=pointer]:
+            - /url: /sobreNosotros
+            - text: Sobre nosotros
+          - link "FAQ" [ref=e12] [cursor=pointer]:
+            - /url: /faq
+            - text: FAQ
+          - link "Recursos" [ref=e13] [cursor=pointer]:
+            - /url: /recurso
+            - text: Recursos
+        - generic [ref=e14]:
+          - link "Log-in" [ref=e15] [cursor=pointer]:
+            - /url: /auth/login
+            - img
+            - generic [ref=e16]: Log-in
+          - button "Solicitar análisis" [ref=e17] [cursor=pointer]
+    - generic [ref=e18]:
+      - generic [ref=e22]:
+        - img "Adaptia Logo" [ref=e24]
+        - generic [ref=e25]:
+          - heading "Sostenibilidad ágil" [level=2] [ref=e26]
+          - heading "Recibe un análisis de sostenibilidad (doble materialidad ESG) y una ruta de acción para tu empresa en 24 horas." [level=3] [ref=e27]:
+            - generic [ref=e28]: Recibe un análisis de sostenibilidad (doble materialidad ESG)
+            - generic [ref=e29]: y una ruta de acción para tu empresa en
+            - generic [ref=e30]: 24 horas.
+        - generic [ref=e31]:
+          - button "Solicita tu análisis ahora" [ref=e32] [cursor=pointer]
+          - link "Agenda una demo" [ref=e33] [cursor=pointer]:
+            - /url: https://calendly.com/diego-adaptianow/demo-adaptia
+            - button "Agenda una demo" [ref=e34]
+      - button "Ir a la siguiente sección" [ref=e39]:
+        - generic [ref=e40]: Descubre cómo funciona
+        - img [ref=e42]
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - heading "¿Qué es Adaptia?" [level=3] [ref=e50]
+        - button "¿Qué es Adaptia?" [ref=e51]:
+          - generic [ref=e52] [cursor=pointer]:
+            - img "¿Qué es Adaptia?" [ref=e53]
+            - img [ref=e59]
+      - generic [ref=e61]:
+        - heading "¿Cómo completo mi registro?" [level=3] [ref=e62]
+        - button "¿Cómo completo mi registro?" [ref=e63]:
+          - generic [ref=e64] [cursor=pointer]:
+            - img "¿Cómo completo mi registro?" [ref=e65]
+            - img [ref=e71]
+    - generic [ref=e76]:
+      - heading "¿Cómo funciona Adaptia?" [level=2] [ref=e78]
+      - generic [ref=e79]:
+        - generic [ref=e81]:
+          - img [ref=e84]
+          - generic [ref=e87]: "1"
+          - heading "Completa nuestro formulario en menos de 5 minutos" [level=3] [ref=e88]
+          - paragraph [ref=e89]: Proporciona información básica sobre tu empresa y de contacto.
+        - generic [ref=e92]:
+          - img [ref=e95]
+          - generic [ref=e97]: "2"
+          - heading "Completa el pago" [level=3] [ref=e98]
+          - paragraph [ref=e99]: Proceso seguro y rápido para activar tu análisis personalizado.
+        - generic [ref=e102]:
+          - img [ref=e105]
+          - generic [ref=e107]: "3"
+          - heading "En 24 horas hábiles recibes tu análisis y ruta" [level=3] [ref=e108]
+          - paragraph [ref=e109]: Accede a tu dashboard interactivo con resultados completos y accionables.
+      - generic [ref=e110]:
+        - paragraph [ref=e111]: Así de fácil.
+        - button "Comenzar ahora" [ref=e112] [cursor=pointer]
+    - generic [ref=e114]:
+      - generic [ref=e115]:
+        - heading "¿Qué incluye tu análisis?" [level=2] [ref=e116]
+        - paragraph [ref=e117]: "Cuando tu análisis esté listo recibirás un dashboard interactivo con:"
+      - generic [ref=e118]:
+        - generic [ref=e119]:
+          - generic [ref=e121]:
+            - img [ref=e124]
+            - generic [ref=e128]: Contexto base de tu organización
+          - paragraph [ref=e130]:
+            - text: Una lectura inicial de cómo tu empresa impacta y se ve impactada por aspectos ESG
+            - strong [ref=e131]: (ambientales, sociales y de gobernanza)
+            - text: . Incluye riesgos y oportunidades de negocio
+        - generic [ref=e132]:
+          - generic [ref=e134]:
+            - img [ref=e137]
+            - generic [ref=e141]: "Métricas recomendadas:"
+          - paragraph [ref=e143]:
+            - text: "Sugerencias de métricas ESG con las que puedes medir tus impactos. Incluye referencias a los marcos de:"
+            - strong [ref=e144]: SASB, GRI, ODS y S&P.
+        - generic [ref=e145]:
+          - generic [ref=e147]:
+            - img [ref=e150]
+            - generic [ref=e151]: Priorización de impactos clave
+          - paragraph [ref=e153]:
+            - text: Identificamos los
+            - strong [ref=e154]: 10 temas prioritarios.
+            - text: más relevantes para tu empresa con un enfoque de doble materialidad (financiera y de sostenibilidad). Recibirás una
+            - strong [ref=e155]: matriz de doble materialidad ESG.
+        - generic [ref=e156]:
+          - generic [ref=e158]:
+            - img [ref=e161]
+            - generic [ref=e163]: Ruta de sostenibilidad
+          - paragraph [ref=e165]:
+            - text: Un plan de acción con sugerencias iniciales, moderadas y estructurales para fortalecer tus
+            - strong [ref=e166]: 10 temas prioritarios.
+        - generic [ref=e167]:
+          - generic [ref=e169]:
+            - img [ref=e172]
+            - generic [ref=e176]: Llamada de interpretación
+          - paragraph [ref=e178]: Una llamada complementaria con uno de nuestros expertos en sostenibilidad para ayudarte a interpretar los resultados de tu análisis.
+    - generic [ref=e186]:
+      - generic [ref=e187]:
+        - heading "¿Por qué Adaptia?" [level=2] [ref=e188]
+        - paragraph [ref=e189]: Deja atrás la sostenibilidad confusa. Toma decisiones con información clara y accionable.
+      - generic [ref=e190]:
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - img [ref=e196]
+            - generic [ref=e198]:
+              - heading "Greenwashing" [level=3] [ref=e199]
+              - generic [ref=e200]: +50%
+          - paragraph [ref=e201]: de las empresas que reportan ESG solo publican datos positivos, generando desconfianza en el mercado.
+        - generic [ref=e203]:
+          - generic [ref=e204]:
+            - img [ref=e207]
+            - generic [ref=e210]:
+              - heading "Negocios y ESG" [level=3] [ref=e211]
+              - generic [ref=e212]: 70%
+          - paragraph [ref=e213]: de las 500 empresas más grandes reportan criterios ESG, frente a solo 15% de las PYMES.
+        - generic [ref=e215]:
+          - generic [ref=e216]:
+            - img [ref=e219]
+            - generic [ref=e223]:
+              - heading "Regulación en LATAM" [level=3] [ref=e224]
+              - generic [ref=e225]: 30%
+          - paragraph [ref=e226]: de los reguladores financieros en la región ya exigen reportes ESG. Países como Colombia, México y Chile ya cuentan con taxonomías verdes activas.
+        - generic [ref=e228]:
+          - generic [ref=e229]:
+            - img [ref=e232]
+            - generic [ref=e237]:
+              - heading "Complejidad técnica" [level=3] [ref=e238]
+              - generic [ref=e239]: "+600"
+          - paragraph [ref=e240]: marcos de reporte ESG existen actualmente, creando confusión y complejidad para las empresas.
+        - generic [ref=e242]:
+          - generic [ref=e243]:
+            - img [ref=e246]
+            - generic [ref=e249]:
+              - heading "Barrera de entrada" [level=3] [ref=e250]
+              - generic [ref=e251]: $20,000 USD
+          - paragraph [ref=e252]: Es el costo promedio inicial para un estudio de doble materialidad. Un paso complejo, lento y costoso.
+    - generic [ref=e256]:
+      - generic [ref=e257]:
+        - heading "¿Cómo se compara Adaptia con consultoras tradicionales?" [level=2] [ref=e258]
+        - paragraph [ref=e259]: Ofrecemos una alternativa a los altos costos, procesos lentos y complejidad técnica al desarrollar estrategias de sostenibilidad y ESG. Adaptia facilita el proceso con un enfoque ágil, automatizado y validado.
+      - table [ref=e263]:
+        - rowgroup [ref=e264]:
+          - row "Característica Adaptia Consultoría tradicional" [ref=e265]:
+            - columnheader "Característica" [ref=e266]
+            - columnheader "Adaptia" [ref=e267]
+            - columnheader "Consultoría tradicional" [ref=e268]
+        - rowgroup [ref=e269]:
+          - row "Tiempo de entrega 24 horas hábiles 6-9 meses" [ref=e270]:
+            - cell "Tiempo de entrega" [ref=e271]:
+              - generic [ref=e272]:
+                - img [ref=e274]
+                - generic [ref=e277]: Tiempo de entrega
+            - cell "24 horas hábiles" [ref=e278]
+            - cell "6-9 meses" [ref=e279]
+          - row "Costo Desde $200 hasta $2,000 USD. (Precio escalonado por tamaño de empresa). + $20,000 USD" [ref=e280]:
+            - cell "Costo" [ref=e281]:
+              - generic [ref=e282]:
+                - img [ref=e284]
+                - generic [ref=e286]: Costo
+            - cell "Desde $200 hasta $2,000 USD. (Precio escalonado por tamaño de empresa)." [ref=e287]:
+              - generic [ref=e288]:
+                - text: Desde $200 hasta $2,000 USD.
+                - generic [ref=e289]: (Precio escalonado por tamaño de empresa).
+            - cell "+ $20,000 USD" [ref=e290]
+          - row "Uso de tecnología Agentes de IA, referencias industriales, diseñado por expertos Procesos totalmente manuales" [ref=e291]:
+            - cell "Uso de tecnología" [ref=e292]:
+              - generic [ref=e293]:
+                - img [ref=e295]
+                - generic [ref=e298]: Uso de tecnología
+            - cell "Agentes de IA, referencias industriales, diseñado por expertos" [ref=e299]
+            - cell "Procesos totalmente manuales" [ref=e300]
+          - row "Inversión de tiempo 5 minutos +100 horas por parte de la empresa para entrevistas, documentación, recolección de métricas, etc." [ref=e301]:
+            - cell "Inversión de tiempo" [ref=e302]:
+              - generic [ref=e303]:
+                - img [ref=e305]
+                - generic [ref=e310]: Inversión de tiempo
+            - cell "5 minutos" [ref=e311]
+            - cell "+100 horas por parte de la empresa para entrevistas, documentación, recolección de métricas, etc." [ref=e312]
+    - generic [ref=e316]:
+      - heading "¿Para quién está diseñado Adaptia?" [level=2] [ref=e318]
+      - generic [ref=e319]:
+        - generic [ref=e320]:
+          - generic [ref=e322]:
+            - img [ref=e325]
+            - generic [ref=e328]: Empresas grandes
+          - paragraph [ref=e330]: Que quieren acelerar sus rutas ESG o aplicarlas también a proveedores de su cadena de valor.
+        - generic [ref=e331]:
+          - generic [ref=e333]:
+            - img [ref=e336]
+            - generic [ref=e341]: Startups y scaleups
+          - paragraph [ref=e343]: Que necesitan mostrar una ruta de sostenibilidad clara para levantar inversión.
+        - generic [ref=e344]:
+          - generic [ref=e346]:
+            - img [ref=e349]
+            - generic [ref=e354]: Empresas chicas y medianas
+          - paragraph [ref=e356]: Que deben cumplir con requerimientos de sostenibilidad exigidos por sus clientes grandes.
+        - generic [ref=e357]:
+          - generic [ref=e359]:
+            - img [ref=e362]
+            - generic [ref=e365]: Consultoras de sostenibilidad
+          - paragraph [ref=e367]: Que buscan eficientar el primer paso de análisis para sus clientes corporativos.
+        - generic [ref=e368]:
+          - generic [ref=e370]:
+            - img [ref=e373]
+            - generic [ref=e378]: Organizaciones de apoyo
+          - paragraph [ref=e380]: Como cámaras empresariales, agencias de desarrollo, aceleradoras y fondos de inversión que acompañan a empresas en procesos de cumplimiento y crecimiento sostenible.
+    - generic [ref=e386]:
+      - generic [ref=e387]:
+        - generic [ref=e389]: 1 - 9 empleados
+        - generic [ref=e390]:
+          - heading "Empresas micro" [level=3] [ref=e391]
+          - generic [ref=e392]:
+            - paragraph [ref=e393]: "Precio USD:"
+            - paragraph [ref=e394]: $200
+      - generic [ref=e395]:
+        - generic [ref=e397]: 10-99 empleados
+        - generic [ref=e398]:
+          - heading "Empresas pequeñas" [level=3] [ref=e399]
+          - generic [ref=e400]:
+            - paragraph [ref=e401]: "Precio USD:"
+            - paragraph [ref=e402]: $400
+      - generic [ref=e403]:
+        - generic [ref=e405]: 100 - 499 empleados
+        - generic [ref=e406]:
+          - heading "Empresas medianas" [level=3] [ref=e407]
+          - generic [ref=e408]:
+            - paragraph [ref=e409]: "Precio USD:"
+            - paragraph [ref=e410]: $800
+      - generic [ref=e411]:
+        - generic [ref=e413]: 500-1000 empleados
+        - generic [ref=e414]:
+          - heading "Empresas nacionales" [level=3] [ref=e415]
+          - generic [ref=e416]:
+            - paragraph [ref=e417]: "Precio USD:"
+            - paragraph [ref=e418]: $1,200
+      - generic [ref=e419]:
+        - generic [ref=e421]: 1000-5000 empleados
+        - generic [ref=e422]:
+          - heading "Empresas regionales" [level=3] [ref=e423]
+          - generic [ref=e424]:
+            - paragraph [ref=e425]: "Precio USD:"
+            - paragraph [ref=e426]: $1,400
+      - generic [ref=e427]:
+        - generic [ref=e429]: 5000 - 10,000 empleados
+        - generic [ref=e430]:
+          - heading "Empresas internacionales" [level=3] [ref=e431]
+          - generic [ref=e432]:
+            - paragraph [ref=e433]: "Precio USD:"
+            - paragraph [ref=e434]: $1,600
+      - generic [ref=e435]:
+        - generic [ref=e437]: +10,000 empleados
+        - generic [ref=e438]:
+          - heading "Empresas multi nacionales masivas" [level=3] [ref=e439]
+          - generic [ref=e440]:
+            - paragraph [ref=e441]: "Precio USD:"
+            - paragraph [ref=e442]: $2,000
+    - generic [ref=e448]:
+      - generic:
+        - img "CORFO"
+      - generic [ref=e449]:
+        - paragraph [ref=e450]: Acompañados por
+        - img "UDD Ventures"
+    - generic [ref=e458]:
+      - heading "Comienza hoy tu ruta de sostenibilidad" [level=2] [ref=e459]
+      - paragraph [ref=e460]:
+        - text: Obtén tu análisis de sostenibilidad en
+        - generic [ref=e461]: 24 horas.
+      - generic [ref=e462]:
+        - button "Solicita tu análisis en minutos" [ref=e463] [cursor=pointer]
+        - generic [ref=e464]:
+          - generic [ref=e467]: Proceso 100% seguro
+          - generic [ref=e470]: Resultados garantizados
+          - generic [ref=e473]: Soporte especializado
+    - generic [ref=e476]:
+      - generic [ref=e477]:
+        - heading "Conecta con nosotros" [level=3] [ref=e478]
+        - link "Síguenos en LinkedIn" [ref=e479] [cursor=pointer]:
+          - /url: https://www.linkedin.com/company/adaptianow/
+          - img
+          - text: LinkedIn
+      - generic [ref=e480]:
+        - img "Adaptia Logo" [ref=e482]
+        - paragraph [ref=e484]: © 2026 Adaptia. Todos los derechos reservados.
+    - button "Volver arriba":
+      - img
+  - region "Notifications alt+T"
+  - link [ref=e485] [cursor=pointer]:
+    - /url: https://wa.me/56935027636
+    - img [ref=e486]
+  - button "Open Next.js Dev Tools" [ref=e493] [cursor=pointer]:
+    - img [ref=e494]
+  - alert [ref=e497]
